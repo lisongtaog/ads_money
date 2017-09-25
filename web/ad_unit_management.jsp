@@ -103,7 +103,7 @@
                 </li>
                 <li class="">
                     <a href="app_report.jsp">
-                        <i class="fa fa-list-alt"></i>
+                        <i class="fa fa-folder"></i>
                         <span>App Report</span>
                     </a>
                 </li>

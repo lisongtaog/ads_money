@@ -9,8 +9,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
 
 public class Utils {
+    public static HashMap<String, String> countryCodeMap;
+    private static Object lock = new Object();
+
     public static boolean isAdmin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.setCharacterEncoding("utf-8");
         response.setContentType("application/json");
@@ -76,5 +81,23 @@ public class Utils {
 
     public static double trimDouble(double value) {
         return Double.parseDouble(String.format("%.4f", value));
+    }
+
+    public static HashMap getCountryMap() {
+        if (countryCodeMap == null) {
+            try {
+                synchronized (lock) {
+                    countryCodeMap = new HashMap<>();
+                    List<JSObject> list = DB.scan("app_country_code_dict").select("country_code", "country_name").execute();
+                    for (JSObject one : list) {
+                        String countryCode = one.get("country_code");
+                        String countryName = one.get("country_name");
+                        countryCodeMap.put(countryCode, countryName);
+                    }
+                }
+            } catch (Exception ex) {
+            }
+        }
+        return countryCodeMap;
     }
 }
