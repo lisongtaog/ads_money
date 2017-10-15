@@ -29,6 +29,8 @@ public class AppReport extends HttpServlet {
 
         if (path != null) {
             if (path.startsWith("/query")) {
+                String tableName = "app_daily_metrics_history";
+
                 List<AppData> appData = AppManagement.fetchAllAppData();
 
                 String startDate = request.getParameter("start_date");
@@ -53,6 +55,7 @@ public class AppReport extends HttpServlet {
                             fields.add("app_id");
                             break;
                         case "3":
+                            tableName = "app_ad_unit_metrics_history";
                             fields.add("ad_unit_id");
                             break;
                         case "4":
@@ -87,7 +90,7 @@ public class AppReport extends HttpServlet {
                         sql += ff + ", ";
                     }
                     sql += " sum(ad_request) as ad_request, sum(ad_filled) as ad_filled, sum(ad_impression) as ad_impression, sum(ad_click) as ad_click, sum(ad_revenue) as ad_revenue " +
-                            "from app_ad_unit_metrics_history " +
+                            "from " + tableName + " " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
                     if (appIds.size() > 0) {
                         String ss = "";
@@ -165,7 +168,7 @@ public class AppReport extends HttpServlet {
 
                 try {
                     String sql = "select date, sum(ad_request) as ad_request, sum(ad_filled) as ad_filled, sum(ad_impression) as ad_impression, sum(ad_click) as ad_click, sum(ad_revenue) as ad_revenue " +
-                            "from app_ad_unit_metrics_history " +
+                            "from app_daily_metrics_history " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
                     if (appIds.size() > 0) {
                         String ss = "";

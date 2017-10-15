@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 @WebServlet(name = "Dashboard", urlPatterns = "/dashboard")
@@ -24,9 +25,14 @@ public class Dashboard extends HttpServlet {
         JsonObject json = new JsonObject();
         JsonArray arr = new JsonArray();
 
+        Calendar now = Calendar.getInstance();
+        String end = String.format("%d-%02d-%02d", now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH));
+        now.set(Calendar.DAY_OF_MONTH, now.get(Calendar.DAY_OF_MONTH) - 15);
+        String start = String.format("%d-%02d-%02d", now.get(Calendar.YEAR), now.get(Calendar.MONTH) + 1, now.get(Calendar.DAY_OF_MONTH));
+
         String sql = "select date, ad_network, sum(ad_request) as ad_request, sum(ad_filled) as ad_filled, " +
-                "sum(ad_impression) as ad_impression, sum(ad_click) as ad_click, sum(ad_revenue) as ad_revenue from app_ad_unit_metrics_history " +
-                "group by date, ad_network order by date desc limit 30";
+                "sum(ad_impression) as ad_impression, sum(ad_click) as ad_click, sum(ad_revenue) as ad_revenue from app_daily_metrics_history " +
+                "where date between '" + start + "' and '" + end + "' group by date, ad_network order by date desc";
         try {
             List<JSObject> list = DB.findListBySql(sql);
             for (int i = 0; i < list.size(); i++) {

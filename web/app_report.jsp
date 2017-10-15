@@ -331,7 +331,7 @@
                     'This Month'  : [moment().startOf('month'), moment().endOf('month')],
                     'Last Month'  : [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
                 },
-                startDate: moment().subtract(29, 'days'),
+                startDate: moment().subtract(6, 'days'),
                 endDate  : moment()
             },
             function (start, end) {
@@ -339,7 +339,7 @@
             }
     );
 
-    var start = moment().subtract(29, 'days');
+    var start = moment().subtract(6, 'days');
     var end = moment();
     function setInitDate(start, end) {
         $('#reportrange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'))
