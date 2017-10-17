@@ -436,6 +436,7 @@
             "serverSide": true,
             "searching": false,
             "pageLength": 25,
+            "lengthMenu": [[10, 25, 50, 100, 500, 1000], [10, 25, 50, 100, 500, 1000]],
             "ajax": function (data, callback, settings) {
                 var postData = {};
                 postData.dimension = dimension.join(",");

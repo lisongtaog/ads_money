@@ -124,7 +124,7 @@ public class AppReport extends HttpServlet {
                             if (f.equals("country_code")) {
                                 HashMap<String, String> countryMap = Utils.getCountryMap();
                                 String countryName = countryMap.get(v);
-                                one.addProperty("country_name", countryName);
+                                one.addProperty("country_name", countryName == null ? v : countryName);
                             } else if (f.equals("app_id")) {
                                 for (int jj = 0; jj < appData.size(); jj++) {
                                     if (appData.get(jj).appId.equals(v)) {
