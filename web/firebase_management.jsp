@@ -1,12 +1,13 @@
+<%@ page import="com.bestgo.adsmoney.servlet.AdMobAccount" %>
 <%@ page import="java.util.List" %>
-<%@ page import="com.bestgo.adsmoney.bean.AppData" %>
+<%@ page import="com.bestgo.adsmoney.bean.AppAdMobAccount" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <html>
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Ads Money | AdMob Account Management</title>
+    <title>Ads Money | Firebase Project Management</title>
     <link rel="shortcut icon" href="/images/favicon.ico">
 
     <!-- Tell the browser to be responsive to screen width -->
@@ -85,14 +86,14 @@
                         <span>App Management</span>
                     </a>
                 </li>
-                <li class="">
+                <li class="active">
                     <a href="firebase_management.jsp">
                         <i class="fa fa-book"></i>
                         <span>Firebase Management</span>
                     </a>
                 </li>
-                <li class="active">
-                    <a href="#">
+                <li class="">
+                    <a href="admob_account_management.jsp">
                         <i class="fa fa-th"></i>
                         <span>AdMob Account Management</span>
                     </a>
@@ -121,9 +122,8 @@
                 <table id="appTable" class="table table-bordered table-hover" cellspacing="0" width="100%">
                     <thead>
                     <tr>
-                        <th>Account</th>
-                        <th>AccountName</th>
-                        <th>Operation</th>
+                        <th>ProjectId</th>
+                        <th>ProjectName</th>
                     </tr>
                     </thead>
                 </table>
@@ -162,18 +162,21 @@
         "ajax": function ( method, url, data, success, error ) {
             var action = data.action;
             var postData = null;
+            var id = null;
             for (var key in data.data) {
+                id = key;
                 postData = data.data[key];
+                postData.id = id;
                 break;
             }
-            if (!postData) {
+            if (!postData || !id) {
                 error();
             } else {
                 switch (action) {
                     case 'create':
                         $.ajax( {
                             type: 'POST',
-                            url:  'admob_account_management/create',
+                            url:  'firebase_management/create',
                             data: postData,
                             dataType: "json",
                             success: function (json) {
@@ -187,7 +190,7 @@
                     case 'edit':
                         $.ajax( {
                             type: 'POST',
-                            url:  'admob_account_management/update',
+                            url:  'firebase_management/update',
                             data: postData,
                             dataType: "json",
                             success: function (json) {
@@ -201,7 +204,7 @@
                     case 'remove':
                         $.ajax( {
                             type: 'POST',
-                            url:  'admob_account_management/delete',
+                            url:  'firebase_management/delete',
                             data: postData,
                             dataType: "json",
                             success: function (json) {
@@ -222,14 +225,14 @@
 
             }
         },
-        "idSrc": "account",
+        "idSrc": "id",
         "fields": [ {
-            "label": "Account:",
-            "name": "account"
+            "label": "ProjectId:",
+            "name": "project_id"
         }, {
-            "label": "Account Name:",
-            "name": "account_name"
-        }
+            "label": "ProjectName:",
+            "name": "project_name"
+        },
         ]
     } );
 
@@ -244,13 +247,11 @@
             }
             postData.page_index = data.start / data.length;
             postData.page_size = data.length;
-            $.post("admob_account_management/query", postData, function (data) {
+            $.post("firebase_management/query", postData, function (data) {
                 if (data && data.ret == 1) {
                     var list = [];
                     for (var i = 0; i < data.data.length; i++) {
-                        data.data[i].operation = "<a href='auth/admob_oauth2?account=" + data.data[i].account +"' target='_blank'>Authorize</a>";
-                        list.push(
-                                data.data[i]
+                        list.push(data.data[i]
                         );
                     }
                     callback(
@@ -267,15 +268,15 @@
         },
         dom: 'Bfrtip',
         columns: [
-            { data: 'account' },
-            { data: 'account_name' },
-            { data: 'operation' },
+            { data: 'project_id' },
+            { data: 'project_name' },
+            // etc
         ],
         select: true,
         buttons: [
             { extend: 'create', editor: editor },
             { extend: 'edit',   editor: editor },
-            { extend: 'remove', editor: editor },
+            { extend: 'remove', editor: editor }
         ]
     });
 </script>

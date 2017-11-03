@@ -90,6 +90,12 @@
                     </a>
                 </li>
                 <li class="">
+                    <a href="firebase_management.jsp">
+                        <i class="fa fa-book"></i>
+                        <span>Firebase Management</span>
+                    </a>
+                </li>
+                <li class="">
                     <a href="admob_account_management.jsp">
                         <i class="fa fa-th"></i>
                         <span>AdMob Account Management</span>

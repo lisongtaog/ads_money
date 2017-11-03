@@ -2,8 +2,8 @@ package com.bestgo.adsmoney.servlet;
 
 import com.bestgo.adsmoney.OperationResult;
 import com.bestgo.adsmoney.Utils;
-import com.bestgo.adsmoney.bean.AppAdMobAccount;
 import com.bestgo.adsmoney.bean.AppData;
+import com.bestgo.adsmoney.bean.FirebaseProject;
 import com.bestgo.common.database.services.DB;
 import com.bestgo.common.database.utils.JSObject;
 import com.google.gson.JsonArray;
@@ -22,9 +22,9 @@ import java.util.List;
 /**
  * Created by jikai on 5/31/17.
  */
-@WebServlet(name = "AppManagement", urlPatterns = {"/app_management/*"})
-public class AppManagement extends HttpServlet {
-    private static final String[] FIELDS = {"id", "app_id", "app_name", "fb_access_token", "fb_app_id", "admob_account", "firebase_project_id"};
+@WebServlet(name = "FirebaseManagement", urlPatterns = {"/firebase_management/*"})
+public class FirebaseManagement extends HttpServlet {
+    private static final String[] FIELDS = {"id", "project_id", "project_name"};
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!Utils.isAdmin(request, response)) return;
@@ -34,33 +34,25 @@ public class AppManagement extends HttpServlet {
 
         if (path != null) {
             if (path.startsWith("/create")) {
-                AppData appData = new AppData();
-                appData.appId = request.getParameter("app_id");
-                appData.appName = request.getParameter("app_name");
-                appData.fbAccessToken = request.getParameter("fb_access_token");
-                appData.fbAppId = request.getParameter("fb_app_id");
-                appData.admobAccount = request.getParameter("admob_account");
-                appData.firebaseProjectId = request.getParameter("firebase_project_id");
+                FirebaseProject firebaseProject = new FirebaseProject();
+                firebaseProject.projectId = request.getParameter("project_id");
+                firebaseProject.projectName = request.getParameter("project_name");
 
-                OperationResult result = createNewAppData(appData);
+                OperationResult result = createNewFirebaseProject(firebaseProject);
                 json.addProperty("ret", result.result ? 1 : 0);
                 json.addProperty("message", result.message);
                 json.add("data", result.data);
             } else if (path.startsWith("/delete")) {
                 String id = request.getParameter("id");
-                OperationResult result = deleteAppData(id);
+                OperationResult result = deleteFirebaseProject(id);
                 json.addProperty("ret", result.result ? 1 : 0);
                 json.addProperty("message", result.message);
             } else if (path.startsWith("/update")) {
-                AppData appData = new AppData();
-                appData.appId = request.getParameter("app_id");
-                appData.appName = request.getParameter("app_name");
-                appData.fbAccessToken = request.getParameter("fb_access_token");
-                appData.fbAppId = request.getParameter("fb_app_id");
-                appData.admobAccount = request.getParameter("admob_account");
-                appData.firebaseProjectId = request.getParameter("firebase_project_id");
-                appData.id = Utils.parseInt(request.getParameter("id"), 0);
-                OperationResult result = updateAppData(appData);
+                FirebaseProject project = new FirebaseProject();
+                project.projectId = request.getParameter("project_id");
+                project.projectName = request.getParameter("project_name");
+                project.id = Utils.parseInt(request.getParameter("id"), 0);
+                OperationResult result = updateFirebaseProject(project);
                 json.addProperty("ret", result.result ? 1 : 0);
                 json.addProperty("message", result.message);
                 json.add("data", result.data);
@@ -111,9 +103,9 @@ public class AppManagement extends HttpServlet {
     public static List<JSObject> fetchData(String word) {
         List<JSObject> list = new ArrayList<>();
         try {
-            return DB.scan("app_data").select(FIELDS)
-                    .where(DB.filter().whereLikeTo("app_id", "%" + word + "%"))
-                    .or(DB.filter().whereLikeTo("app_name", "%" + word + "%")).orderByAsc("id").execute();
+            return DB.scan("app_firebase_project").select(FIELDS)
+                    .where(DB.filter().whereLikeTo("project_id", "%" + word + "%"))
+                    .or(DB.filter().whereLikeTo("project_name", "%" + word + "%")).orderByAsc("id").execute();
         } catch (Exception ex) {
             Logger logger = Logger.getRootLogger();
             logger.error(ex.getMessage(), ex);
@@ -124,7 +116,7 @@ public class AppManagement extends HttpServlet {
     public static List<JSObject> fetchData(int index, int size) {
         List<JSObject> list = new ArrayList<>();
         try {
-            return DB.scan("app_data").select(FIELDS).limit(size).start(index * size).orderByAsc("id").execute();
+            return DB.scan("app_firebase_project").select(FIELDS).limit(size).start(index * size).orderByAsc("id").execute();
         } catch (Exception ex) {
             Logger logger = Logger.getRootLogger();
             logger.error(ex.getMessage(), ex);
@@ -134,7 +126,7 @@ public class AppManagement extends HttpServlet {
 
     public static long count() {
         try {
-            JSObject object = DB.simpleScan("app_data").select(DB.func(DB.COUNT, "id")).execute();
+            JSObject object = DB.simpleScan("app_firebase_project").select(DB.func(DB.COUNT, "id")).execute();
             return object.get("count(id)");
         } catch (Exception ex) {
             Logger logger = Logger.getRootLogger();
@@ -143,11 +135,11 @@ public class AppManagement extends HttpServlet {
         return 0;
     }
 
-    private OperationResult deleteAppData(String id) {
+    private OperationResult deleteFirebaseProject(String id) {
         OperationResult ret = new OperationResult();
 
         try {
-            DB.delete("app_data").where(DB.filter().whereEqualTo("id", id)).execute();
+            DB.delete("app_firebase_project").where(DB.filter().whereEqualTo("id", id)).execute();
 
             ret.result = true;
             ret.message = "执行成功";
@@ -161,36 +153,28 @@ public class AppManagement extends HttpServlet {
         return ret;
     }
 
-    private OperationResult createNewAppData(AppData appData) {
+    private OperationResult createNewFirebaseProject(FirebaseProject project) {
         OperationResult ret = new OperationResult();
 
         try {
-            JSObject one = DB.simpleScan("app_data").select("id").where(DB.filter().whereEqualTo("app_id", appData.appId)).execute();
+            JSObject one = DB.simpleScan("app_firebase_project").select("id").where(DB.filter().whereEqualTo("project_id", project.projectId)).execute();
             if (one.get("id") != null) {
                 ret.result = false;
                 ret.message = "已经存在这个应用了";
             } else {
-                DB.insert("app_data")
-                        .put("app_id", appData.appId)
-                        .put("app_name", appData.appName)
-                        .put("fb_access_token", appData.fbAccessToken)
-                        .put("fb_app_id", appData.fbAppId)
-                        .put("admob_account", appData.admobAccount)
-                        .put("firebase_project_id", appData.firebaseProjectId)
+                DB.insert("app_firebase_project")
+                        .put("project_id", project.projectId)
+                        .put("project_name", project.projectName)
                         .execute();
 
-                one = DB.simpleScan("app_data").select("id").where(DB.filter().whereEqualTo("app_id", appData.appId)).execute();
+                one = DB.simpleScan("app_firebase_project").select("id").where(DB.filter().whereEqualTo("project_id", project.projectId)).execute();
                 if (one.hasObjectData()) {
                     ret.result = true;
                     ret.message = "修改成功";
                     ret.data = new JsonObject();
                     ret.data.addProperty("id", (long)one.get("id"));
-                    ret.data.addProperty("app_id", appData.appId);
-                    ret.data.addProperty("app_name", appData.appName);
-                    ret.data.addProperty("fb_access_token", appData.fbAccessToken);
-                    ret.data.addProperty("fb_app_id", appData.fbAppId);
-                    ret.data.addProperty("admob_account", appData.admobAccount);
-                    ret.data.addProperty("firebase_project_id", appData.firebaseProjectId);
+                    ret.data.addProperty("project_id", project.projectId);
+                    ret.data.addProperty("project_name", project.projectName);
                 }
             }
         } catch (Exception e) {
@@ -203,32 +187,24 @@ public class AppManagement extends HttpServlet {
         return ret;
     }
 
-    private OperationResult updateAppData(AppData appData) {
+    private OperationResult updateFirebaseProject(FirebaseProject project) {
         OperationResult ret = new OperationResult();
 
         try {
-            DB.update("app_data")
-                    .put("app_id", appData.appId)
-                    .put("app_name", appData.appName)
-                    .put("fb_access_token", appData.fbAccessToken)
-                    .put("fb_app_id", appData.fbAppId)
-                    .put("admob_account", appData.admobAccount)
-                    .put("firebase_project_id", appData.firebaseProjectId)
-                    .where(DB.filter().whereEqualTo("id", appData.id))
+            DB.update("app_firebase_project")
+                    .put("project_id", project.projectId)
+                    .put("project_name", project.projectName)
+                    .where(DB.filter().whereEqualTo("id", project.id))
                     .execute();
 
-            JSObject one = DB.simpleScan("app_data").select("id").where(DB.filter().whereEqualTo("app_id", appData.appId)).execute();
+            JSObject one = DB.simpleScan("app_firebase_project").select("id").where(DB.filter().whereEqualTo("project_id", project.projectId)).execute();
             if (one.hasObjectData()) {
                 ret.result = true;
                 ret.message = "修改成功";
                 ret.data = new JsonObject();
                 ret.data.addProperty("id", (long)one.get("id"));
-                ret.data.addProperty("app_id", appData.appId);
-                ret.data.addProperty("app_name", appData.appName);
-                ret.data.addProperty("fb_access_token", appData.fbAccessToken);
-                ret.data.addProperty("fb_app_id", appData.fbAppId);
-                ret.data.addProperty("admob_account", appData.admobAccount);
-                ret.data.addProperty("firebase_project_id", appData.firebaseProjectId);
+                ret.data.addProperty("project_id", project.projectId);
+                ret.data.addProperty("project_name", project.projectName);
             }
         } catch (Exception e) {
             ret.result = false;
@@ -240,19 +216,15 @@ public class AppManagement extends HttpServlet {
         return ret;
     }
 
-    public static List<AppData> fetchAllAppData() {
-        List<AppData> list = new ArrayList<>();
+    public static List<FirebaseProject> fetchAllFirebaseProject() {
+        List<FirebaseProject> list = new ArrayList<>();
         try {
-            List<JSObject> accounts = DB.scan("app_data").select(FIELDS).execute();
-            for (int i = 0; i < accounts.size(); i++) {
-                AppData one = new AppData();
-                one.id = accounts.get(i).get("id");
-                one.appId = accounts.get(i).get("app_id");
-                one.appName = accounts.get(i).get("app_name");
-                one.fbAccessToken = accounts.get(i).get("fb_access_token");
-                one.fbAppId = accounts.get(i).get("fb_app_id");
-                one.admobAccount = accounts.get(i).get("admob_account");
-                one.firebaseProjectId = accounts.get(i).get("firebase_project_id");
+            List<JSObject> projects = DB.scan("app_firebase_project").select(FIELDS).execute();
+            for (int i = 0; i < projects.size(); i++) {
+                FirebaseProject one = new FirebaseProject();
+                one.id = projects.get(i).get("id");
+                one.projectId = projects.get(i).get("project_id");
+                one.projectName = projects.get(i).get("project_name");
                 list.add(one);
             }
         } catch (Exception ex) {

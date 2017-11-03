@@ -1,6 +1,8 @@
 <%@ page import="java.util.List" %>
 <%@ page import="com.bestgo.adsmoney.bean.AppData" %>
 <%@ page import="com.bestgo.adsmoney.servlet.AppManagement" %>
+<%@ page import="java.util.HashMap" %>
+<%@ page import="com.bestgo.adsmoney.Utils" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <html>
@@ -59,6 +61,7 @@
         }
 
         List<AppData> appDatas = AppManagement.fetchAllAppData();
+        HashMap<String, String> countryMap = Utils.getCountryMap();
     %>
 
     <header class="main-header">
@@ -96,6 +99,12 @@
                     <a href="app_management.jsp">
                         <i class="fa fa-files-o"></i>
                         <span>App Management</span>
+                    </a>
+                </li>
+                <li class="">
+                    <a href="firebase_management.jsp">
+                        <i class="fa fa-book"></i>
+                        <span>Firebase Management</span>
                     </a>
                 </li>
                 <li class="">
@@ -180,12 +189,23 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Filter</label>
-                                <select  id="filter" class="form-control select2 select2-hidden-accessible" multiple="" data-placeholder="Select a filter" style="width: 100%;" tabindex="-1" aria-hidden="true">
+                                <select  id="filter" class="form-control select2 select2-hidden-accessible" multiple="" data-placeholder="Select app" style="width: 100%;" tabindex="-1" aria-hidden="true">
                                     <%
                                         for (int i = 0; i < appDatas.size(); i++) {
                                             AppData one = appDatas.get(i);
                                     %>
                                     <option value="<%=one.appId%>"><%=one.appName%></option>
+                                    <%
+                                        }
+                                    %>
+                                </select>
+
+                                <select  id="filterCountry" class="form-control select2 select2-hidden-accessible" multiple="" data-placeholder="Select country" style="width: 100%;" tabindex="-1" aria-hidden="true">
+                                    <%
+                                        for (String countryCode : countryMap.keySet()) {
+                                             String name = countryMap.get(countryCode);
+                                    %>
+                                    <option value="<%=countryCode%>"><%=name%></option>
                                     <%
                                         }
                                     %>
@@ -232,6 +252,45 @@
                                     <div class="chart">
                                         <!-- Sales Chart Canvas -->
                                         <canvas id="revenueChart" style="height: 280px;"></canvas>
+                                    </div>
+                                    <!-- /.chart-responsive -->
+                                </div>
+                                <!-- /.col -->
+                            </div>
+                            <!-- /.row -->
+                        </div>
+                        <!-- ./box-body -->
+                    </div>
+                    <!-- /.box -->
+                </div>
+                <!-- /.col -->
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="box">
+                        <div class="box-header with-border">
+                            <h3 class="box-title">Firebase Data</h3>
+
+                            <div class="box-tools pull-right">
+                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
+                                        class="fa fa-minus"></i>
+                                </button>
+                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i
+                                        class="fa fa-times"></i></button>
+                            </div>
+                        </div>
+                        <!-- /.box-header -->
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <p class="text-center">
+                                        <strong id="firebaseChartTitle"></strong>
+                                    </p>
+
+                                    <div class="chart">
+                                        <!-- Sales Chart Canvas -->
+                                        <canvas id="firebaseChart" style="height: 280px;"></canvas>
                                     </div>
                                     <!-- /.chart-responsive -->
                                 </div>
@@ -353,9 +412,13 @@
     $('#dimension').val(["1", "2"]).trigger("change");
     queryData();
 
+    var firebaseChart;
+    var revenueChart;
+
     function queryData() {
         var dimension = $('#dimension').val();
         var filter = $('#filter').val();
+        var filterCountry = $('#filterCountry').val();
 
         var drp = $('#reportrange').data('daterangepicker');
         var startDate = drp.startDate.format('YYYY-MM-DD');
@@ -441,6 +504,7 @@
                 var postData = {};
                 postData.dimension = dimension.join(",");
                 postData.filter = filter.join(",");
+                postData.filterCountry = filterCountry.join(",");
                 postData.start_date = startDate;
                 postData.end_date = endDate;
                 postData.page_index = data.start / data.length;
@@ -470,6 +534,7 @@
 
         $.post("/app_report/get", {
             filter: filter.join(","),
+            filterCountry: filterCountry.join(","),
             start_date: startDate,
             end_date: endDate
         }, function (data) {
@@ -559,7 +624,115 @@
 
                     var revenueChartCanvas = $('#revenueChart').get(0).getContext('2d');
                     // This will get the first returned node in the jQuery collection.
-                    var revenueChart = new Chart(revenueChartCanvas, chartConfig);
+                    if (revenueChart) {
+                        revenueChart.data = chartConfig.data;
+                        revenueChart.update();
+                    } else {
+                        revenueChart = new Chart(revenueChartCanvas, chartConfig);
+                    }
+                }
+            } else {
+            }
+        }, "json");
+
+        $.post("/app_report/getFirebase", {
+            filter: filter.join(","),
+            filterCountry: filterCountry.join(","),
+            start_date: startDate,
+            end_date: endDate
+        }, function (data) {
+            if (data && data.ret == 1) {
+                var list = data.data;
+                if (list.length > 0) {
+                    var first = list[0];
+                    var last = list[list.length - 1];
+                    $('#firebaseChartTitle').text(new Date(last.date).toLocaleDateString()  + " - " + new Date(first.date).toLocaleDateString());
+
+                    var maps = {};
+                    var labels = [];
+                    var totalUser = [];
+                    var activeUser = [];
+                    var installed = [];
+                    var uninstalled = [];
+                    var todayUninstalled = [];
+                    for (var i = list.length - 1; i >= 0; i--) {
+                        var one = list[i];
+                        var date = new Date(one.date).toLocaleDateString();
+                        var item = maps[date];
+                        if (!item) {
+                            labels.push(date);
+                            item = {"total_user": one.total_user, "active_user": one.active_user, "installed": one.installed, "uninstalled": one.uninstalled, "today_uninstalled": one.today_uninstalled};
+                            maps[date] = item;
+                        } else {
+                            item.total_user += one.total_user;
+                            item.active_user += one.active_user;
+                            item.installed += one.installed;
+                            item.uninstalled += one.uninstalled;
+                            item.today_uninstalled += one.today_uninstalled;
+                        }
+                    }
+                    for (var i = 0; i < labels.length; i++) {
+                        var item = maps[labels[i]];
+                        totalUser.push(item.total_user);
+                        activeUser.push(item.active_user);
+                        installed.push(item.installed);
+                        uninstalled.push(item.uninstalled);
+                        todayUninstalled.push(item.today_uninstalled);
+                    }
+                    var chartConfig = {
+                        'type': 'line',
+                        'data' : {
+                            'labels': labels,
+                            'datasets': [
+                                {
+                                    label               : 'TotalUser',
+                                    borderColor         : '#00c0ef',
+                                    fill: false,
+                                    data                : totalUser
+                                },
+                                {
+                                    label               : 'ActiveUser',
+                                    borderColor         : '#dd4b39',
+                                    fill: false,
+                                    data                : activeUser
+                                },
+                                {
+                                    label               : 'Installed',
+                                    borderColor         : '#00a65a',
+                                    fill: false,
+                                    data                : installed
+                                },
+                                {
+                                    label               : 'Uninstalled',
+                                    borderColor         : '#f39c12',
+                                    fill: false,
+                                    data                : uninstalled
+                                },
+                                {
+                                    label               : 'TodayUninstalled',
+                                    borderColor         : '#0073b7',
+                                    fill: false,
+                                    data                : todayUninstalled
+                                },
+                            ],
+                        },
+                        options: {
+                            scaleShowGridLines      : true,
+                            scaleGridLineWidth      : 1,
+                            legend : {
+                                position: 'bottom'
+                            }
+                        }
+                    };
+
+                    var firebaseChartCanvas = $('#firebaseChart').get(0).getContext('2d');
+                    // This will get the first returned node in the jQuery collection.
+                    if (firebaseChart) {
+                        firebaseChart.data = chartConfig.data;
+                        firebaseChart.update();
+                    } else {
+                        firebaseChart = new Chart(firebaseChartCanvas, chartConfig);
+                    }
                 }
             } else {
             }

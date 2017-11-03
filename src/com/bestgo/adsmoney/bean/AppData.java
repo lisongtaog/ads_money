@@ -10,4 +10,5 @@ public class AppData {
     public String fbAccessToken;
     public String fbAppId;
     public String admobAccount;
+    public String firebaseProjectId;
 }

@@ -1,6 +1,8 @@
 <%@ page import="com.bestgo.adsmoney.servlet.AdMobAccount" %>
 <%@ page import="java.util.List" %>
 <%@ page import="com.bestgo.adsmoney.bean.AppAdMobAccount" %>
+<%@ page import="com.bestgo.adsmoney.bean.FirebaseProject" %>
+<%@ page import="com.bestgo.adsmoney.servlet.FirebaseManagement" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <html>
@@ -50,6 +52,7 @@
         }
 
         List<AppAdMobAccount> accounts = AdMobAccount.fetchAllAccounts();
+        List<FirebaseProject> firebaseProjects = FirebaseManagement.fetchAllFirebaseProject();
     %>
     <header class="main-header">
 
@@ -89,6 +92,12 @@
                     </a>
                 </li>
                 <li class="">
+                    <a href="firebase_management.jsp">
+                        <i class="fa fa-book"></i>
+                        <span>Firebase Management</span>
+                    </a>
+                </li>
+                <li class="">
                     <a href="admob_account_management.jsp">
                         <i class="fa fa-th"></i>
                         <span>AdMob Account Management</span>
@@ -123,6 +132,7 @@
                         <th>FB AccessToken</th>
                         <th>FB AppId</th>
                         <th>AdMob Account</th>
+                        <th>Firebase Project</th>
                     </tr>
                     </thead>
                 </table>
@@ -248,6 +258,17 @@
                     "<%=accounts.get(i).account%>",
                     <% } %>
             ]
+        }, {
+            "label": "Firebase Project:",
+            "name": "firebase_project_id",
+            "type": "select",
+            "options": [
+                <%
+                for (int i = 0; i < firebaseProjects.size(); i++) {
+                %>
+                { label: "<%=firebaseProjects.get(i).projectName%>", value: "<%=firebaseProjects.get(i).projectId%>" },
+                <% } %>
+            ]
         }
         ]
     } );
@@ -289,6 +310,7 @@
             { data: 'fb_access_token' },
             { data: 'fb_app_id' },
             { data: 'admob_account' },
+            { data: 'firebase_project_id' },
             // etc
         ],
         select: true,

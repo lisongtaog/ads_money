@@ -39,6 +39,7 @@ public class AppReport extends HttpServlet {
                 int size = Utils.parseInt(request.getParameter("page_size"), 20);
                 String dimension = request.getParameter("dimension");
                 String filter = request.getParameter("filter");
+                String filterCountry = request.getParameter("filterCountry");
 
                 if (dimension == null || dimension.isEmpty()) {
                     dimension = "";
@@ -69,11 +70,20 @@ public class AppReport extends HttpServlet {
                 if (filter == null || filter.isEmpty()) {
                     filter = "";
                 }
+                if (filterCountry == null || filterCountry.isEmpty()) {
+                    filterCountry = "";
+                }
                 ArrayList<String> appIds = new ArrayList<>();
+                ArrayList<String> countryCodes = new ArrayList<>();
                 String[] filters = filter.split(",");
                 for (String appId : filters) {
                     if (appId.isEmpty()) continue;
                     appIds.add(appId);
+                }
+                filters = filterCountry.split(",");
+                for (String countryCode : filters) {
+                    if (countryCode.isEmpty()) continue;
+                    countryCodes.add(countryCode);
                 }
 
                 try {
@@ -102,6 +112,17 @@ public class AppReport extends HttpServlet {
                             }
                         }
                         sql += " and app_id in (" + ss + ")";
+                    }
+                    if (countryCodes.size() > 0) {
+                        String ss = "";
+                        for (int i = 0; i < countryCodes.size(); i++) {
+                            if (i < countryCodes.size() - 1) {
+                                ss += "'" + countryCodes.get(i) + "',";
+                            } else {
+                                ss += "'" + countryCodes.get(i) + "'";
+                            }
+                        }
+                        sql += " and country_code in (" + ss + ")";
                     }
                     if (!ff.isEmpty()) {
                         sql += " group by " + ff;
@@ -139,7 +160,7 @@ public class AppReport extends HttpServlet {
                         one.addProperty("ad_filled", list.get(i).get("ad_filled").toString());
                         one.addProperty("ad_impression", list.get(i).get("ad_impression").toString());
                         one.addProperty("ad_click", list.get(i).get("ad_click").toString());
-                        one.addProperty("ad_revenue", Utils.trimDouble(list.get(i).get("ad_revenue")));
+                        one.addProperty("ad_revenue", Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0)));
                         array.add(one);
                     }
 
@@ -155,15 +176,25 @@ public class AppReport extends HttpServlet {
                 String startDate = request.getParameter("start_date");
                 String endDate = request.getParameter("end_date");
                 String filter = request.getParameter("filter");
+                String filterCountry = request.getParameter("filterCountry");
 
                 if (filter == null || filter.isEmpty()) {
                     filter = "";
                 }
+                if (filterCountry == null || filterCountry.isEmpty()) {
+                    filterCountry = "";
+                }
                 ArrayList<String> appIds = new ArrayList<>();
+                ArrayList<String> countryCodes = new ArrayList<>();
                 String[] filters = filter.split(",");
                 for (String appId : filters) {
                     if (appId.isEmpty()) continue;
                     appIds.add(appId);
+                }
+                filters = filterCountry.split(",");
+                for (String countryCode : filters) {
+                    if (countryCode.isEmpty()) continue;
+                    countryCodes.add(countryCode);
                 }
 
                 try {
@@ -181,6 +212,17 @@ public class AppReport extends HttpServlet {
                         }
                         sql += " and app_id in (" + ss + ")";
                     }
+                    if (countryCodes.size() > 0) {
+                        String ss = "";
+                        for (int i = 0; i < countryCodes.size(); i++) {
+                            if (i < countryCodes.size() - 1) {
+                                ss += "'" + countryCodes.get(i) + "',";
+                            } else {
+                                ss += "'" + countryCodes.get(i) + "'";
+                            }
+                        }
+                        sql += " and country_code in (" + ss + ")";
+                    }
                     sql += " group by date order by date desc";
                     List<JSObject> list = DB.findListBySql(sql);
 
@@ -192,7 +234,80 @@ public class AppReport extends HttpServlet {
                         one.addProperty("ad_filled", Utils.convertLong(list.get(i).get("ad_filled"), 0));
                         one.addProperty("ad_impression", Utils.convertLong(list.get(i).get("ad_impression"), 0));
                         one.addProperty("ad_click", Utils.convertLong(list.get(i).get("ad_click"), 0));
-                        one.addProperty("ad_revenue", Utils.trimDouble(list.get(i).get("ad_revenue")));
+                        one.addProperty("ad_revenue", Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0)));
+                        array.add(one);
+                    }
+
+                    json.addProperty("ret", 1);
+                    json.addProperty("message", "成功");
+                    json.add("data", array);
+                } catch (Exception ex) {
+                    json.addProperty("ret", 0);
+                    json.addProperty("message", ex.getMessage());
+                }
+            } else if (path.equals("/getFirebase")) {
+                String startDate = request.getParameter("start_date");
+                String endDate = request.getParameter("end_date");
+                String filter = request.getParameter("filter");
+                String filterCountry = request.getParameter("filterCountry");
+
+                if (filter == null || filter.isEmpty()) {
+                    filter = "";
+                }
+                if (filterCountry == null || filterCountry.isEmpty()) {
+                    filterCountry = "";
+                }
+                ArrayList<String> appIds = new ArrayList<>();
+                ArrayList<String> countryCodes = new ArrayList<>();
+                String[] filters = filter.split(",");
+                for (String appId : filters) {
+                    if (appId.isEmpty()) continue;
+                    appIds.add(appId);
+                }
+                filters = filterCountry.split(",");
+                for (String countryCode : filters) {
+                    if (countryCode.isEmpty()) continue;
+                    countryCodes.add(countryCode);
+                }
+
+                try {
+                    String sql = "select date, sum(total_user) as total_user, sum(active_user) as active_user, sum(installed) as installed, sum(uninstalled) as uninstalled, sum(today_uninstalled) as today_uninstalled " +
+                            "from app_firebase_daily_metrics_history " +
+                            "where date between '" + startDate + "' and '" + endDate + "' ";
+                    if (appIds.size() > 0) {
+                        String ss = "";
+                        for (int i = 0; i < appIds.size(); i++) {
+                            if (i < appIds.size() - 1) {
+                                ss += "'" + appIds.get(i) + "',";
+                            } else {
+                                ss += "'" + appIds.get(i) + "'";
+                            }
+                        }
+                        sql += " and app_id in (" + ss + ")";
+                    }
+                    if (countryCodes.size() > 0) {
+                        String ss = "";
+                        for (int i = 0; i < countryCodes.size(); i++) {
+                            if (i < countryCodes.size() - 1) {
+                                ss += "'" + countryCodes.get(i) + "',";
+                            } else {
+                                ss += "'" + countryCodes.get(i) + "'";
+                            }
+                        }
+                        sql += " and country_code in (" + ss + ")";
+                    }
+                    sql += " group by date order by date desc";
+                    List<JSObject> list = DB.findListBySql(sql);
+
+                    JsonArray array = new JsonArray();
+                    for (int i = 0; i < list.size(); i++) {
+                        JsonObject one = new JsonObject();
+                        one.addProperty("date", ((Date)list.get(i).get("date")).getTime());
+                        one.addProperty("total_user", Utils.convertLong(list.get(i).get("total_user"), 0));
+                        one.addProperty("active_user", Utils.convertLong(list.get(i).get("active_user"), 0));
+                        one.addProperty("installed", Utils.convertLong(list.get(i).get("installed"), 0));
+                        one.addProperty("uninstalled", Utils.convertLong(list.get(i).get("uninstalled"), 0));
+                        one.addProperty("today_uninstalled", Utils.convertLong(list.get(i).get("today_uninstalled"), 0));
                         array.add(one);
                     }
 
