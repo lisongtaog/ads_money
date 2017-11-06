@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Ads Money | App Report</title>
+    <title>Ads Money | App Trend</title>
     <link rel="shortcut icon" href="/images/favicon.ico">
 
     <!-- Tell the browser to be responsive to screen width -->
@@ -119,14 +119,14 @@
                         <span>Ad Unit Management</span>
                     </a>
                 </li>
-                <li class="active">
-                    <a href="#">
+                <li class="">
+                    <a href="app_report.jsp">
                         <i class="fa fa-folder"></i>
                         <span>App Report</span>
                     </a>
                 </li>
-                <li class="">
-                    <a href="app_trend.jsp">
+                <li class="active">
+                    <a href="#">
                         <i class="fa fa-superpowers"></i>
                         <span>App Trend</span>
                     </a>
@@ -141,11 +141,11 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                App Report
+                App Trend
             </h1>
             <ol class="breadcrumb">
                 <li><a href="index.jsp"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li class="active">App Report</li>
+                <li class="active">App Trend</li>
             </ol>
         </section>
 
@@ -158,14 +158,13 @@
                         <!-- /.col -->
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Dimension</label>
-                                <select id="dimension" class="form-control select2 select2-hidden-accessible" multiple="" data-placeholder="Select a Dimension" style="width: 100%;" tabindex="-1" aria-hidden="true">
-                                    <option value="1">Date</option>
-                                    <option value="2">App</option>
-                                    <option value="3">AdUnit</option>
-                                    <option value="4">Country</option>
-                                    <option value="5">Network</option>
-                                </select>
+                                <label>End Date:</label>
+                                <div class="input-group date">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </div>
+                                    <input type="text" class="form-control pull-right" id="txtEndDate">
+                                </div>
                             </div>
                         </div>
                         <!-- /.col -->
@@ -173,14 +172,12 @@
                         <div class="col-md-6">
                             <!-- Date and time range -->
                             <div class="form-group">
-                                <label>Date range:</label>
-
-                                <div class="input-group">
-                                    <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
-                                        <span></span> <b class="caret"></b>
-                                    </div>
-                                </div>
+                                <label>Period:</label>
+                                <select id="selPeriod" class="form-control">
+                                    <option value="1">Daily</option>
+                                    <option value="2">Weekly</option>
+                                    <option value="3">Monthly</option>
+                                </select>
 
                             </div>
                             <!-- /.form group -->
@@ -272,45 +269,6 @@
                 <!-- /.col -->
             </div>
 
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="box">
-                        <div class="box-header with-border">
-                            <h3 class="box-title">Firebase Data</h3>
-
-                            <div class="box-tools pull-right">
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                        class="fa fa-minus"></i>
-                                </button>
-                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i
-                                        class="fa fa-times"></i></button>
-                            </div>
-                        </div>
-                        <!-- /.box-header -->
-                        <div class="box-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <p class="text-center">
-                                        <strong id="firebaseChartTitle"></strong>
-                                    </p>
-
-                                    <div class="chart">
-                                        <!-- Sales Chart Canvas -->
-                                        <canvas id="firebaseChart" style="height: 280px;"></canvas>
-                                    </div>
-                                    <!-- /.chart-responsive -->
-                                </div>
-                                <!-- /.col -->
-                            </div>
-                            <!-- /.row -->
-                        </div>
-                        <!-- ./box-body -->
-                    </div>
-                    <!-- /.box -->
-                </div>
-                <!-- /.col -->
-            </div>
-
             <div class="box box-default">
                 <div class="box-header with-border">
                     <h3 class="box-title">Metrics</h3>
@@ -321,12 +279,14 @@
                         <thead>
                         <tr>
                             <th>Date</th>
-                            <th>App</th>
-                            <th>Request</th>
-                            <th>Filled</th>
-                            <th>Impression</th>
-                            <th>Click</th>
+                            <th>TotalUser</th>
+                            <th>TotalUserTrend</th>
+                            <th>ActiveUser</th>
+                            <th>ActiveUserTrend</th>
                             <th>Revenue</th>
+                            <th>RevenueTrend</th>
+                            <th>ARPU</th>
+                            <th>ARPUTrend</th>
                         </tr>
                         </thead>
                     </table>
@@ -384,123 +344,40 @@
 
 <script>
     $('.select2').select2();
-
-    //Date range as a button
-    $('#reportrange').daterangepicker(
-            {
-                ranges   : {
-                    'Today'       : [moment(), moment()],
-                    'Yesterday'   : [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    'Last 7 Days' : [moment().subtract(6, 'days'), moment()],
-                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                    'This Month'  : [moment().startOf('month'), moment().endOf('month')],
-                    'Last Month'  : [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                },
-                startDate: moment().subtract(6, 'days'),
-                endDate  : moment()
-            },
-            function (start, end) {
-                $('#reportrange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'))
-            }
-    );
-
-    var start = moment().subtract(6, 'days');
-    var end = moment();
-    function setInitDate(start, end) {
-        $('#reportrange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'))
-    }
-    setInitDate(start, end);
+    $('#txtEndDate').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true
+    });
+    $('#txtEndDate').datepicker('setDate', moment().subtract(2, 'days').format('YYYY-MM-DD'));
 
     $('#btnQuery').click(function() {
         queryData();
     });
 
-    $('#dimension').val(["1", "2"]).trigger("change");
     queryData();
 
-    var firebaseChart;
     var revenueChart;
 
     function queryData() {
-        var dimension = $('#dimension').val();
+        var date = moment($('#txtEndDate').data('datepicker').dates[0]).format('YYYY-MM-DD');
         var filter = $('#filter').val();
         var filterCountry = $('#filterCountry').val();
-
-        var drp = $('#reportrange').data('daterangepicker');
-        var startDate = drp.startDate.format('YYYY-MM-DD');
-        var endDate = drp.endDate.format('YYYY-MM-DD');
+        var period = $('#selPeriod').val();
 
         var columns = [
-            { data: 'ad_request' },
-            { data: 'ad_filled' },
-            { data: 'ad_impression' },
-            { data: 'ad_click' },
-            { data: 'ad_revenue' },
-            { data: 'ecpm' },
+            { data: 'date' },
+            { data: 'total_user' },
+            { data: 'total_user_trend' },
+            { data: 'active_user' },
+            { data: 'active_user_trend' },
+            { data: 'revenue' },
+            { data: 'revenue_trend' },
+            { data: 'arpu' },
+            { data: 'arpu_trend' },
         ];
-        for (var i = dimension.length - 1; i >= 0; i--) {
-            switch (dimension[i]) {
-                case "1":
-                    columns.unshift({data: 'date'});
-                    break;
-                case "2":
-                    columns.unshift({data: 'app_name'});
-                    break;
-                case "3":
-                    columns.unshift({data: 'ad_unit_id'});
-                    break;
-                case "4":
-                    columns.unshift({data: 'country_name'});
-                    break;
-                case "5":
-                    columns.unshift({data: 'ad_network'});
-                    break;
-            }
-        }
 
         if ($.fn.DataTable.isDataTable("#metricTable")) {
             $('#metricTable').DataTable().clear().destroy();
-        }
-
-        $('#metricTable th').remove();
-        for (var i = 0; i < columns.length; i++) {
-            var value = "";
-            switch (columns[i].data) {
-                case "ad_request":
-                    value = "Request";
-                    break;
-                case "ad_filled":
-                    value = "Filled";
-                    break;
-                case "ad_impression":
-                    value = "Impression";
-                    break;
-                case "ad_click":
-                    value = "Click";
-                    break;
-                case "ad_revenue":
-                    value = "Revenue";
-                    break;
-                case "ecpm":
-                    value = "ECPM";
-                    break;
-                case "date":
-                    value = "Date";
-                    break;
-                case "app_name":
-                    value = "App";
-                    break;
-                case "ad_unit_id":
-                    value = "AppUnitId";
-                    break;
-                case "country_name":
-                    value = "Country";
-                    break;
-                case "ad_network":
-                    value = "Network";
-                    break;
-            }
-            $('#metricTable thead tr').append($('<th>' + value + '</th>'));
         }
 
         $('#metricTable').DataTable({
@@ -512,14 +389,13 @@
             "lengthMenu": [[10, 25, 50, 100, 500, 1000], [10, 25, 50, 100, 500, 1000]],
             "ajax": function (data, callback, settings) {
                 var postData = {};
-                postData.dimension = dimension.join(",");
                 postData.filter = filter.join(",");
                 postData.filterCountry = filterCountry.join(",");
-                postData.start_date = startDate;
-                postData.end_date = endDate;
+                postData.end_date = date;
+                postData.period = period;
                 postData.page_index = data.start / data.length;
                 postData.page_size = data.length;
-                $.post("app_report/query", postData, function (data) {
+                $.post("app_trend/query", postData, function (data) {
                     if (data && data.ret == 1) {
                         var list = [];
                         for (var i = 0; i < data.data.length; i++) {
@@ -542,11 +418,11 @@
             select: true,
         });
 
-        $.post("/app_report/get", {
+        $.post("/app_trend/get", {
             filter: filter.join(","),
             filterCountry: filterCountry.join(","),
-            start_date: startDate,
-            end_date: endDate
+            period: period,
+            end_date: date
         }, function (data) {
             if (data && data.ret == 1) {
                 var list = data.data;
@@ -555,39 +431,27 @@
                     var last = list[list.length - 1];
                     $('#revenueChartTitle').text(new Date(last.date).toLocaleDateString()  + " - " + new Date(first.date).toLocaleDateString());
 
-                    var maps = {};
                     var labels = [];
-                    var adRequest = [];
-                    var adFilled = [];
-                    var adImpression = [];
-                    var adClick = [];
-                    var adRevenue = [];
-                    var adECPM = [];
+                    var totalUser = [];
+                    var totalUserTrend = [];
+                    var activeUser = [];
+                    var activeUserTrend = [];
+                    var revenue = [];
+                    var revenueTrend = [];
+                    var arpu = [];
+                    var arpuTrend = [];
                     for (var i = list.length - 1; i >= 0; i--) {
                         var one = list[i];
                         var date = new Date(one.date).toLocaleDateString();
-                        var item = maps[date];
-                        if (!item) {
-                            labels.push(date);
-                            item = {"ad_request": one.ad_request, "ad_filled": one.ad_filled, "ad_impression": one.ad_impression, "ad_click": one.ad_click, "ad_revenue": one.ad_revenue, "ecpm": one.ecpm};
-                            maps[date] = item;
-                        } else {
-                            item.ad_request += one.ad_request;
-                            item.ad_filled += one.ad_filled;
-                            item.ad_impression += one.ad_impression;
-                            item.ad_click += one.ad_click;
-                            item.ad_revenue += one.ad_revenue;
-                            item.ecpm = item.ad_impression > 0 ? item.ad_revenue / item.ad_impression * 1000 : 0;
-                        }
-                    }
-                    for (var i = 0; i < labels.length; i++) {
-                        var item = maps[labels[i]];
-                        adRequest.push(item.ad_request);
-                        adFilled.push(item.ad_filled);
-                        adImpression.push(item.ad_impression);
-                        adClick.push(item.ad_click);
-                        adRevenue.push(item.ad_revenue);
-                        adECPM.push(item.ecpm);
+                        labels.push(date);
+                        totalUser.push(one.total_user);
+                        totalUserTrend.push(one.total_user_trend);
+                        activeUser.push(one.active_user);
+                        activeUserTrend.push(one.active_user_trend);
+                        revenue.push(one.revenue);
+                        revenueTrend.push(one.revenue_trend);
+                        arpu.push(one.arpu);
+                        arpuTrend.push(one.arpu_trend);
                     }
                     var chartConfig = {
                         'type': 'line',
@@ -595,40 +459,40 @@
                             'labels': labels,
                             'datasets': [
                                 {
-                                    label               : 'Request',
+                                    label               : 'TotalUser',
                                     borderColor         : '#00c0ef',
                                     fill: false,
-                                    data                : adRequest
+                                    data                : totalUser
                                 },
                                 {
-                                    label               : 'Filled',
+                                    label               : 'TotalUserTrend',
                                     borderColor         : '#dd4b39',
                                     fill: false,
-                                    data                : adFilled
-                                },
-                                {
-                                    label               : 'Impression',
-                                    borderColor         : '#00a65a',
-                                    fill: false,
-                                    data                : adImpression
-                                },
-                                {
-                                    label               : 'Click',
-                                    borderColor         : '#f39c12',
-                                    fill: false,
-                                    data                : adClick
+                                    data                : totalUserTrend
                                 },
                                 {
                                     label               : 'Revenue',
-                                    borderColor         : '#0073b7',
+                                    borderColor         : '#00a65a',
                                     fill: false,
-                                    data                : adRevenue
+                                    data                : revenue
                                 },
                                 {
-                                    label               : 'ECPM',
+                                    label               : 'RevenueTrend',
+                                    borderColor         : '#f39c12',
+                                    fill: false,
+                                    data                : revenueTrend
+                                },
+                                {
+                                    label               : 'ARPU',
+                                    borderColor         : '#0073b7',
+                                    fill: false,
+                                    data                : arpu
+                                },
+                                {
+                                    label               : 'ARPU Trend',
                                     borderColor         : '#e842f4',
                                     fill: false,
-                                    data                : adECPM
+                                    data                : arpuTrend
                                 },
                             ],
                         },
@@ -648,109 +512,6 @@
                         revenueChart.update();
                     } else {
                         revenueChart = new Chart(revenueChartCanvas, chartConfig);
-                    }
-                }
-            } else {
-            }
-        }, "json");
-
-        $.post("/app_report/getFirebase", {
-            filter: filter.join(","),
-            filterCountry: filterCountry.join(","),
-            start_date: startDate,
-            end_date: endDate
-        }, function (data) {
-            if (data && data.ret == 1) {
-                var list = data.data;
-                if (list.length > 0) {
-                    var first = list[0];
-                    var last = list[list.length - 1];
-                    $('#firebaseChartTitle').text(new Date(last.date).toLocaleDateString()  + " - " + new Date(first.date).toLocaleDateString());
-
-                    var maps = {};
-                    var labels = [];
-                    var totalUser = [];
-                    var activeUser = [];
-                    var installed = [];
-                    var uninstalled = [];
-                    var todayUninstalled = [];
-                    for (var i = list.length - 1; i >= 0; i--) {
-                        var one = list[i];
-                        var date = new Date(one.date).toLocaleDateString();
-                        var item = maps[date];
-                        if (!item) {
-                            labels.push(date);
-                            item = {"total_user": one.total_user, "active_user": one.active_user, "installed": one.installed, "uninstalled": one.uninstalled, "today_uninstalled": one.today_uninstalled};
-                            maps[date] = item;
-                        } else {
-                            item.total_user += one.total_user;
-                            item.active_user += one.active_user;
-                            item.installed += one.installed;
-                            item.uninstalled += one.uninstalled;
-                            item.today_uninstalled += one.today_uninstalled;
-                        }
-                    }
-                    for (var i = 0; i < labels.length; i++) {
-                        var item = maps[labels[i]];
-                        totalUser.push(item.total_user);
-                        activeUser.push(item.active_user);
-                        installed.push(item.installed);
-                        uninstalled.push(item.uninstalled);
-                        todayUninstalled.push(item.today_uninstalled);
-                    }
-                    var chartConfig = {
-                        'type': 'line',
-                        'data' : {
-                            'labels': labels,
-                            'datasets': [
-                                {
-                                    label               : 'TotalUser',
-                                    borderColor         : '#00c0ef',
-                                    fill: false,
-                                    data                : totalUser
-                                },
-                                {
-                                    label               : 'ActiveUser',
-                                    borderColor         : '#dd4b39',
-                                    fill: false,
-                                    data                : activeUser
-                                },
-                                {
-                                    label               : 'Installed',
-                                    borderColor         : '#00a65a',
-                                    fill: false,
-                                    data                : installed
-                                },
-                                {
-                                    label               : 'Uninstalled',
-                                    borderColor         : '#f39c12',
-                                    fill: false,
-                                    data                : uninstalled
-                                },
-                                {
-                                    label               : 'TodayUninstalled',
-                                    borderColor         : '#0073b7',
-                                    fill: false,
-                                    data                : todayUninstalled
-                                },
-                            ],
-                        },
-                        options: {
-                            scaleShowGridLines      : true,
-                            scaleGridLineWidth      : 1,
-                            legend : {
-                                position: 'bottom'
-                            }
-                        }
-                    };
-
-                    var firebaseChartCanvas = $('#firebaseChart').get(0).getContext('2d');
-                    // This will get the first returned node in the jQuery collection.
-                    if (firebaseChart) {
-                        firebaseChart.data = chartConfig.data;
-                        firebaseChart.update();
-                    } else {
-                        firebaseChart = new Chart(firebaseChartCanvas, chartConfig);
                     }
                 }
             } else {

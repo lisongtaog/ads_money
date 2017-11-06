@@ -83,6 +83,10 @@ public class Utils {
         return Double.parseDouble(String.format("%.4f", value));
     }
 
+    public static float trimFloat(float value) {
+        return Float.parseFloat(String.format("%.4f", value));
+    }
+
     public static HashMap getCountryMap() {
         if (countryCodeMap == null) {
             try {

@@ -161,6 +161,9 @@ public class AppReport extends HttpServlet {
                         one.addProperty("ad_impression", list.get(i).get("ad_impression").toString());
                         one.addProperty("ad_click", list.get(i).get("ad_click").toString());
                         one.addProperty("ad_revenue", Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0)));
+                        int impression = Utils.parseInt(list.get(i).get("ad_impression").toString(), 0);
+                        double revenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0));
+                        one.addProperty("ecpm", impression > 0 ? Utils.trimDouble(revenue / impression * 1000) : 0);
                         array.add(one);
                     }
 
@@ -235,6 +238,9 @@ public class AppReport extends HttpServlet {
                         one.addProperty("ad_impression", Utils.convertLong(list.get(i).get("ad_impression"), 0));
                         one.addProperty("ad_click", Utils.convertLong(list.get(i).get("ad_click"), 0));
                         one.addProperty("ad_revenue", Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0)));
+                        int impression = Utils.parseInt(list.get(i).get("ad_impression").toString(), 0);
+                        double revenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0));
+                        one.addProperty("ecpm", impression > 0 ? Utils.trimDouble(revenue / impression * 1000) : 0);
                         array.add(one);
                     }
 

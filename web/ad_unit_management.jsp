@@ -113,6 +113,12 @@
                         <span>App Report</span>
                     </a>
                 </li>
+                <li class="">
+                    <a href="app_trend.jsp">
+                        <i class="fa fa-superpowers"></i>
+                        <span>App Trend</span>
+                    </a>
+                </li>
             </ul>
         </section>
         <!-- /.sidebar -->
