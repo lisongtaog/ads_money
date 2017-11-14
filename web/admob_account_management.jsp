@@ -20,7 +20,6 @@
     <!-- DataTables -->
     <link rel="stylesheet" href="http://money.uugame.info/admin_lte/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.4.1/css/buttons.dataTables.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.4.1/css/buttons.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.2.2/css/select.dataTables.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="http://money.uugame.info/admin_lte/dist/css/AdminLTE.min.css">
@@ -113,6 +112,12 @@
                     <a href="app_trend.jsp">
                         <i class="fa fa-superpowers"></i>
                         <span>App Trend</span>
+                    </a>
+                </li>
+                <li class="">
+                    <a href="country_report.jsp">
+                        <i class="fa fa-free-code-camp"></i>
+                        <span>Country Report</span>
                     </a>
                 </li>
             </ul>

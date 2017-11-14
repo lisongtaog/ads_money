@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Ads Money | App Trend</title>
+    <title>Ads Money | Country Report</title>
     <link rel="shortcut icon" href="/images/favicon.ico">
 
     <!-- Tell the browser to be responsive to screen width -->
@@ -124,14 +124,14 @@
                         <span>App Report</span>
                     </a>
                 </li>
-                <li class="active">
-                    <a href="#">
+                <li class="">
+                    <a href="app_trend.jsp">
                         <i class="fa fa-superpowers"></i>
                         <span>App Trend</span>
                     </a>
                 </li>
-                <li class="">
-                    <a href="country_report.jsp">
+                <li class="active">
+                    <a href="#">
                         <i class="fa fa-free-code-camp"></i>
                         <span>Country Report</span>
                     </a>
@@ -146,11 +146,11 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                App Trend
+                Country Report
             </h1>
             <ol class="breadcrumb">
                 <li><a href="index.jsp"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li class="active">App Trend</li>
+                <li class="active">Country Report</li>
             </ol>
         </section>
 
@@ -161,39 +161,6 @@
                 <div class="box-body">
                     <div class="row">
                         <!-- /.col -->
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label>End Date:</label>
-                                <div class="input-group date">
-                                    <div class="input-group-addon">
-                                        <i class="fa fa-calendar"></i>
-                                    </div>
-                                    <input type="text" class="form-control pull-right" id="txtEndDate">
-                                </div>
-                            </div>
-                        </div>
-                        <!-- /.col -->
-
-                        <div class="col-md-6">
-                            <!-- Date and time range -->
-                            <div class="form-group">
-                                <label>Period:</label>
-                                <select id="selPeriod" class="form-control">
-                                    <option value="1">Daily</option>
-                                    <option value="2">Weekly</option>
-                                    <option value="3">Monthly</option>
-                                </select>
-
-                            </div>
-                            <!-- /.form group -->
-                        </div>
-                        <!-- /.col -->
-                    </div>
-                    <!-- /.row -->
-
-                    <div class="row">
-                        <!-- /.col -->
-
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Filter</label>
@@ -207,72 +174,41 @@
                                         }
                                     %>
                                 </select>
-
-                                <select  id="filterCountry" class="form-control select2 select2-hidden-accessible" multiple="" data-placeholder="Select country" style="width: 100%;" tabindex="-1" aria-hidden="true">
-                                    <%
-                                        for (String countryCode : countryMap.keySet()) {
-                                             String name = countryMap.get(countryCode);
-                                    %>
-                                    <option value="<%=countryCode%>"><%=name%></option>
-                                    <%
-                                        }
-                                    %>
-                                </select>
                             </div>
                         </div>
                         <!-- /.col -->
 
-                        <div class="col-md-1">
+                        <div class="col-md-4">
+                            <!-- Date and time range -->
+                            <div class="form-group">
+                                <label>Date range:</label>
+
+                                <div class="input-group">
+                                    <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+                                        <span></span> <b class="caret"></b>
+                                    </div>
+                                </div>
+
+                            </div>
+                            <!-- /.form group -->
+                        </div>
+
+                        <div class="col-md-2">
                             <div class="form-group">
                                 <label>&nbsp;</label>
                                 <button id="btnQuery" type="button" class="btn btn-block btn-primary">Query</button>
                             </div>
                         </div>
+
+                        <!-- /.col -->
                     </div>
+                    <!-- /.row -->
 
                 </div>
                 <!-- /.box-body -->
             </div>
             <!-- /.row -->
-
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="box">
-                        <div class="box-header with-border">
-                            <h3 class="box-title">Chart Report</h3>
-
-                            <div class="box-tools pull-right">
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                        class="fa fa-minus"></i>
-                                </button>
-                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i
-                                        class="fa fa-times"></i></button>
-                            </div>
-                        </div>
-                        <!-- /.box-header -->
-                        <div class="box-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <p class="text-center">
-                                        <strong id="revenueChartTitle"></strong>
-                                    </p>
-
-                                    <div class="chart">
-                                        <!-- Sales Chart Canvas -->
-                                        <canvas id="revenueChart" style="height: 280px;"></canvas>
-                                    </div>
-                                    <!-- /.chart-responsive -->
-                                </div>
-                                <!-- /.col -->
-                            </div>
-                            <!-- /.row -->
-                        </div>
-                        <!-- ./box-body -->
-                    </div>
-                    <!-- /.box -->
-                </div>
-                <!-- /.col -->
-            </div>
 
             <div class="box box-default">
                 <div class="box-header with-border">
@@ -283,21 +219,15 @@
                     <table id="metricTable" class="table table-bordered table-hover" cellspacing="0" width="100%">
                         <thead>
                         <tr>
-                            <th>Date</th>
+                            <th>Country</th>
                             <th>Cost</th>
                             <th>PurchasedUser</th>
                             <th>Installed</th>
-                            <th>UnInstalled</th>
-                            <th>UnInstalledRate</th>
-                            <th>TotalUser</th>
-                            <th>TotalUserTrend</th>
+                            <th>Uninstalled</th>
+                            <th>UninstalledRate</th>
                             <th>ActiveUser</th>
-                            <th>ActiveUserTrend</th>
-                            <th>Revenue</th>
-                            <th>RevenueTrend</th>
-                            <th>ARPU</th>
-                            <th>ARPUTrend</th>
                             <th>CPA</th>
+                            <th>Revenue</th>
                             <th>ECPM</th>
                             <th>Incoming</th>
                         </tr>
@@ -359,11 +289,32 @@
 
 <script>
     $('.select2').select2();
-    $('#txtEndDate').datepicker({
-        format: 'yyyy-mm-dd',
-        autoclose: true
-    });
-    $('#txtEndDate').datepicker('setDate', moment().subtract(2, 'days').format('YYYY-MM-DD'));
+
+    //Date range as a button
+    $('#reportrange').daterangepicker(
+            {
+                ranges   : {
+                    'Today'       : [moment(), moment()],
+                    'Yesterday'   : [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days' : [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month'  : [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month'  : [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                },
+                startDate: moment().subtract(1, 'days'),
+                endDate  : moment().subtract(1, 'days')
+            },
+            function (start, end) {
+                $('#reportrange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'))
+            }
+    );
+
+    var start = moment().subtract(1, 'days');
+    var end = moment().subtract(1, 'days');
+    function setInitDate(start, end) {
+        $('#reportrange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'))
+    }
+    setInitDate(start, end);
 
     $('#btnQuery').click(function() {
         queryData();
@@ -371,30 +322,22 @@
 
     queryData();
 
-    var revenueChart;
-
     function queryData() {
-        var date = moment($('#txtEndDate').data('datepicker').dates[0]).format('YYYY-MM-DD');
         var filter = $('#filter').val();
-        var filterCountry = $('#filterCountry').val();
-        var period = $('#selPeriod').val();
+        var drp = $('#reportrange').data('daterangepicker');
+        var startDate = drp.startDate.format('YYYY-MM-DD');
+        var endDate = drp.endDate.format('YYYY-MM-DD');
 
         var columns = [
-            { data: 'date' },
+            { data: 'country_name' },
             { data: 'cost' },
             { data: 'purchased_user' },
             { data: 'total_installed' },
             { data: 'total_uninstalled' },
             { data: 'uninstalled_rate' },
-            { data: 'total_user' },
-            { data: 'total_user_trend' },
             { data: 'active_user' },
-            { data: 'active_user_trend' },
-            { data: 'revenue' },
-            { data: 'revenue_trend' },
-            { data: 'arpu' },
-            { data: 'arpu_trend' },
             { data: 'cpa' },
+            { data: 'revenue' },
             { data: 'ecpm' },
             { data: 'incoming' },
         ];
@@ -408,17 +351,16 @@
             "processing": true,
             "serverSide": true,
             "searching": false,
-            "pageLength": 25,
+            "pageLength": 500,
             "lengthMenu": [[10, 25, 50, 100, 500, 1000], [10, 25, 50, 100, 500, 1000]],
             "ajax": function (data, callback, settings) {
                 var postData = {};
                 postData.filter = filter.join(",");
-                postData.filterCountry = filterCountry.join(",");
-                postData.end_date = date;
-                postData.period = period;
+                postData.start_date = startDate;
+                postData.end_date = endDate;
                 postData.page_index = data.start / data.length;
                 postData.page_size = data.length;
-                $.post("app_trend/query", postData, function (data) {
+                $.post("country_report/query", postData, function (data) {
                     if (data && data.ret == 1) {
                         var list = [];
                         for (var i = 0; i < data.data.length; i++) {
@@ -444,108 +386,8 @@
                 extend: 'collection',
                 text: 'Export',
                 buttons: ['copy', 'excel', 'csv', 'pdf', 'print']
-            }],
+                }],
         });
-
-        $.post("/app_trend/get", {
-            filter: filter.join(","),
-            filterCountry: filterCountry.join(","),
-            period: period,
-            end_date: date
-        }, function (data) {
-            if (data && data.ret == 1) {
-                var list = data.data;
-                if (list.length > 0) {
-                    var first = list[0];
-                    var last = list[list.length - 1];
-                    $('#revenueChartTitle').text(new Date(last.date).toLocaleDateString()  + " - " + new Date(first.date).toLocaleDateString());
-
-                    var labels = [];
-                    var totalUser = [];
-                    var totalUserTrend = [];
-                    var activeUser = [];
-                    var activeUserTrend = [];
-                    var revenue = [];
-                    var revenueTrend = [];
-                    var arpu = [];
-                    var arpuTrend = [];
-                    for (var i = list.length - 1; i >= 0; i--) {
-                        var one = list[i];
-                        var date = new Date(one.date).toLocaleDateString();
-                        labels.push(date);
-                        totalUser.push(one.total_user);
-                        totalUserTrend.push(one.total_user_trend);
-                        activeUser.push(one.active_user);
-                        activeUserTrend.push(one.active_user_trend);
-                        revenue.push(one.revenue);
-                        revenueTrend.push(one.revenue_trend);
-                        arpu.push(one.arpu);
-                        arpuTrend.push(one.arpu_trend);
-                    }
-                    var chartConfig = {
-                        'type': 'line',
-                        'data' : {
-                            'labels': labels,
-                            'datasets': [
-                                {
-                                    label               : 'TotalUser',
-                                    borderColor         : '#00c0ef',
-                                    fill: false,
-                                    data                : totalUser
-                                },
-                                {
-                                    label               : 'TotalUserTrend',
-                                    borderColor         : '#dd4b39',
-                                    fill: false,
-                                    data                : totalUserTrend
-                                },
-                                {
-                                    label               : 'Revenue',
-                                    borderColor         : '#00a65a',
-                                    fill: false,
-                                    data                : revenue
-                                },
-                                {
-                                    label               : 'RevenueTrend',
-                                    borderColor         : '#f39c12',
-                                    fill: false,
-                                    data                : revenueTrend
-                                },
-                                {
-                                    label               : 'ARPU',
-                                    borderColor         : '#0073b7',
-                                    fill: false,
-                                    data                : arpu
-                                },
-                                {
-                                    label               : 'ARPU Trend',
-                                    borderColor         : '#e842f4',
-                                    fill: false,
-                                    data                : arpuTrend
-                                },
-                            ],
-                        },
-                        options: {
-                            scaleShowGridLines      : true,
-                            scaleGridLineWidth      : 1,
-                            legend : {
-                                position: 'bottom'
-                            }
-                        }
-                    };
-
-                    var revenueChartCanvas = $('#revenueChart').get(0).getContext('2d');
-                    // This will get the first returned node in the jQuery collection.
-                    if (revenueChart) {
-                        revenueChart.data = chartConfig.data;
-                        revenueChart.update();
-                    } else {
-                        revenueChart = new Chart(revenueChartCanvas, chartConfig);
-                    }
-                }
-            } else {
-            }
-        }, "json");
     }
 </script>
 </body>

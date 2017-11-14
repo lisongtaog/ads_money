@@ -73,7 +73,7 @@ public class AppTrend extends HttpServlet {
                 }
 
                 try {
-                    String sql = "select date, sum(ad_revenue) as ad_revenue " +
+                    String sql = "select date, sum(ad_revenue) as ad_revenue, sum(ad_impression) as ad_impression " +
                             "from app_daily_metrics_history " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
                     if (appIds.size() > 0) {
@@ -105,6 +105,7 @@ public class AppTrend extends HttpServlet {
                     for (int i = 0; i < list.size(); i++) {
                         Date date = list.get(i).get("date");
                         double revenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0));
+                        long impression = Utils.convertLong(list.get(i).get("ad_impression"), 0);
                         AppMonitorMetrics one = metricsMap.get(date);
                         if (one == null) {
                             one = new AppMonitorMetrics();
@@ -113,9 +114,11 @@ public class AppTrend extends HttpServlet {
                         }
                         one.date = date;
                         one.revenue = revenue;
+                        one.impression = impression;
+                        one.ecpm = impression > 0 ? revenue / impression : 0;
                     }
 
-                    sql = "select date, sum(total_user) as total_user, sum(active_user) as active_user " +
+                    sql = "select date, sum(installed) as total_installed, sum(uninstalled) as total_uninstalled, sum(today_uninstalled) as today_uninstalled, sum(total_user) as total_user, sum(active_user) as active_user " +
                             "from app_firebase_daily_metrics_history " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
                     if (appIds.size() > 0) {
@@ -145,6 +148,9 @@ public class AppTrend extends HttpServlet {
 
                     for (int i = 0; i < list.size(); i++) {
                         Date date = list.get(i).get("date");
+                        long totalIntalled = Utils.convertLong(list.get(i).get("total_installed"), 0);
+                        long totalUnIntalled = Utils.convertLong(list.get(i).get("total_uninstalled"), 0);
+                        long todayUninstalled = Utils.convertLong(list.get(i).get("today_uninstalled"), 0);
                         long totalUser = Utils.convertLong(list.get(i).get("total_user"), 0);
                         long activeUser = Utils.convertLong(list.get(i).get("active_user"), 0);
                         AppMonitorMetrics one = metricsMap.get(date);
@@ -154,10 +160,60 @@ public class AppTrend extends HttpServlet {
                             tmpDataList.add(one);
                         }
                         one.date = date;
+                        one.totalInstalled = totalIntalled;
+                        one.totalUninstalled = totalUnIntalled;
+                        one.todayUninstalled = todayUninstalled;
                         one.totalUser = totalUser;
                         one.activeUser = activeUser;
-                        one.arpu = one.totalUser > 0 ? (float)(one.revenue / one.totalUser) : 0;
+                        one.arpu = one.activeUser > 0 ? (float)(one.revenue / one.activeUser) : 0;
+                        one.uninstallRate = one.totalInstalled > 0 ? (one.todayUninstalled * 1.0f / one.totalInstalled) : 0;
                     }
+
+                    sql = "select date, sum(spend) as cost, sum(installed) as purchasedUser " +
+                            "from app_ads_daily_metrics_history " +
+                            "where date between '" + startDate + "' and '" + endDate + "' ";
+                    if (appIds.size() > 0) {
+                        String ss = "";
+                        for (int i = 0; i < appIds.size(); i++) {
+                            if (i < appIds.size() - 1) {
+                                ss += "'" + appIds.get(i) + "',";
+                            } else {
+                                ss += "'" + appIds.get(i) + "'";
+                            }
+                        }
+                        sql += " and app_id in (" + ss + ")";
+                    }
+                    if (countryCodes.size() > 0) {
+                        String ss = "";
+                        for (int i = 0; i < countryCodes.size(); i++) {
+                            if (i < countryCodes.size() - 1) {
+                                ss += "'" + countryCodes.get(i) + "',";
+                            } else {
+                                ss += "'" + countryCodes.get(i) + "'";
+                            }
+                        }
+                        sql += " and country_code in (" + ss + ")";
+                    }
+                    sql += " group by date order by date desc";
+                    list = DB.findListBySql(sql);
+
+                    for (int i = 0; i < list.size(); i++) {
+                        Date date = list.get(i).get("date");
+                        double cost = Utils.convertDouble(list.get(i).get("cost"), 0);
+                        long purchasedUser = Utils.convertLong(list.get(i).get("purchasedUser"), 0);
+                        AppMonitorMetrics one = metricsMap.get(date);
+                        if (one == null) {
+                            one = new AppMonitorMetrics();
+                            metricsMap.put(date, one);
+                            tmpDataList.add(one);
+                        }
+                        one.date = date;
+                        one.cost = cost;
+                        one.purchasedUser = purchasedUser;
+                        one.cpa = one.purchasedUser > 0 ? one.cost / one.purchasedUser : 0;
+                        one.incoming = one.revenue - one.cost;
+                    }
+
                     metricsMap.clear();
                     Collections.sort(tmpDataList, new Comparator<AppMonitorMetrics>() {
                         @Override
@@ -188,10 +244,20 @@ public class AppTrend extends HttpServlet {
                             one.date = tmpDataList.get(i).date;
                             resultList.add(one);
                         }
+                        one.cost += tmpDataList.get(i).cost;
+                        one.purchasedUser += tmpDataList.get(i).purchasedUser;
+                        one.totalInstalled += tmpDataList.get(i).totalInstalled;
+                        one.totalUninstalled += tmpDataList.get(i).totalUninstalled;
+                        one.todayUninstalled += tmpDataList.get(i).todayUninstalled;
                         one.totalUser += tmpDataList.get(i).totalUser;
                         one.activeUser += tmpDataList.get(i).activeUser;
                         one.revenue += tmpDataList.get(i).revenue;
+                        one.impression += tmpDataList.get(i).impression;
+                        one.cpa = one.purchasedUser > 0 ? one.cost / one.purchasedUser : 0;
                         one.arpu = one.totalUser > 0 ? (float)(one.revenue / one.totalUser) : 0;
+                        one.uninstallRate = one.totalInstalled > 0 ? (one.todayUninstalled * 1.0f / one.totalInstalled) : 0;
+                        one.ecpm = one.impression > 0 ? one.revenue / one.impression : 0;
+                        one.incoming = one.revenue - one.cost;
                     }
 
                     for (int i = 0; i < resultList.size(); i++) {
@@ -224,6 +290,9 @@ public class AppTrend extends HttpServlet {
                         } else {
                             jsonObject.addProperty("date", resultList.get(i).date.toString());
                         }
+                        jsonObject.addProperty("cost", Utils.trimDouble(resultList.get(i).cost));
+                        jsonObject.addProperty("purchased_user", resultList.get(i).purchasedUser);
+                        jsonObject.addProperty("total_installed", resultList.get(i).totalInstalled);
                         jsonObject.addProperty("total_user", resultList.get(i).totalUser);
                         jsonObject.addProperty("total_user_trend", resultList.get(i).totalUserTrend);
                         jsonObject.addProperty("active_user", resultList.get(i).activeUser);
@@ -232,6 +301,13 @@ public class AppTrend extends HttpServlet {
                         jsonObject.addProperty("revenue_trend", resultList.get(i).revenueTrend);
                         jsonObject.addProperty("arpu", resultList.get(i).arpu);
                         jsonObject.addProperty("arpu_trend", resultList.get(i).arpuTrend);
+
+                        jsonObject.addProperty("total_uninstalled", resultList.get(i).totalUninstalled);
+                        jsonObject.addProperty("uninstalled_rate", resultList.get(i).uninstallRate);
+                        jsonObject.addProperty("cpa", Utils.trimDouble(resultList.get(i).cpa));
+                        jsonObject.addProperty("ecpm", Utils.trimDouble(resultList.get(i).ecpm * 1000));
+                        jsonObject.addProperty("incoming", Utils.trimDouble(resultList.get(i).incoming));
+
                         array.add(jsonObject);
                     }
 

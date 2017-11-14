@@ -121,6 +121,12 @@
                         <span>App Trend</span>
                     </a>
                 </li>
+                <li class="">
+                    <a href="country_report.jsp">
+                        <i class="fa fa-free-code-camp"></i>
+                        <span>Country Report</span>
+                    </a>
+                </li>
             </ul>
         </section>
         <!-- /.sidebar -->
