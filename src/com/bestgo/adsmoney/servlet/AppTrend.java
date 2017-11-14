@@ -313,7 +313,7 @@ public class AppTrend extends HttpServlet {
 
                     json.addProperty("ret", 1);
                     json.addProperty("message", "成功");
-                    json.addProperty("total", list.size());
+                    json.addProperty("total", resultList.size());
                     json.add("data", array);
                 } catch (Exception ex) {
                     json.addProperty("ret", 0);
