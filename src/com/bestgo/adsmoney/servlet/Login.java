@@ -21,7 +21,7 @@ public class Login extends HttpServlet {
             session.setAttribute("isAdmin", true);
             Cookie cookie = new Cookie("JSESSIONID",session.getId());
             cookie.setPath("/");
-            cookie.setMaxAge(30*60);
+            cookie.setMaxAge(-1);
             response.addCookie(cookie);
             JsonObject json = new JsonObject();
             json.addProperty("ret", 1);

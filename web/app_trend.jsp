@@ -279,7 +279,7 @@
                     <h3 class="box-title">Metrics</h3>
                 </div>
                 <!-- /.box-header -->
-                <div class="box-body">
+                <div class="box-body" style="overflow-x: auto">
                     <table id="metricTable" class="table table-bordered table-hover" cellspacing="0" width="100%">
                         <thead>
                         <tr>
@@ -461,6 +461,7 @@
                     $('#revenueChartTitle').text(new Date(last.date).toLocaleDateString()  + " - " + new Date(first.date).toLocaleDateString());
 
                     var labels = [];
+                    var incoming = [];
                     var totalUser = [];
                     var totalUserTrend = [];
                     var activeUser = [];
@@ -481,6 +482,7 @@
                         revenueTrend.push(one.revenue_trend);
                         arpu.push(one.arpu);
                         arpuTrend.push(one.arpu_trend);
+                        incoming.push(one.incoming);
                     }
                     var chartConfig = {
                         'type': 'line',
@@ -522,6 +524,12 @@
                                     borderColor         : '#e842f4',
                                     fill: false,
                                     data                : arpuTrend
+                                },
+                                {
+                                    label               : 'Incoming',
+                                    borderColor         : '#0aff0a',
+                                    fill: false,
+                                    data                : incoming
                                 },
                             ],
                         },

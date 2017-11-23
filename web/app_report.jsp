@@ -321,7 +321,7 @@
                     <h3 class="box-title">Metrics</h3>
                 </div>
                 <!-- /.box-header -->
-                <div class="box-body">
+                <div class="box-body" style="overflow-x: auto">
                     <table id="metricTable" class="table table-bordered table-hover" cellspacing="0" width="100%">
                         <thead>
                         <tr>
