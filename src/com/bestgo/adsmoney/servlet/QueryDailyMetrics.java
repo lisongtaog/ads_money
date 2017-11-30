@@ -21,7 +21,7 @@ public class QueryDailyMetrics extends HttpServlet {
         String date = request.getParameter("date");
         if ("iLoveMoney".equals(token)) {
             try {
-                String sql = "select date,app_id,country_code,sum(ad_revenue) as revenue " +
+                String sql = "select date,app_id,country_code,sum(ad_impression) as impression,sum(ad_revenue) as revenue " +
                         "from app_daily_metrics_history where date=? " +
                         "group by date, app_id, country_code";
 
@@ -31,6 +31,7 @@ public class QueryDailyMetrics extends HttpServlet {
                     JsonObject one = new JsonObject();
                     one.addProperty("app_id", list.get(i).get("app_id").toString());
                     one.addProperty("country_code", list.get(i).get("country_code").toString());
+                    one.addProperty("impression", Utils.convertDouble(list.get(i).get("impression"), 0));
                     one.addProperty("revenue", Utils.convertDouble(list.get(i).get("revenue"), 0));
                     array.add(one);
                 }
