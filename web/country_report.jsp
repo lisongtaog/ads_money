@@ -343,7 +343,7 @@
             { data: 'revenue' },
             { data: 'ecpm' },
             { data: 'incoming' },
-            { data: 'estimatedRevenue' },
+            { data: 'estimated_revenue' },
         ];
 
         if ($.fn.DataTable.isDataTable("#metricTable")) {
