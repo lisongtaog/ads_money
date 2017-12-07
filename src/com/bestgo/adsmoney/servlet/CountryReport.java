@@ -188,6 +188,7 @@ public class CountryReport extends HttpServlet {
                         jsonObject.addProperty("uninstalled_rate", one.uninstallRate);
                         jsonObject.addProperty("cpa", Utils.trimDouble(one.cpa));
                         jsonObject.addProperty("active_user", one.activeUser);
+                        jsonObject.addProperty("total_user", one.totalUser);
                         jsonObject.addProperty("revenue", Utils.trimDouble(one.revenue));
                         jsonObject.addProperty("ecpm", Utils.trimDouble(one.ecpm * 1000));
                         jsonObject.addProperty("incoming", Utils.trimDouble(one.incoming));
