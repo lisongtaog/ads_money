@@ -307,6 +307,7 @@ public class AppTrend extends HttpServlet {
                         jsonObject.addProperty("cpa", Utils.trimDouble(resultList.get(i).cpa));
                         jsonObject.addProperty("ecpm", Utils.trimDouble(resultList.get(i).ecpm * 1000));
                         jsonObject.addProperty("incoming", Utils.trimDouble(resultList.get(i).incoming));
+                        jsonObject.addProperty("estimatedRevenue", Utils.trimDouble(estimateRevenue(resultList.get(i).totalInstalled, resultList.get(i).uninstallRate, resultList.get(i).arpu)));
 
                         array.add(jsonObject);
                     }
@@ -327,5 +328,26 @@ public class AppTrend extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doPost(request, response);
+    }
+
+    private double estimateRevenue(double installUser, double uninstallRate, double arpu) {
+         double user = 0;
+        for (int i = 0; i < 14; i++) {
+            user += estimateAlivedUser(installUser, uninstallRate, i);
+        }
+        return user * arpu;
+    }
+
+    private double estimateAlivedUser(double installUser, double uninstallRate, int day) {
+        ArrayList<Double> uninstallRateList = new ArrayList<>();
+        uninstallRateList.add(1.0);
+        uninstallRateList.add(uninstallRate);
+        uninstallRateList.add(uninstallRate * 0.5);
+        uninstallRateList.add(uninstallRate * 0.5 * 0.1);
+        for (int i = 3; i < 14; i++) {
+            uninstallRateList.add(uninstallRateList.get(uninstallRateList.size() - 1) * 0.9);
+        }
+        double lastUser = installUser * uninstallRateList.get(day);
+        return lastUser;
     }
 }

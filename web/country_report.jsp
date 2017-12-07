@@ -225,6 +225,7 @@
                             <th>Installed</th>
                             <th>Uninstalled</th>
                             <th>UninstalledRate</th>
+                            <th>TotalUser</th>
                             <th>ActiveUser</th>
                             <th>CPA</th>
                             <th>Revenue</th>
@@ -335,6 +336,7 @@
             { data: 'total_installed' },
             { data: 'total_uninstalled' },
             { data: 'uninstalled_rate' },
+            { data: 'total_user' },
             { data: 'active_user' },
             { data: 'cpa' },
             { data: 'revenue' },

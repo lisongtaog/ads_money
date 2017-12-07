@@ -82,7 +82,7 @@ public class CountryReport extends HttpServlet {
                         one.ecpm = impression > 0 ? revenue / impression : 0;
                     }
 
-                    sql = "select country_code, sum(installed) as total_installed, sum(today_uninstalled) as today_uninstalled, sum(uninstalled) as total_uninstalled, sum(active_user) as active_user " +
+                    sql = "select country_code, sum(installed) as total_installed, sum(today_uninstalled) as today_uninstalled, sum(uninstalled) as total_uninstalled, sum(active_user) as total_user, sum(active_user) as active_user " +
                             "from app_firebase_daily_metrics_history " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
                     if (appIds.size() > 0) {
@@ -104,6 +104,7 @@ public class CountryReport extends HttpServlet {
                         long totalIntalled = Utils.convertLong(list.get(i).get("total_installed"), 0);
                         long totalUninstalled = Utils.convertLong(list.get(i).get("total_uninstalled"), 0);
                         long todayUninstalled = Utils.convertLong(list.get(i).get("today_uninstalled"), 0);
+                        long totalUser = Utils.convertLong(list.get(i).get("total_user"), 0);
                         long activeUser = Utils.convertLong(list.get(i).get("active_user"), 0);
                         CountryReportMetrics one = metricsMap.get(countryCode);
                         if (one == null) {
@@ -115,6 +116,7 @@ public class CountryReport extends HttpServlet {
                         one.totalInstalled = totalIntalled;
                         one.totalUninstalled = totalUninstalled;
                         one.todayUninstalled = todayUninstalled;
+                        one.totalUser = totalUser;
                         one.activeUser = activeUser;
                         one.uninstallRate = one.totalInstalled > 0 ? (one.todayUninstalled * 1.0f / one.totalInstalled) : 0;
                     }

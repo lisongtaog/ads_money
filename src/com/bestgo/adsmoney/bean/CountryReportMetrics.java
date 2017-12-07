@@ -13,6 +13,7 @@ public class CountryReportMetrics {
     public long totalUninstalled;
     public long todayUninstalled;
     public float uninstallRate;
+    public long totalUser;
     public long activeUser;
     public double cpa;
     public double revenue;
