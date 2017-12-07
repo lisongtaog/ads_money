@@ -82,7 +82,7 @@ public class CountryReport extends HttpServlet {
                         one.ecpm = impression > 0 ? revenue / impression : 0;
                     }
 
-                    sql = "select country_code, sum(installed) as total_installed, sum(today_uninstalled) as today_uninstalled, sum(uninstalled) as total_uninstalled, sum(active_user) as total_user, sum(active_user) as active_user " +
+                    sql = "select country_code, sum(installed) as total_installed, sum(today_uninstalled) as today_uninstalled, sum(uninstalled) as total_uninstalled, sum(total_user) as total_user, sum(active_user) as active_user " +
                             "from app_firebase_daily_metrics_history " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
                     if (appIds.size() > 0) {
