@@ -192,6 +192,8 @@ public class CountryReport extends HttpServlet {
                         jsonObject.addProperty("revenue", Utils.trimDouble(one.revenue));
                         jsonObject.addProperty("ecpm", Utils.trimDouble(one.ecpm * 1000));
                         jsonObject.addProperty("incoming", Utils.trimDouble(one.incoming));
+                        double arpu = one.activeUser > 0 ? (float)(one.revenue / one.activeUser) : 0;
+                        jsonObject.addProperty("estimated_revenue", Utils.trimDouble(estimateRevenue(one.purchasedUser, one.uninstallRate, arpu)));
                         array.add(jsonObject);
                     }
 
@@ -211,5 +213,26 @@ public class CountryReport extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doPost(request, response);
+    }
+
+    private double estimateRevenue(double installUser, double uninstallRate, double arpu) {
+        double user = 0;
+        for (int i = 0; i < 14; i++) {
+            user += estimateAlivedUser(installUser, uninstallRate, i);
+        }
+        return user * arpu;
+    }
+
+    private double estimateAlivedUser(double installUser, double uninstallRate, int day) {
+        ArrayList<Double> uninstallRateList = new ArrayList<>();
+        uninstallRateList.add(1.0);
+        uninstallRateList.add(1 - uninstallRate);
+        uninstallRateList.add((1 - uninstallRate) * 0.5);
+        uninstallRateList.add((1 - uninstallRate) * 0.5 * 0.1);
+        for (int i = 3; i < 14; i++) {
+            uninstallRateList.add(uninstallRateList.get(uninstallRateList.size() - 1) * 0.9);
+        }
+        double lastUser = installUser * uninstallRateList.get(day);
+        return lastUser;
     }
 }

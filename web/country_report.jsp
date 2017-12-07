@@ -231,6 +231,7 @@
                             <th>Revenue</th>
                             <th>ECPM</th>
                             <th>Incoming</th>
+                            <th>EstimatedRevenue14</th>
                         </tr>
                         </thead>
                     </table>
@@ -342,6 +343,7 @@
             { data: 'revenue' },
             { data: 'ecpm' },
             { data: 'incoming' },
+            { data: 'estimatedRevenue' },
         ];
 
         if ($.fn.DataTable.isDataTable("#metricTable")) {

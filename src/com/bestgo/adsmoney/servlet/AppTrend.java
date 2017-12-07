@@ -307,7 +307,7 @@ public class AppTrend extends HttpServlet {
                         jsonObject.addProperty("cpa", Utils.trimDouble(resultList.get(i).cpa));
                         jsonObject.addProperty("ecpm", Utils.trimDouble(resultList.get(i).ecpm * 1000));
                         jsonObject.addProperty("incoming", Utils.trimDouble(resultList.get(i).incoming));
-                        jsonObject.addProperty("estimatedRevenue", Utils.trimDouble(estimateRevenue(resultList.get(i).purchasedUser, resultList.get(i).uninstallRate, resultList.get(i).arpu)));
+                        jsonObject.addProperty("estimated_revenue", Utils.trimDouble(estimateRevenue(resultList.get(i).purchasedUser, resultList.get(i).uninstallRate, resultList.get(i).arpu)));
 
                         array.add(jsonObject);
                     }
