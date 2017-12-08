@@ -254,7 +254,7 @@ public class AppTrend extends HttpServlet {
                         one.revenue += tmpDataList.get(i).revenue;
                         one.impression += tmpDataList.get(i).impression;
                         one.cpa = one.purchasedUser > 0 ? one.cost / one.purchasedUser : 0;
-                        one.arpu = one.totalUser > 0 ? (float)(one.revenue / one.totalUser) : 0;
+                        one.arpu = one.activeUser > 0 ? (float)(one.revenue / one.activeUser) : 0;
                         one.uninstallRate = one.totalInstalled > 0 ? (one.todayUninstalled * 1.0f / one.totalInstalled) : 0;
                         one.ecpm = one.impression > 0 ? one.revenue / one.impression : 0;
                         one.incoming = one.revenue - one.cost;
@@ -307,7 +307,9 @@ public class AppTrend extends HttpServlet {
                         jsonObject.addProperty("cpa", Utils.trimDouble(resultList.get(i).cpa));
                         jsonObject.addProperty("ecpm", Utils.trimDouble(resultList.get(i).ecpm * 1000));
                         jsonObject.addProperty("incoming", Utils.trimDouble(resultList.get(i).incoming));
-                        jsonObject.addProperty("estimated_revenue", Utils.trimDouble(estimateRevenue(resultList.get(i).purchasedUser, resultList.get(i).uninstallRate, resultList.get(i).arpu)));
+                        double arpu1 = resultList.get(i).totalUser > 0 ? resultList.get(i).revenue / resultList.get(i).totalUser : 0;
+                        jsonObject.addProperty("estimated_revenue", Utils.trimDouble(estimateRevenue(resultList.get(i).purchasedUser,
+                                resultList.get(i).uninstallRate, resultList.get(i).arpu, arpu1)));
 
                         array.add(jsonObject);
                     }
@@ -330,12 +332,12 @@ public class AppTrend extends HttpServlet {
         doPost(request, response);
     }
 
-    private double estimateRevenue(double installUser, double uninstallRate, double arpu) {
+    private double estimateRevenue(double installUser, double uninstallRate, double arpu, double arpu1) {
          double user = 0;
         for (int i = 0; i < 14; i++) {
             user += estimateAlivedUser(installUser, uninstallRate, i);
         }
-        return user * arpu;
+        return installUser * arpu + (user - installUser) * arpu1;
     }
 
     private double estimateAlivedUser(double installUser, double uninstallRate, int day) {

@@ -193,7 +193,9 @@ public class CountryReport extends HttpServlet {
                         jsonObject.addProperty("ecpm", Utils.trimDouble(one.ecpm * 1000));
                         jsonObject.addProperty("incoming", Utils.trimDouble(one.incoming));
                         double arpu = one.activeUser > 0 ? (float)(one.revenue / one.activeUser) : 0;
-                        jsonObject.addProperty("estimated_revenue", Utils.trimDouble(estimateRevenue(one.purchasedUser, one.uninstallRate, arpu)));
+                        double arpu1 = one.totalUser > 0 ? (float)(one.revenue / one.totalUser) : 0;
+                        jsonObject.addProperty("estimated_revenue", Utils.trimDouble(estimateRevenue(one.purchasedUser,
+                                one.uninstallRate, arpu, arpu1)));
                         array.add(jsonObject);
                     }
 
@@ -215,12 +217,12 @@ public class CountryReport extends HttpServlet {
         doPost(request, response);
     }
 
-    private double estimateRevenue(double installUser, double uninstallRate, double arpu) {
+    private double estimateRevenue(double installUser, double uninstallRate, double arpu, double arpu1) {
         double user = 0;
         for (int i = 0; i < 14; i++) {
             user += estimateAlivedUser(installUser, uninstallRate, i);
         }
-        return user * arpu;
+        return installUser * arpu + (user - installUser) * arpu1;
     }
 
     private double estimateAlivedUser(double installUser, double uninstallRate, int day) {
