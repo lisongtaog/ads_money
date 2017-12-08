@@ -342,8 +342,8 @@ public class AppTrend extends HttpServlet {
         ArrayList<Double> uninstallRateList = new ArrayList<>();
         uninstallRateList.add(1.0);
         uninstallRateList.add(1 - uninstallRate);
-        uninstallRateList.add((1 - uninstallRate) * 0.5);
-        uninstallRateList.add((1 - uninstallRate) * 0.5 * 0.1);
+        uninstallRateList.add((1 - uninstallRate) * 0.85);
+        uninstallRateList.add((1 - uninstallRate) * 0.85 * 0.9);
         for (int i = 3; i < 14; i++) {
             uninstallRateList.add(uninstallRateList.get(uninstallRateList.size() - 1) * 0.9);
         }
