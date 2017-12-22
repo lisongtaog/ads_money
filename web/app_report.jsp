@@ -444,6 +444,7 @@
             { data: 'ad_click' },
             { data: 'ad_revenue' },
             { data: 'ecpm' },
+            { data: 'ctr' },
         ];
         for (var i = dimension.length - 1; i >= 0; i--) {
             switch (dimension[i]) {
@@ -505,6 +506,9 @@
                     break;
                 case "ad_network":
                     value = "Network";
+                    break;
+                case "ctr":
+                    value = "CTR";
                     break;
             }
             $('#metricTable thead tr').append($('<th>' + value + '</th>'));
