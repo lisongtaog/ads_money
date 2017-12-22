@@ -127,6 +127,12 @@
                         <span>Country Report</span>
                     </a>
                 </li>
+                <li class="">
+                    <a href="ctr_monitor.jsp">
+                        <i class="fa fa-check"></i>
+                        <span>CTR Monitor</span>
+                    </a>
+                </li>
             </ul>
         </section>
         <!-- /.sidebar -->
