@@ -322,7 +322,7 @@
         <div class="pull-right hidden-xs">
             <b>Version</b> 1.0
         </div>
-        <strong>Copyright &copy; 2012-2017 <a href="#">Thinking Mobile</a>.</strong> All rights
+        <strong>Copyright &copy; 2012-2017 <a href="#">Think Mobile</a>.</strong> All rights
         reserved.
     </footer>
 
@@ -370,7 +370,7 @@
         format: 'yyyy-mm-dd',
         autoclose: true
     });
-    $('#txtEndDate').datepicker('setDate', moment().subtract(2, 'days').format('YYYY-MM-DD'));
+    $('#txtEndDate').datepicker('setDate', moment().subtract(0, 'days').format('YYYY-MM-DD'));
 
     $('#btnQuery').click(function() {
         queryData();

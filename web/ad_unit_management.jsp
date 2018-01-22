@@ -160,7 +160,7 @@
         <div class="pull-right hidden-xs">
             <b>Version</b> 1.0
         </div>
-        <strong>Copyright &copy; 2012-2017 <a href="#">Thinking Mobile</a>.</strong> All rights
+        <strong>Copyright &copy; 2012-2017 <a href="#">Think Mobile</a>.</strong> All rights
         reserved.
     </footer>
 </div>
