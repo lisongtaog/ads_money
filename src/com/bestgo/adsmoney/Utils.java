@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -91,6 +92,10 @@ public class Utils {
         } catch (Exception ex) {
         }
         return defaultValue;
+    }
+
+    public static String formatDate(Date date) {
+        return String.format("%d-%02d-%02d", date.getYear() + 1900, date.getMonth() + 1, date.getDate());
     }
 
     public static double trimDouble(double value) {

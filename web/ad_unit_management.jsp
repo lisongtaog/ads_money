@@ -131,6 +131,12 @@
                         <span>CTR Monitor</span>
                     </a>
                 </li>
+                <li class="">
+                    <a href="ad_impression_monitor.jsp">
+                        <i class="fa fa-snowflake-o"></i>
+                        <span>Ad Impression Monitor</span>
+                    </a>
+                </li>
             </ul>
         </section>
         <!-- /.sidebar -->

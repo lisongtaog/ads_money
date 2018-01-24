@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Ads Money | Country Report</title>
+    <title>Ads Money | Impression Monitor</title>
     <link rel="shortcut icon" href="/images/favicon.ico">
 
     <!-- Tell the browser to be responsive to screen width -->
@@ -60,7 +60,6 @@
         }
 
         List<AppData> appDatas = AppManagement.fetchAllAppData();
-        HashMap<String, String> countryMap = Utils.getCountryMap();
     %>
 
     <header class="main-header">
@@ -130,8 +129,8 @@
                         <span>App Trend</span>
                     </a>
                 </li>
-                <li class="active">
-                    <a href="#">
+                <li class="">
+                    <a href="country_report.jsp">
                         <i class="fa fa-free-code-camp"></i>
                         <span>Country Report</span>
                     </a>
@@ -142,8 +141,8 @@
                         <span>CTR Monitor</span>
                     </a>
                 </li>
-                <li class="">
-                    <a href="ad_impression_monitor.jsp">
+                <li class="active">
+                    <a href="#">
                         <i class="fa fa-snowflake-o"></i>
                         <span>Ad Impression Monitor</span>
                     </a>
@@ -158,11 +157,11 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                Country Report
+                Impression Monitor
             </h1>
             <ol class="breadcrumb">
                 <li><a href="index.jsp"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li class="active">Country Report</li>
+                <li class="active">Impression Monitor</li>
             </ol>
         </section>
 
@@ -231,19 +230,24 @@
                     <table id="metricTable" class="table table-bordered table-hover" cellspacing="0" width="100%">
                         <thead>
                         <tr>
-                            <th>Country</th>
-                            <th>Cost</th>
-                            <th>PurchasedUser</th>
-                            <th>Installed</th>
-                            <th>Uninstalled</th>
-                            <th>UninstalledRate</th>
+                            <th>Date</th>
+                            <th>AppName</th>
                             <th>TotalUser</th>
                             <th>ActiveUser</th>
-                            <th>CPA</th>
-                            <th>Revenue</th>
-                            <th>ECPM</th>
-                            <th>Incoming</th>
-                            <th>EstimatedRevenue14</th>
+                            <th title="活跃用户除以总用户">ActiveUserRate</th>
+                            <th title="显示过广告的用户除以活跃用户">AdUserRate</th>
+                            <th title="显示过全屏的用户除以活跃用户">FullAdUserRate</th>
+                            <th title="显示过1次全屏的用户除以活跃用户">OneFullAdUserRate</th>
+                            <th>TwoFullAdUserRate</th>
+                            <th>ThreeFullAdUserRate</th>
+                            <th>FourFullAdUserRate</th>
+                            <th title="显示过5次以上全屏的用户除以活跃用户">FiveFullAdUserRate</th>
+                            <th>NativeAdUserRate</th>
+                            <th>OneNativeAdUserRate</th>
+                            <th>TwoNativeAdUserRate</th>
+                            <th>ThreeNativeAdUserRate</th>
+                            <th>FourNativeAdUserRate</th>
+                            <th>FiveNativeAdUserRate</th>
                         </tr>
                         </thead>
                     </table>
@@ -343,19 +347,24 @@
         var endDate = drp.endDate.format('YYYY-MM-DD');
 
         var columns = [
-            { data: 'country_name' },
-            { data: 'cost' },
-            { data: 'purchased_user' },
-            { data: 'total_installed' },
-            { data: 'total_uninstalled' },
-            { data: 'uninstalled_rate' },
+            { data: 'date' },
+            { data: 'app_name' },
             { data: 'total_user' },
             { data: 'active_user' },
-            { data: 'cpa' },
-            { data: 'revenue' },
-            { data: 'ecpm' },
-            { data: 'incoming' },
-            { data: 'estimated_revenue' },
+            { data: 'active_user_rate' },
+            { data: 'ad_user_rate' },
+            { data: 'full_ad_user_rate' },
+            { data: 'one_full_ad_user_rate' },
+            { data: 'two_full_ad_user_rate' },
+            { data: 'three_full_ad_user_rate' },
+            { data: 'four_full_ad_user_rate' },
+            { data: 'five_full_ad_user_rate' },
+            { data: 'native_ad_user_rate' },
+            { data: 'one_native_ad_user_rate' },
+            { data: 'two_native_ad_user_rate' },
+            { data: 'three_native_ad_user_rate' },
+            { data: 'four_native_ad_user_rate' },
+            { data: 'five_native_ad_user_rate' },
         ];
 
         if ($.fn.DataTable.isDataTable("#metricTable")) {
@@ -363,7 +372,7 @@
         }
 
         $('#metricTable').DataTable({
-            "ordering": false,
+            "ordering": true,
             "processing": true,
             "serverSide": true,
             "searching": false,
@@ -376,7 +385,8 @@
                 postData.end_date = endDate;
                 postData.page_index = data.start / data.length;
                 postData.page_size = data.length;
-                $.post("country_report/query", postData, function (data) {
+                postData.order = data.order[0].column + (data.order[0].dir == 'asc' ? 1000 : 0);
+                $.post("ad_impression_monitor/query", postData, function (data) {
                     if (data && data.ret == 1) {
                         var list = [];
                         for (var i = 0; i < data.data.length; i++) {
