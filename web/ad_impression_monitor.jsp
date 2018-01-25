@@ -235,14 +235,16 @@
                             <th>TotalUser</th>
                             <th>ActiveUser</th>
                             <th title="活跃用户除以总用户">ActiveUserRate</th>
-                            <th title="显示过广告的用户除以活跃用户">AdUserRate</th>
+                            <th title="显示过广告的用户除以活跃用户">NonAdUserRate</th>
                             <th title="显示过全屏的用户除以活跃用户">FullAdUserRate</th>
+                            <th title="全屏总数">FullAdCount</th>
                             <th title="显示过1次全屏的用户除以活跃用户">OneFullAdUserRate</th>
                             <th>TwoFullAdUserRate</th>
                             <th>ThreeFullAdUserRate</th>
                             <th>FourFullAdUserRate</th>
                             <th title="显示过5次以上全屏的用户除以活跃用户">FiveFullAdUserRate</th>
                             <th>NativeAdUserRate</th>
+                            <th>NativeAdCount</th>
                             <th>OneNativeAdUserRate</th>
                             <th>TwoNativeAdUserRate</th>
                             <th>ThreeNativeAdUserRate</th>
@@ -352,14 +354,16 @@
             { data: 'total_user' },
             { data: 'active_user' },
             { data: 'active_user_rate' },
-            { data: 'ad_user_rate' },
+            { data: 'non_ad_user_rate' },
             { data: 'full_ad_user_rate' },
+            { data: 'full_ad_count' },
             { data: 'one_full_ad_user_rate' },
             { data: 'two_full_ad_user_rate' },
             { data: 'three_full_ad_user_rate' },
             { data: 'four_full_ad_user_rate' },
             { data: 'five_full_ad_user_rate' },
             { data: 'native_ad_user_rate' },
+            { data: 'native_ad_count' },
             { data: 'one_native_ad_user_rate' },
             { data: 'two_native_ad_user_rate' },
             { data: 'three_native_ad_user_rate' },

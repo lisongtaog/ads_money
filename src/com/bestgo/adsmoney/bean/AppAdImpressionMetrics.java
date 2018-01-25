@@ -23,4 +23,6 @@ public class AppAdImpressionMetrics {
     public long threeNativeAdUser;
     public long fourNativeAdUser;
     public long fiveNativeAdUser;
+    public long fullAdCount;
+    public long nativeAdCount;
 }
