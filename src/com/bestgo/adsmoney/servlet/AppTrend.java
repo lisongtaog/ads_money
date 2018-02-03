@@ -299,9 +299,10 @@ public class AppTrend extends HttpServlet {
                         jsonObject.addProperty("active_user_trend", resultList.get(i).activeUserTrend);
                         jsonObject.addProperty("revenue", Utils.trimDouble(resultList.get(i).revenue));
                         jsonObject.addProperty("revenue_trend", resultList.get(i).revenueTrend);
-                        jsonObject.addProperty("arpu", resultList.get(i).arpu);
+                        jsonObject.addProperty("arpu", Utils.trimDouble(resultList.get(i).arpu * 10000));
                         jsonObject.addProperty("arpu_trend", resultList.get(i).arpuTrend);
 
+                        double arpu = resultList.get(i).arpu;
                         jsonObject.addProperty("total_uninstalled", resultList.get(i).totalUninstalled);
                         jsonObject.addProperty("uninstalled_rate", resultList.get(i).uninstallRate);
                         jsonObject.addProperty("cpa", Utils.trimDouble(resultList.get(i).cpa));
@@ -309,7 +310,7 @@ public class AppTrend extends HttpServlet {
                         jsonObject.addProperty("incoming", Utils.trimDouble(resultList.get(i).incoming));
                         double arpu1 = resultList.get(i).totalUser > 0 ? resultList.get(i).revenue / resultList.get(i).totalUser : 0;
                         jsonObject.addProperty("estimated_revenue", Utils.trimDouble(estimateRevenue(resultList.get(i).purchasedUser,
-                                resultList.get(i).uninstallRate, resultList.get(i).arpu, arpu1)));
+                                resultList.get(i).uninstallRate, arpu, arpu1)));
 
                         array.add(jsonObject);
                     }

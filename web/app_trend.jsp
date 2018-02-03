@@ -307,7 +307,7 @@
                             <th>ActiveUserTrend</th>
                             <th>Revenue</th>
                             <th>RevenueTrend</th>
-                            <th>ARPU</th>
+                            <th>ARPU*10000</th>
                             <th>ARPUTrend</th>
                             <th>CPA</th>
                             <th>ECPM</th>

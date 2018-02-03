@@ -37,6 +37,9 @@ public class CountryReport extends HttpServlet {
                 int index = Utils.parseInt(request.getParameter("page_index"), 0);
                 int size = Utils.parseInt(request.getParameter("page_size"), 20);
                 String filter = request.getParameter("filter");
+                int order = Utils.parseInt(request.getParameter("order"), 0);
+                boolean desc = order < 1000;
+                if (order > 1000) order = order - 1000;
 
                 if (filter == null || filter.isEmpty()) {
                     filter = "";
@@ -175,6 +178,59 @@ public class CountryReport extends HttpServlet {
                         String countryName = countryMap.get(one.countryName);
                         one.countryName = (countryName == null ? one.countryName : countryName);
                     }
+
+                    int orderIndex = order;
+                    resultList.sort(new Comparator<CountryReportMetrics>() {
+                        @Override
+                        public int compare(CountryReportMetrics o1, CountryReportMetrics o2) {
+                            double ret = 0;
+                            switch (orderIndex) {
+                                case 0:
+                                    ret = o1.countryName.compareTo(o2.countryName);
+                                    break;
+                                case 1:
+                                    ret = o1.cost - o2.cost;
+                                    break;
+                                case 2:
+                                    ret = o1.purchasedUser - o2.purchasedUser;
+                                    break;
+                                case 3:
+                                    ret = o1.totalInstalled - o2.totalInstalled;
+                                    break;
+                                case 4:
+                                    ret = o1.totalUninstalled - o2.totalUninstalled;
+                                    break;
+                                case 5:
+                                    ret = o1.uninstallRate - o2.uninstallRate;
+                                    break;
+                                case 6:
+                                    ret = o1.totalUser - o2.totalUser;
+                                    break;
+                                case 7:
+                                    ret = o1.activeUser - o2.activeUser;
+                                    break;
+                                case 8:
+                                    ret = o1.cpa - o2.cpa;
+                                    break;
+                                case 9:
+                                    ret = o1.revenue - o2.revenue;
+                                    break;
+                                case 10:
+                                    ret = o1.ecpm - o2.ecpm;
+                                    break;
+                                case 11:
+                                    ret = o1.incoming - o2.incoming;
+                                    break;
+                            }
+                            if (ret > 0) {
+                                return desc ? -1 : 1;
+                            } else if (ret == 0) {
+                                return 0;
+                            } else {
+                                return desc ? 1 : -1;
+                            }
+                        }
+                    });
 
                     JsonArray array = new JsonArray();
                     for (int i = index; i < resultList.size() && i < (index + size); i++) {
