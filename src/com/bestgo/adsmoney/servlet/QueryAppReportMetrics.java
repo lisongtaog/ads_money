@@ -35,7 +35,7 @@ public class QueryAppReportMetrics extends HttpServlet {
                     one.addProperty("filled", Utils.convertDouble(list.get(i).get("ad_filled"), 0));
                     one.addProperty("impression", Utils.convertDouble(list.get(i).get("ad_impression"), 0));
                     one.addProperty("click", Utils.convertDouble(list.get(i).get("ad_click"), 0));
-                    one.addProperty("revenue", Utils.convertDouble(list.get(i).get("ad_click"), 0));
+                    one.addProperty("revenue", Utils.convertDouble(list.get(i).get("ad_revenue"), 0));
                     array.add(one);
                 }
                 response.getWriter().write(array.toString());

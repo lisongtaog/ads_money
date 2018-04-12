@@ -146,6 +146,12 @@
                         <span>Ad Impression Monitor</span>
                     </a>
                 </li>
+                <li class="">
+                    <a href="daily_active_user.jsp">
+                        <i class="fa fa-microchip"></i>
+                        <span>Daily Active User(AntivirusV2 Only)</span>
+                    </a>
+                </li>
             </ul>
         </section>
         <!-- /.sidebar -->
