@@ -479,11 +479,11 @@
                     var totalUser = [];
                     var totalUserTrend = [];
                     var activeUser = [];
-                    var activeUserTrend = [];
+                    var totalInstalled = [];
                     var revenue = [];
-                    var revenueTrend = [];
+                    var ecpm = [];
                     var arpu = [];
-                    var arpuTrend = [];
+                    var cpa = [];
                     for (var i = list.length - 1; i >= 0; i--) {
                         var one = list[i];
                         var date = new Date(one.date).toLocaleDateString();
@@ -491,11 +491,11 @@
                         totalUser.push(one.total_user);
                         totalUserTrend.push(one.total_user_trend);
                         activeUser.push(one.active_user);
-                        activeUserTrend.push(one.active_user_trend);
+                        totalInstalled.push(one.total_installed);
                         revenue.push(one.revenue);
-                        revenueTrend.push(one.revenue_trend);
+                        ecpm.push(one.ecpm);
                         arpu.push(one.arpu);
-                        arpuTrend.push(one.arpu_trend);
+                        cpa.push(one.cpa);
                         incoming.push(one.incoming);
                     }
                     var chartConfig = {
@@ -510,10 +510,10 @@
                                     data                : totalUser
                                 },
                                 {
-                                    label               : 'TotalUserTrend',
+                                    label               : 'Installed',
                                     borderColor         : '#dd4b39',
                                     fill: false,
-                                    data                : totalUserTrend
+                                    data                : totalInstalled
                                 },
                                 {
                                     label               : 'Revenue',
@@ -522,10 +522,10 @@
                                     data                : revenue
                                 },
                                 {
-                                    label               : 'RevenueTrend',
+                                    label               : 'ECPM',
                                     borderColor         : '#f39c12',
                                     fill: false,
-                                    data                : revenueTrend
+                                    data                : ecpm
                                 },
                                 {
                                     label               : 'ARPU',
@@ -534,10 +534,10 @@
                                     data                : arpu
                                 },
                                 {
-                                    label               : 'ARPU Trend',
+                                    label               : 'CPA',
                                     borderColor         : '#e842f4',
                                     fill: false,
-                                    data                : arpuTrend
+                                    data                : cpa
                                 },
                                 {
                                     label               : 'Incoming',
