@@ -24,7 +24,7 @@ import java.util.List;
  */
 @WebServlet(name = "AdUnitManagement", urlPatterns = {"/ad_unit_management/*"})
 public class AdUnitManagement extends HttpServlet {
-    private static final String[] FIELDS = {"id", "app_id", "ad_network", "ad_unit_type", "ad_unit_id", "ad_unit_name"};
+    private static final String[] FIELDS = {"id", "app_id", "ad_network", "ad_unit_type", "ad_unit_id", "ad_unit_name", "admob_account"};
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!Utils.isAdmin(request, response)) return;
@@ -40,6 +40,7 @@ public class AdUnitManagement extends HttpServlet {
                 adUnitConfig.adUnitType = request.getParameter("ad_unit_type");
                 adUnitConfig.adUnitId = request.getParameter("ad_unit_id");
                 adUnitConfig.adUnitName = request.getParameter("ad_unit_name");
+                adUnitConfig.admobAccount = request.getParameter("admob_account");
 
                 OperationResult result = createNewAdUnit(adUnitConfig);
                 json.addProperty("ret", result.result ? 1 : 0);
@@ -57,6 +58,8 @@ public class AdUnitManagement extends HttpServlet {
                 adUnitConfig.adUnitType = request.getParameter("ad_unit_type");
                 adUnitConfig.adUnitId = request.getParameter("ad_unit_id");
                 adUnitConfig.adUnitName = request.getParameter("ad_unit_name");
+                adUnitConfig.admobAccount = request.getParameter("admob_account");
+
                 adUnitConfig.id = Utils.parseInt(request.getParameter("id"), 0);
                 OperationResult result = updateAdUnit(adUnitConfig);
                 json.addProperty("ret", result.result ? 1 : 0);
@@ -110,7 +113,7 @@ public class AdUnitManagement extends HttpServlet {
         List<JSObject> list = new ArrayList<>();
         try {
             String sql = "select app_ad_unit_config.id, app_ad_unit_config.app_id, app_ad_unit_config.ad_network, app_ad_unit_config.ad_unit_type, " +
-                    "app_ad_unit_config.ad_unit_id, app_ad_unit_config.ad_unit_name from app_ad_unit_config, app_data " +
+                    "app_ad_unit_config.ad_unit_id, app_ad_unit_config.ad_unit_name, app_ad_unit_config.admob_account from app_ad_unit_config, app_data " +
                     "where app_ad_unit_config.app_id=app_data.app_id and (app_name like " + "'%" + word + "%' or app_ad_unit_config.app_id like " + "'%" + word + "%'" +") order by id";
             return DB.findListBySql(sql);
         } catch (Exception ex) {
@@ -175,6 +178,7 @@ public class AdUnitManagement extends HttpServlet {
                         .put("ad_unit_type", adUnitConfig.adUnitType)
                         .put("ad_unit_id", adUnitConfig.adUnitId)
                         .put("ad_unit_name", adUnitConfig.adUnitName)
+                        .put("admob_account", adUnitConfig.admobAccount)
                         .execute();
 
                 one = DB.simpleScan("app_ad_unit_config").select("id").where(DB.filter().whereEqualTo("ad_unit_id", adUnitConfig.adUnitId)).execute();
@@ -188,6 +192,7 @@ public class AdUnitManagement extends HttpServlet {
                     ret.data.addProperty("ad_unit_type", adUnitConfig.adUnitType);
                     ret.data.addProperty("ad_unit_id", adUnitConfig.adUnitId);
                     ret.data.addProperty("ad_unit_name", adUnitConfig.adUnitName);
+                    ret.data.addProperty("admob_account", adUnitConfig.admobAccount);
                 }
             }
         } catch (Exception e) {
@@ -210,6 +215,7 @@ public class AdUnitManagement extends HttpServlet {
                     .put("ad_unit_type", adUnitConfig.adUnitType)
                     .put("ad_unit_id", adUnitConfig.adUnitId)
                     .put("ad_unit_name", adUnitConfig.adUnitName)
+                    .put("admob_account", adUnitConfig.admobAccount)
                     .where(DB.filter().whereEqualTo("id", adUnitConfig.id))
                     .execute();
 
@@ -224,6 +230,7 @@ public class AdUnitManagement extends HttpServlet {
                 ret.data.addProperty("ad_unit_type", adUnitConfig.adUnitType);
                 ret.data.addProperty("ad_unit_id", adUnitConfig.adUnitId);
                 ret.data.addProperty("ad_unit_name", adUnitConfig.adUnitName);
+                ret.data.addProperty("admob_account", adUnitConfig.admobAccount);
             }
         } catch (Exception e) {
             ret.result = false;

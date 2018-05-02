@@ -10,4 +10,5 @@ public class AppAdUnitConfig {
     public String adUnitType;
     public String adUnitId;
     public String adUnitName;
+    public String admobAccount;
 }

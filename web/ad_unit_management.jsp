@@ -51,6 +51,8 @@
         }
 
         List<AppData> appList = AppManagement.fetchAllAppData();
+
+        List<AppAdMobAccount> adMobAccounts = AdMobAccount.fetchAllAccounts();
     %>
     <header class="main-header">
 
@@ -154,6 +156,7 @@
                         <th>Ad Unit Type</th>
                         <th>Ad Unit Id</th>
                         <th>Ad Unit Name</th>
+                        <th>AdMob Account</th>
                     </tr>
                     </thead>
                 </table>
@@ -283,6 +286,18 @@
         }, {
             "label": "Ad Unit Name:",
             "name": "ad_unit_name",
+        }, {
+            "label": "AdMob Account:",
+            "name": "admob_account",
+            "type": "select",
+            "options": [
+                { label: "和应用保持一致", value: "" },
+                <%
+                for (int i = 0; i < adMobAccounts.size(); i++) {
+                %>
+                { label: "<%=adMobAccounts.get(i).accountName%>", value: "<%=adMobAccounts.get(i).account%>" },
+                <% } %>
+            ]
         }
         ]
     } );
@@ -324,6 +339,7 @@
             { data: 'ad_unit_type' },
             { data: 'ad_unit_id' },
             { data: 'ad_unit_name' },
+            { data: 'admob_account' },
             // etc
         ],
         select: true,
