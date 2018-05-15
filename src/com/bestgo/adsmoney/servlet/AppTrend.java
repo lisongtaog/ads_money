@@ -283,7 +283,7 @@ public class AppTrend extends HttpServlet {
                         index = 0;
                         size = resultList.size();
                     }
-                    for (int i = index; i < resultList.size() && i < (index + size); i++) {
+                    for (int i = index * size; i < resultList.size() && i < (index * size + size); i++) {
                         JsonObject jsonObject = new JsonObject();
                         if (path.equals("/get")) {
                             jsonObject.addProperty("date", resultList.get(i).date.getTime());

@@ -1,14 +1,18 @@
+<%@ page import="com.bestgo.adsmoney.servlet.AdMobAccount" %>
 <%@ page import="java.util.List" %>
+<%@ page import="com.bestgo.adsmoney.bean.AppAdMobAccount" %>
 <%@ page import="com.bestgo.adsmoney.bean.AppData" %>
+<%@ page import="com.bestgo.adsmoney.servlet.AppManagement" %>
+<%@ page import="com.bestgo.adsmoney.servlet.UserDefinedSql" %>
+<%@ page import="java.util.ArrayList" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <html>
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Ads Money | AdMob Account Management</title>
+    <title>Ads Money | User Defined SQL</title>
     <link rel="shortcut icon" href="/images/favicon.ico">
-
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <!-- Bootstrap 3.3.7 -->
@@ -19,6 +23,7 @@
     <link rel="stylesheet" href="http://money.uugame.info/admin_lte/bower_components/Ionicons/css/ionicons.min.css">
     <!-- DataTables -->
     <link rel="stylesheet" href="http://money.uugame.info/admin_lte/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.4.1/css/buttons.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.4.1/css/buttons.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.2.2/css/select.dataTables.min.css">
     <!-- Theme style -->
@@ -46,6 +51,10 @@
         if (object == null) {
             response.sendRedirect("login.jsp");
         }
+
+        List<AppData> appList = AppManagement.fetchAllAppData();
+
+        ArrayList<UserDefinedSql.SqlType> sqlTypeList = UserDefinedSql.getSqlTypeList();
     %>
     <header class="main-header">
 
@@ -90,8 +99,8 @@
                         <span>Firebase Management</span>
                     </a>
                 </li>
-                <li class="active">
-                    <a href="#">
+                <li class="">
+                    <a href="admob_account_management.jsp">
                         <i class="fa fa-th"></i>
                         <span>AdMob Account Management</span>
                     </a>
@@ -102,8 +111,8 @@
                         <span>Ad Unit Management</span>
                     </a>
                 </li>
-                <li class="">
-                    <a href="user_defined_sql.jsp">
+                <li class="active">
+                    <a href="#">
                         <i class="fa fa-scribd"></i>
                         <span>User Defined SQL</span>
                     </a>
@@ -156,9 +165,9 @@
                 <table id="appTable" class="table table-bordered table-hover" cellspacing="0" width="100%">
                     <thead>
                     <tr>
-                        <th>Account</th>
-                        <th>AccountName</th>
-                        <th>Operation</th>
+                        <th>AppId</th>
+                        <th>Sql Type</th>
+                        <th>Sql Text</th>
                     </tr>
                     </thead>
                 </table>
@@ -197,18 +206,21 @@
         "ajax": function ( method, url, data, success, error ) {
             var action = data.action;
             var postData = null;
+            var id = null;
             for (var key in data.data) {
+                id = key;
                 postData = data.data[key];
+                postData.id = id;
                 break;
             }
-            if (!postData) {
+            if (!postData || !id) {
                 error();
             } else {
                 switch (action) {
                     case 'create':
                         $.ajax( {
                             type: 'POST',
-                            url:  'admob_account_management/create',
+                            url:  'user_defined_sql/create',
                             data: postData,
                             dataType: "json",
                             success: function (json) {
@@ -222,7 +234,7 @@
                     case 'edit':
                         $.ajax( {
                             type: 'POST',
-                            url:  'admob_account_management/update',
+                            url:  'user_defined_sql/update',
                             data: postData,
                             dataType: "json",
                             success: function (json) {
@@ -236,7 +248,7 @@
                     case 'remove':
                         $.ajax( {
                             type: 'POST',
-                            url:  'admob_account_management/delete',
+                            url:  'user_defined_sql/delete',
                             data: postData,
                             dataType: "json",
                             success: function (json) {
@@ -257,13 +269,33 @@
 
             }
         },
-        "idSrc": "account",
+        "idSrc": "id",
         "fields": [ {
-            "label": "Account:",
-            "name": "account"
+            "label": "AppId:",
+            "name": "app_id",
+            "type": "select",
+            "options": [
+                <%
+                for (int i = 0; i < appList.size(); i++) {
+                %>
+                { label: "<%=appList.get(i).appName%>", value: "<%=appList.get(i).appId%>" },
+                <% } %>
+            ]
         }, {
-            "label": "Account Name:",
-            "name": "account_name"
+            "label": "Sql Type:",
+            "name": "sql_type",
+            "type": "select",
+            "options": [
+                <%
+                for (int i = 0; i < sqlTypeList.size(); i++) {
+                %>
+                { label: "<%=sqlTypeList.get(i).name%>", value: "<%=sqlTypeList.get(i).value%>" },
+                <% } %>
+            ]
+        }, {
+            "label": "Sql Text:",
+            "name": "sql_text",
+            "type": "textarea",
         }
         ]
     } );
@@ -279,13 +311,11 @@
             }
             postData.page_index = data.start / data.length;
             postData.page_size = data.length;
-            $.post("admob_account_management/query", postData, function (data) {
+            $.post("user_defined_sql/query", postData, function (data) {
                 if (data && data.ret == 1) {
                     var list = [];
                     for (var i = 0; i < data.data.length; i++) {
-                        data.data[i].operation = "<a href='auth/admob_oauth2?account=" + data.data[i].account +"' target='_blank'>Authorize</a>";
-                        list.push(
-                                data.data[i]
+                        list.push(data.data[i]
                         );
                     }
                     callback(
@@ -302,15 +332,16 @@
         },
         dom: 'Bfrtip',
         columns: [
-            { data: 'account' },
-            { data: 'account_name' },
-            { data: 'operation' },
+            { data: 'app_id' },
+            { data: 'sql_type' },
+            { data: 'sql_text' },
+            // etc
         ],
         select: true,
         buttons: [
             { extend: 'create', editor: editor },
             { extend: 'edit',   editor: editor },
-            { extend: 'remove', editor: editor },
+            { extend: 'remove', editor: editor }
         ]
     });
 </script>

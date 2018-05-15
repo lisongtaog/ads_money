@@ -117,6 +117,12 @@
                     </a>
                 </li>
                 <li class="">
+                    <a href="user_defined_sql.jsp">
+                        <i class="fa fa-scribd"></i>
+                        <span>User Defined SQL</span>
+                    </a>
+                </li>
+                <li class="">
                     <a href="app_report.jsp">
                         <i class="fa fa-folder"></i>
                         <span>App Report</span>
@@ -146,10 +152,16 @@
                         <span>Ad Impression Monitor</span>
                     </a>
                 </li>
+                <%--<li class="">--%>
+                    <%--<a href="daily_active_user.jsp">--%>
+                        <%--<i class="fa fa-microchip"></i>--%>
+                        <%--<span>Daily Active User(AntivirusV2 Only)</span>--%>
+                    <%--</a>--%>
+                <%--</li>--%>
                 <li class="">
-                    <a href="daily_active_user.jsp">
+                    <a href="active_user_ad_chance_report.jsp">
                         <i class="fa fa-microchip"></i>
-                        <span>Daily Active User(AntivirusV2 Only)</span>
+                        <span>Active User Ad Chance</span>
                     </a>
                 </li>
             </ul>

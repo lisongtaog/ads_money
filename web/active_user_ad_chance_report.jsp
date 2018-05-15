@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Ads Money | Country Report</title>
+    <title>Ads Money | Active User Ad Chance</title>
     <link rel="shortcut icon" href="/images/favicon.ico">
 
     <!-- Tell the browser to be responsive to screen width -->
@@ -136,8 +136,8 @@
                         <span>App Trend</span>
                     </a>
                 </li>
-                <li class="active">
-                    <a href="#">
+                <li class="">
+                    <a href="app_report.jsp">
                         <i class="fa fa-free-code-camp"></i>
                         <span>Country Report</span>
                     </a>
@@ -154,8 +154,8 @@
                         <span>Ad Impression Monitor</span>
                     </a>
                 </li>
-                <li class="">
-                    <a href="active_user_ad_chance_report.jsp">
+                <li class="active">
+                    <a href="#">
                         <i class="fa fa-microchip"></i>
                         <span>Active User Ad Chance</span>
                     </a>
@@ -170,11 +170,11 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                Country Report
+                Active User Ad Chance
             </h1>
             <ol class="breadcrumb">
                 <li><a href="index.jsp"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li class="active">Country Report</li>
+                <li class="active">Active User Ad Chance</li>
             </ol>
         </section>
 
@@ -197,6 +197,16 @@
                                     <%
                                         }
                                     %>
+                                </select>
+                                <select  id="filterCountry" class="form-control select2 select2-hidden-accessible" multiple="" data-placeholder="Select country" style="width: 100%;" tabindex="-1" aria-hidden="true">
+                                <%
+                                    for (String countryCode : countryMap.keySet()) {
+                                        String name = countryMap.get(countryCode);
+                                %>
+                                <option value="<%=countryCode%>"><%=name%></option>
+                                <%
+                                    }
+                                %>
                                 </select>
                             </div>
                         </div>
@@ -243,19 +253,24 @@
                     <table id="metricTable" class="table table-bordered table-hover" cellspacing="0" width="100%">
                         <thead>
                         <tr>
+                            <th>Date</th>
                             <th>Country</th>
-                            <th>Cost</th>
-                            <th>PurchasedUser</th>
-                            <th>Installed</th>
-                            <th>Uninstalled</th>
-                            <th>UninstalledRate</th>
-                            <th>TotalUser</th>
-                            <th>ActiveUser</th>
-                            <th>CPA</th>
-                            <th>Revenue</th>
-                            <th>ECPM</th>
-                            <th>Incoming</th>
-                            <th>EstimatedRevenue14</th>
+                            <th>AppName</th>
+                            <th>ActiveUserDay1</th>
+                            <th>AdChanceDay1</th>
+                            <th>AdChanceRateDay1</th>
+                            <th>ActiveUserDay2</th>
+                            <th>AdChanceDay2</th>
+                            <th>AdChanceRateDay2</th>
+                            <th>ActiveUserDay3</th>
+                            <th>AdChanceDay3</th>
+                            <th>AdChanceRateDay3</th>
+                            <th>ActiveUserDay4</th>
+                            <th>AdChanceDay4</th>
+                            <th>AdChanceRateDay4</th>
+                            <th>ActiveUserRateDay2</th>
+                            <th>ActiveUserRateDay3</th>
+                            <th>ActiveUserRateDay4</th>
                         </tr>
                         </thead>
                     </table>
@@ -353,21 +368,27 @@
         var drp = $('#reportrange').data('daterangepicker');
         var startDate = drp.startDate.format('YYYY-MM-DD');
         var endDate = drp.endDate.format('YYYY-MM-DD');
+        var filterCountry = $('#filterCountry').val();
 
         var columns = [
+            { data: 'date' },
             { data: 'country_name' },
-            { data: 'cost' },
-            { data: 'purchased_user' },
-            { data: 'total_installed' },
-            { data: 'total_uninstalled' },
-            { data: 'uninstalled_rate' },
-            { data: 'total_user' },
-            { data: 'active_user' },
-            { data: 'cpa' },
-            { data: 'revenue' },
-            { data: 'ecpm' },
-            { data: 'incoming' },
-            { data: 'estimated_revenue' },
+            { data: 'app_name' },
+            { data: 'active_user_day1' },
+            { data: 'ad_chance_day1' },
+            { data: 'ad_chance_rate_day1' },
+            { data: 'active_user_day2' },
+            { data: 'ad_chance_day2' },
+            { data: 'ad_chance_rate_day2' },
+            { data: 'active_user_day3' },
+            { data: 'ad_chance_day3' },
+            { data: 'ad_chance_rate_day3' },
+            { data: 'active_user_day4' },
+            { data: 'ad_chance_day4' },
+            { data: 'ad_chance_rate_day4' },
+            { data: 'active_user_rate_day2' },
+            { data: 'active_user_rate_day3' },
+            { data: 'active_user_rate_day4' },
         ];
 
         if ($.fn.DataTable.isDataTable("#metricTable")) {
@@ -384,12 +405,13 @@
             "ajax": function (data, callback, settings) {
                 var postData = {};
                 postData.filter = filter.join(",");
+                postData.filterCountry = filterCountry.join(",");
                 postData.start_date = startDate;
                 postData.end_date = endDate;
                 postData.page_index = data.start / data.length;
                 postData.page_size = data.length;
                 postData.order = data.order[0].column + (data.order[0].dir == 'asc' ? 1000 : 0);
-                $.post("country_report/query", postData, function (data) {
+                $.post("active_user_ad_chance/query", postData, function (data) {
                     if (data && data.ret == 1) {
                         var list = [];
                         for (var i = 0; i < data.data.length; i++) {

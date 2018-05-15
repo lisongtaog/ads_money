@@ -118,6 +118,12 @@
                         <span>Ad Unit Management</span>
                     </a>
                 </li>
+                <li class="">
+                    <a href="user_defined_sql.jsp">
+                        <i class="fa fa-scribd"></i>
+                        <span>User Defined SQL</span>
+                    </a>
+                </li>
                 <li class="active">
                     <a href="#">
                         <i class="fa fa-folder"></i>
@@ -146,6 +152,12 @@
                     <a href="ad_impression_monitor.jsp">
                         <i class="fa fa-snowflake-o"></i>
                         <span>Ad Impression Monitor</span>
+                    </a>
+                </li>
+                <li class="">
+                    <a href="active_user_ad_chance_report.jsp">
+                        <i class="fa fa-microchip"></i>
+                        <span>Active User Ad Chance</span>
                     </a>
                 </li>
             </ul>
