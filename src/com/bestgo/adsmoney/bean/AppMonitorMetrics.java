@@ -25,4 +25,5 @@ public class AppMonitorMetrics {
     public double cpa;
     public double ecpm;
     public double incoming;
+    public double estimatedRevenue;
 }

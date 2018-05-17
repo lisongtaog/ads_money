@@ -324,7 +324,7 @@
                             <th>CPA</th>
                             <th>ECPM</th>
                             <th>Incoming</th>
-                            <th>EstimatedRevenue14</th>
+                            <th>LTV</th>
                         </tr>
                         </thead>
                     </table>

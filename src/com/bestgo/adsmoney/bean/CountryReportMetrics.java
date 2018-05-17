@@ -19,4 +19,5 @@ public class CountryReportMetrics {
     public double revenue;
     public double ecpm;
     public double incoming;
+    public double estimatedRevenue;
 }

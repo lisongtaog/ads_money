@@ -52,6 +52,8 @@ public class CountryReport extends HttpServlet {
                 }
 
                 try {
+                    HashMap<String, CountryARPU> arpuHashMap = fetchNearbyARPU(startDate, appIds);
+
                     String sql = "select country_code, sum(ad_revenue) as ad_revenue, sum(ad_impression) as ad_impression " +
                             "from app_daily_metrics_history " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
@@ -124,6 +126,36 @@ public class CountryReport extends HttpServlet {
                         one.uninstallRate = one.totalInstalled > 0 ? (one.todayUninstalled * 1.0f / one.totalInstalled) : 0;
                     }
 
+                    sql = "select country_code, sum(estimated_revenue) as estimated_revenue " +
+                            "from app_user_life_time_history " +
+                            "where install_date between '" + startDate + "' and '" + endDate + "' ";
+                    if (appIds.size() > 0) {
+                        String ss = "";
+                        for (int i = 0; i < appIds.size(); i++) {
+                            if (i < appIds.size() - 1) {
+                                ss += "'" + appIds.get(i) + "',";
+                            } else {
+                                ss += "'" + appIds.get(i) + "'";
+                            }
+                        }
+                        sql += " and app_id in (" + ss + ")";
+                    }
+
+                    sql += " group by country_code";
+                    list = DB.findListBySql(sql);
+                    for (int i = 0; i < list.size(); i++) {
+                        String countryCode = list.get(i).get("country_code");
+                        double estimatedRevenue = Utils.convertDouble(list.get(i).get("estimated_revenue"), 0);
+                        CountryReportMetrics one = metricsMap.get(countryCode);
+                        if (one == null) {
+                            one = new CountryReportMetrics();
+                            metricsMap.put(countryCode, one);
+                            resultList.add(one);
+                        }
+                        one.countryName = countryCode;
+                        one.estimatedRevenue = estimatedRevenue;
+                    }
+
                     sql = "select country_code, sum(spend) as cost, sum(installed) as purchasedUser " +
                             "from app_ads_daily_metrics_history " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
@@ -156,6 +188,16 @@ public class CountryReport extends HttpServlet {
                         one.purchasedUser = purchasedUser;
                         one.cpa = one.purchasedUser > 0 ? one.cost / one.purchasedUser : 0;
                         one.incoming = one.revenue - one.cost;
+                    }
+
+                    for (int i = 0; i < resultList.size(); i++) {
+                        CountryReportMetrics one = resultList.get(i);
+                        if (one.estimatedRevenue == 0) {
+                            CountryARPU item = arpuHashMap.get(one.countryName);
+                            if (item != null && item.activeUser > 0) {
+                                one.estimatedRevenue = one.totalInstalled * item.estimatedRevenue / item.activeUser;
+                            }
+                        }
                     }
 
                     metricsMap.clear();
@@ -221,6 +263,9 @@ public class CountryReport extends HttpServlet {
                                 case 11:
                                     ret = o1.incoming - o2.incoming;
                                     break;
+                                case 12:
+                                    ret = o1.estimatedRevenue - o2.estimatedRevenue;
+                                    break;
                             }
                             if (ret > 0) {
                                 return desc ? -1 : 1;
@@ -248,10 +293,7 @@ public class CountryReport extends HttpServlet {
                         jsonObject.addProperty("revenue", Utils.trimDouble(one.revenue));
                         jsonObject.addProperty("ecpm", Utils.trimDouble(one.ecpm * 1000));
                         jsonObject.addProperty("incoming", Utils.trimDouble(one.incoming));
-                        double arpu = one.activeUser > 0 ? (float)(one.revenue / one.activeUser) : 0;
-                        double arpu1 = one.totalUser > 0 ? (float)(one.revenue / one.totalUser) : 0;
-                        jsonObject.addProperty("estimated_revenue", Utils.trimDouble(estimateRevenue(one.purchasedUser,
-                                one.uninstallRate, arpu, arpu1)));
+                        jsonObject.addProperty("estimated_revenue", Utils.trimDouble(resultList.get(i).estimatedRevenue));
                         array.add(jsonObject);
                     }
 
@@ -273,24 +315,60 @@ public class CountryReport extends HttpServlet {
         doPost(request, response);
     }
 
-    private double estimateRevenue(double installUser, double uninstallRate, double arpu, double arpu1) {
-        double user = 0;
-        for (int i = 0; i < 14; i++) {
-            user += estimateAlivedUser(installUser, uninstallRate, i);
-        }
-        return installUser * arpu + (user - installUser) * arpu1;
+    private class CountryARPU {
+        public long activeUser;
+        public double estimatedRevenue;
     }
+    private HashMap<String, CountryARPU> fetchNearbyARPU(String date, ArrayList<String> appIds) {
+        HashMap<String, CountryARPU> map = new HashMap<>();
+        try {
+            String sqlPart = "";
+            if (appIds.size() > 0) {
+                String ss = "";
+                for (int i = 0; i < appIds.size(); i++) {
+                    if (i < appIds.size() - 1) {
+                        ss += "'" + appIds.get(i) + "',";
+                    } else {
+                        ss += "'" + appIds.get(i) + "'";
+                    }
+                }
+                sqlPart += " and app_id in (" + ss + ")";
+            }
 
-    private double estimateAlivedUser(double installUser, double uninstallRate, int day) {
-        ArrayList<Double> uninstallRateList = new ArrayList<>();
-        uninstallRateList.add(1.0);
-        uninstallRateList.add(1 - uninstallRate);
-        uninstallRateList.add((1 - uninstallRate) * 0.85);
-        uninstallRateList.add((1 - uninstallRate) * 0.85 * 0.9);
-        for (int i = 3; i < 14; i++) {
-            uninstallRateList.add(uninstallRateList.get(uninstallRateList.size() - 1) * 0.9);
+            String sql = "select max(install_date) as target_date from app_user_life_time_history where install_date<? " + sqlPart;
+            JSObject one = DB.findOneBySql(sql, date);
+            if (one.hasObjectData()) {
+                Date targetDate = one.get("target_date");
+
+                sql = "select country_code, sum(active_count) as active_count " +
+                        "from app_user_life_time_history " +
+                        "where install_date=? and active_date=? " + sqlPart + " group by country_code";
+                List<JSObject> list = DB.findListBySql(sql, targetDate, targetDate);
+                for (int i = 0; i < list.size(); i++) {
+                    String countryCode = list.get(i).get("country_code");
+                    CountryARPU item = map.get(countryCode);
+                    if (item == null) {
+                        item = new CountryARPU();
+                        map.put(countryCode, item);
+                    }
+                    item.activeUser = Utils.convertLong(list.get(i).get("active_count"), 0);
+                }
+                sql = "select country_code, sum(estimated_revenue) as estimated_revenue " +
+                        "from app_user_life_time_history " +
+                        "where install_date=? " + sqlPart + " group by country_code";
+                list = DB.findListBySql(sql, targetDate);
+                for (int i = 0; i < list.size(); i++) {
+                    String countryCode = list.get(i).get("country_code");
+                    CountryARPU item = map.get(countryCode);
+                    if (item == null) {
+                        item = new CountryARPU();
+                        map.put(countryCode, item);
+                    }
+                    item.estimatedRevenue = Utils.convertDouble(list.get(i).get("estimated_revenue"), 0);
+                }
+            }
+        } catch (Exception ex) {
         }
-        double lastUser = installUser * uninstallRateList.get(day);
-        return lastUser;
+        return map;
     }
 }

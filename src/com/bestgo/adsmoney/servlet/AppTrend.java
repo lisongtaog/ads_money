@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @WebServlet(name = "AppTrend", urlPatterns = {"/app_trend/*"})
 public class AppTrend extends HttpServlet {
@@ -169,6 +170,46 @@ public class AppTrend extends HttpServlet {
                         one.uninstallRate = one.totalInstalled > 0 ? (one.todayUninstalled * 1.0f / one.totalInstalled) : 0;
                     }
 
+                    sql = "select install_date, sum(estimated_revenue) as estimated_revenue " +
+                            "from app_user_life_time_history " +
+                            "where install_date between '" + startDate + "' and '" + endDate + "' ";
+                    if (appIds.size() > 0) {
+                        String ss = "";
+                        for (int i = 0; i < appIds.size(); i++) {
+                            if (i < appIds.size() - 1) {
+                                ss += "'" + appIds.get(i) + "',";
+                            } else {
+                                ss += "'" + appIds.get(i) + "'";
+                            }
+                        }
+                        sql += " and app_id in (" + ss + ")";
+                    }
+                    if (countryCodes.size() > 0) {
+                        String ss = "";
+                        for (int i = 0; i < countryCodes.size(); i++) {
+                            if (i < countryCodes.size() - 1) {
+                                ss += "'" + countryCodes.get(i) + "',";
+                            } else {
+                                ss += "'" + countryCodes.get(i) + "'";
+                            }
+                        }
+                        sql += " and country_code in (" + ss + ")";
+                    }
+                    sql += " group by install_date order by install_date desc";
+                    list = DB.findListBySql(sql);
+                    for (int i = 0; i < list.size(); i++) {
+                        Date date = list.get(i).get("install_date");
+                        double estimatedRevenue = Utils.convertDouble(list.get(i).get("estimated_revenue"), 0);
+                        AppMonitorMetrics one = metricsMap.get(date);
+                        if (one == null) {
+                            one = new AppMonitorMetrics();
+                            metricsMap.put(date, one);
+                            tmpDataList.add(one);
+                        }
+                        one.date = date;
+                        one.estimatedRevenue = estimatedRevenue;
+                    }
+
                     sql = "select date, sum(spend) as cost, sum(installed) as purchasedUser " +
                             "from app_ads_daily_metrics_history " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
@@ -238,6 +279,7 @@ public class AppTrend extends HttpServlet {
                             break;
                     }
                     AppMonitorMetrics one = new AppMonitorMetrics();
+                    double lastARPU = -1;
                     for (int i = 0; i < tmpDataList.size(); i++) {
                         if (i % remainder == 0) {
                             one = new AppMonitorMetrics();
@@ -258,6 +300,13 @@ public class AppTrend extends HttpServlet {
                         one.uninstallRate = one.totalInstalled > 0 ? (one.todayUninstalled * 1.0f / one.totalInstalled) : 0;
                         one.ecpm = one.impression > 0 ? one.revenue / one.impression : 0;
                         one.incoming = one.revenue - one.cost;
+                        one.estimatedRevenue += tmpDataList.get(i).estimatedRevenue;
+                        if (one.estimatedRevenue == 0) {
+                            if (lastARPU == -1) {
+                                lastARPU = fetchNearbyARPU(one.date.toString(), appIds, countryCodes);
+                            }
+                            one.estimatedRevenue = lastARPU * one.totalInstalled;
+                        }
                     }
 
                     for (int i = 0; i < resultList.size(); i++) {
@@ -302,15 +351,12 @@ public class AppTrend extends HttpServlet {
                         jsonObject.addProperty("arpu", Utils.trimDouble(resultList.get(i).arpu * 10000));
                         jsonObject.addProperty("arpu_trend", resultList.get(i).arpuTrend);
 
-                        double arpu = resultList.get(i).arpu;
                         jsonObject.addProperty("total_uninstalled", resultList.get(i).totalUninstalled);
                         jsonObject.addProperty("uninstalled_rate", resultList.get(i).uninstallRate);
                         jsonObject.addProperty("cpa", Utils.trimDouble(resultList.get(i).cpa));
                         jsonObject.addProperty("ecpm", Utils.trimDouble(resultList.get(i).ecpm * 1000));
                         jsonObject.addProperty("incoming", Utils.trimDouble(resultList.get(i).incoming));
-                        double arpu1 = resultList.get(i).totalUser > 0 ? resultList.get(i).revenue / resultList.get(i).totalUser : 0;
-                        jsonObject.addProperty("estimated_revenue", Utils.trimDouble(estimateRevenue(resultList.get(i).purchasedUser,
-                                resultList.get(i).uninstallRate, arpu, arpu1)));
+                        jsonObject.addProperty("estimated_revenue", Utils.trimDouble(resultList.get(i).estimatedRevenue));
 
                         array.add(jsonObject);
                     }
@@ -333,24 +379,56 @@ public class AppTrend extends HttpServlet {
         doPost(request, response);
     }
 
-    private double estimateRevenue(double installUser, double uninstallRate, double arpu, double arpu1) {
-         double user = 0;
-        for (int i = 0; i < 14; i++) {
-            user += estimateAlivedUser(installUser, uninstallRate, i);
-        }
-        return installUser * arpu + (user - installUser) * arpu1;
-    }
+    private double fetchNearbyARPU(String date, ArrayList<String> appIds, ArrayList<String> countryCodes) {
+        try {
+            String sqlPart = "";
+            if (appIds.size() > 0) {
+                String ss = "";
+                for (int i = 0; i < appIds.size(); i++) {
+                    if (i < appIds.size() - 1) {
+                        ss += "'" + appIds.get(i) + "',";
+                    } else {
+                        ss += "'" + appIds.get(i) + "'";
+                    }
+                }
+                sqlPart += " and app_id in (" + ss + ")";
+            }
+            if (countryCodes.size() > 0) {
+                String ss = "";
+                for (int i = 0; i < countryCodes.size(); i++) {
+                    if (i < countryCodes.size() - 1) {
+                        ss += "'" + countryCodes.get(i) + "',";
+                    } else {
+                        ss += "'" + countryCodes.get(i) + "'";
+                    }
+                }
+                sqlPart += " and country_code in (" + ss + ")";
+            }
 
-    private double estimateAlivedUser(double installUser, double uninstallRate, int day) {
-        ArrayList<Double> uninstallRateList = new ArrayList<>();
-        uninstallRateList.add(1.0);
-        uninstallRateList.add(1 - uninstallRate);
-        uninstallRateList.add((1 - uninstallRate) * 0.85);
-        uninstallRateList.add((1 - uninstallRate) * 0.85 * 0.9);
-        for (int i = 3; i < 14; i++) {
-            uninstallRateList.add(uninstallRateList.get(uninstallRateList.size() - 1) * 0.9);
+            String sql = "select max(install_date) as target_date from app_user_life_time_history where install_date<? " + sqlPart;
+            JSObject one = DB.findOneBySql(sql, date);
+            if (one.hasObjectData()) {
+                Date targetDate = one.get("target_date");
+
+                long activeCount = 0;
+                sql = "select sum(active_count) as active_count " +
+                        "from app_user_life_time_history " +
+                        "where install_date=? and active_date=? " + sqlPart;
+                one = DB.findOneBySql(sql, targetDate, targetDate);
+                if (one.hasObjectData()) {
+                    activeCount = Utils.convertLong(one.get("active_count"), 0);
+                }
+                sql = "select sum(estimated_revenue) as estimated_revenue " +
+                        "from app_user_life_time_history " +
+                        "where install_date=? " + sqlPart;
+                one = DB.findOneBySql(sql, targetDate);
+                if (one.hasObjectData()) {
+                    double estimatedRevenue = Utils.convertDouble(one.get("estimated_revenue"), 0);
+                    return estimatedRevenue / activeCount;
+                }
+            }
+        } catch (Exception ex) {
         }
-        double lastUser = installUser * uninstallRateList.get(day);
-        return lastUser;
+        return 0;
     }
 }
