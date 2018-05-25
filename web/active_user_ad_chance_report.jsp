@@ -160,6 +160,12 @@
                         <span>Active User Ad Chance</span>
                     </a>
                 </li>
+                <li class="">
+                    <a href="app_hourly_trend.jsp">
+                        <i class="fa fa-quora"></i>
+                        <span>App Hourly Tread</span>
+                    </a>
+                </li>
             </ul>
         </section>
         <!-- /.sidebar -->
