@@ -163,7 +163,7 @@
                 <li class="">
                     <a href="app_hourly_trend.jsp">
                         <i class="fa fa-quora"></i>
-                        <span>App Hourly Tread</span>
+                        <span>App Hourly Trend</span>
                     </a>
                 </li>
             </ul>
@@ -180,7 +180,7 @@
             </h1>
             <ol class="breadcrumb">
                 <li><a href="index.jsp"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li class="active">App Report</li>
+                <li class="active">App Hourly Trend</li>
             </ol>
         </section>
 
@@ -505,14 +505,13 @@
                             var oneCol = [];
                             oneCol.label = new Date(dateList[i].date).toLocaleDateString() + " " + columns[index];
                             oneCol.fill = false;
-                            oneCol.borderColor = colors[(i * 3 + index) % 3];
+                            oneCol.borderColor = colors[index % 3 + i * 3];
                             oneCol.data = [];
                             for (var j = 0; j < dateList[i].hourData.length; j++) {
                                 oneCol.data.push(dateList[i].hourData[j][columns[index]]);
                             }
                             dataSets.push(oneCol);
                         }
-
                     }
                     var chartConfig = {
                         'type': 'line',

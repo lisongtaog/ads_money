@@ -161,7 +161,7 @@
                 <li class="">
                     <a href="app_hourly_trend.jsp">
                         <i class="fa fa-quora"></i>
-                        <span>App Hourly Tread</span>
+                        <span>App Hourly Trend</span>
                     </a>
                 </li>
             </ul>
