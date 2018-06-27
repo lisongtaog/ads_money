@@ -166,6 +166,7 @@
                     <tr>
                         <th>ProjectId</th>
                         <th>ProjectName</th>
+                        <th>PropertyId</th>
                     </tr>
                     </thead>
                 </table>
@@ -274,6 +275,9 @@
         }, {
             "label": "ProjectName:",
             "name": "project_name"
+        }, {
+            "label": "PropertyId:",
+            "name": "property_id"
         },
         ]
     } );
@@ -312,6 +316,7 @@
         columns: [
             { data: 'project_id' },
             { data: 'project_name' },
+            { data: 'property_id' },
             // etc
         ],
         select: true,

@@ -7,4 +7,5 @@ public class FirebaseProject {
     public long id;
     public String projectId;
     public String projectName;
+    public String propertyId;
 }

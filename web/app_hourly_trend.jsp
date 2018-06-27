@@ -124,8 +124,8 @@
                         <span>User Defined SQL</span>
                     </a>
                 </li>
-                <li class="active">
-                    <a href="#">
+                <li class="">
+                    <a href="app_report.jsp">
                         <i class="fa fa-folder"></i>
                         <span>App Report</span>
                     </a>
@@ -160,7 +160,7 @@
                         <span>Active User Ad Chance</span>
                     </a>
                 </li>
-                <li class="">
+                <li class="active">
                     <a href="app_hourly_trend.jsp">
                         <i class="fa fa-quora"></i>
                         <span>App Hourly Trend</span>

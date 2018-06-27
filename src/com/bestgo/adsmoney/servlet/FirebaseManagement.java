@@ -24,7 +24,7 @@ import java.util.List;
  */
 @WebServlet(name = "FirebaseManagement", urlPatterns = {"/firebase_management/*"})
 public class FirebaseManagement extends HttpServlet {
-    private static final String[] FIELDS = {"id", "project_id", "project_name"};
+    private static final String[] FIELDS = {"id", "project_id", "project_name", "property_id"};
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!Utils.isAdmin(request, response)) return;
@@ -37,6 +37,7 @@ public class FirebaseManagement extends HttpServlet {
                 FirebaseProject firebaseProject = new FirebaseProject();
                 firebaseProject.projectId = request.getParameter("project_id");
                 firebaseProject.projectName = request.getParameter("project_name");
+                firebaseProject.propertyId = request.getParameter("property_id");
 
                 OperationResult result = createNewFirebaseProject(firebaseProject);
                 json.addProperty("ret", result.result ? 1 : 0);
@@ -51,6 +52,7 @@ public class FirebaseManagement extends HttpServlet {
                 FirebaseProject project = new FirebaseProject();
                 project.projectId = request.getParameter("project_id");
                 project.projectName = request.getParameter("project_name");
+                project.propertyId = request.getParameter("property_id");
                 project.id = Utils.parseInt(request.getParameter("id"), 0);
                 OperationResult result = updateFirebaseProject(project);
                 json.addProperty("ret", result.result ? 1 : 0);
@@ -165,6 +167,7 @@ public class FirebaseManagement extends HttpServlet {
                 DB.insert("app_firebase_project")
                         .put("project_id", project.projectId)
                         .put("project_name", project.projectName)
+                        .put("property_id", project.propertyId)
                         .execute();
 
                 one = DB.simpleScan("app_firebase_project").select("id").where(DB.filter().whereEqualTo("project_id", project.projectId)).execute();
@@ -175,6 +178,7 @@ public class FirebaseManagement extends HttpServlet {
                     ret.data.addProperty("id", (long)one.get("id"));
                     ret.data.addProperty("project_id", project.projectId);
                     ret.data.addProperty("project_name", project.projectName);
+                    ret.data.addProperty("property_id", project.propertyId);
                 }
             }
         } catch (Exception e) {
@@ -194,6 +198,7 @@ public class FirebaseManagement extends HttpServlet {
             DB.update("app_firebase_project")
                     .put("project_id", project.projectId)
                     .put("project_name", project.projectName)
+                    .put("property_id", project.propertyId)
                     .where(DB.filter().whereEqualTo("id", project.id))
                     .execute();
 
@@ -205,6 +210,7 @@ public class FirebaseManagement extends HttpServlet {
                 ret.data.addProperty("id", (long)one.get("id"));
                 ret.data.addProperty("project_id", project.projectId);
                 ret.data.addProperty("project_name", project.projectName);
+                ret.data.addProperty("property_id", project.propertyId);
             }
         } catch (Exception e) {
             ret.result = false;
@@ -225,6 +231,7 @@ public class FirebaseManagement extends HttpServlet {
                 one.id = projects.get(i).get("id");
                 one.projectId = projects.get(i).get("project_id");
                 one.projectName = projects.get(i).get("project_name");
+                one.propertyId = projects.get(i).get("property_id");
                 list.add(one);
             }
         } catch (Exception ex) {

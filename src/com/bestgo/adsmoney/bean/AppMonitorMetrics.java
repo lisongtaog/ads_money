@@ -26,4 +26,7 @@ public class AppMonitorMetrics {
     public double ecpm;
     public double incoming;
     public double estimatedRevenue;
+    public long recommendImpression;
+    public long recommendClick;
+    public long recommendInstalled;
 }

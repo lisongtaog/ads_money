@@ -255,6 +255,55 @@ public class AppTrend extends HttpServlet {
                         one.incoming = one.revenue - one.cost;
                     }
 
+                    /*sql = "select date, action, sum(value) as value " +
+                            "from app_recommend_daily_history " +
+                            "where date between '" + startDate + "' and '" + endDate + "' ";
+                    if (appIds.size() > 0) {
+                        String ss = "";
+                        for (int i = 0; i < appIds.size(); i++) {
+                            if (i < appIds.size() - 1) {
+                                ss += "'" + appIds.get(i) + "',";
+                            } else {
+                                ss += "'" + appIds.get(i) + "'";
+                            }
+                        }
+                        sql += " and app_id in (" + ss + ")";
+                    }
+                    if (countryCodes.size() > 0) {
+                        String ss = "";
+                        for (int i = 0; i < countryCodes.size(); i++) {
+                            if (i < countryCodes.size() - 1) {
+                                ss += "'" + countryCodes.get(i) + "',";
+                            } else {
+                                ss += "'" + countryCodes.get(i) + "'";
+                            }
+                        }
+                        sql += " and country_code in (" + ss + ")";
+                    }
+                    sql += " group by date, action order by date desc";
+                    list = DB.findListBySql(sql);
+
+                    for (int i = 0; i < list.size(); i++) {
+                        Date date = list.get(i).get("date");
+                        String action = list.get(i).get("action");
+                        long value = Utils.convertLong(list.get(i).get("value"), 0);
+                        AppMonitorMetrics one = metricsMap.get(date);
+                        if (one == null) {
+                            one = new AppMonitorMetrics();
+                            metricsMap.put(date, one);
+                            tmpDataList.add(one);
+                        }
+                        if (action.equals("显示")) {
+                            one.recommendImpression = value;
+                        }
+                        if (action.equals("点击")) {
+                            one.recommendClick = value;
+                        }
+                        if (action.equals("安装")) {
+                            one.recommendInstalled = value;
+                        }
+                    }*/
+
                     metricsMap.clear();
                     Collections.sort(tmpDataList, new Comparator<AppMonitorMetrics>() {
                         @Override
@@ -289,6 +338,9 @@ public class AppTrend extends HttpServlet {
                         one.cost += tmpDataList.get(i).cost;
                         one.purchasedUser += tmpDataList.get(i).purchasedUser;
                         one.totalInstalled += tmpDataList.get(i).totalInstalled;
+                        one.recommendImpression += tmpDataList.get(i).recommendImpression;
+                        one.recommendClick += tmpDataList.get(i).recommendClick;
+                        one.recommendInstalled += tmpDataList.get(i).recommendInstalled;
                         one.totalUninstalled += tmpDataList.get(i).totalUninstalled;
                         one.todayUninstalled += tmpDataList.get(i).todayUninstalled;
                         one.totalUser += tmpDataList.get(i).totalUser;
@@ -341,6 +393,9 @@ public class AppTrend extends HttpServlet {
                         }
                         jsonObject.addProperty("cost", Utils.trimDouble(resultList.get(i).cost));
                         jsonObject.addProperty("purchased_user", resultList.get(i).purchasedUser);
+                        jsonObject.addProperty("recommend_impression", resultList.get(i).recommendImpression);
+                        jsonObject.addProperty("recommend_click", resultList.get(i).recommendClick);
+                        jsonObject.addProperty("recommend_installed", resultList.get(i).recommendInstalled);
                         jsonObject.addProperty("total_installed", resultList.get(i).totalInstalled);
                         jsonObject.addProperty("total_user", resultList.get(i).totalUser);
                         jsonObject.addProperty("total_user_trend", resultList.get(i).totalUserTrend);
