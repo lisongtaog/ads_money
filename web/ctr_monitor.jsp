@@ -129,6 +129,12 @@
                     </a>
                 </li>
                 <li class="">
+                    <a href="app_recom_report.jsp">
+                        <i class="fa fa-folder"></i>
+                        <span>App Recommend Report</span>
+                    </a>
+                </li>
+                <li class="">
                     <a href="app_trend.jsp">
                         <i class="fa fa-superpowers"></i>
                         <span>App Trend</span>
