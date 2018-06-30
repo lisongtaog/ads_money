@@ -88,12 +88,12 @@ public class RecommendReport extends HttpServlet {
 
             try {
                 StringBuffer sqlBuff = new StringBuffer();
-                sqlBuff.append("SELECT d.date,d.app_id,d.country_code,d.target_app_id,")
+                sqlBuff.append("SELECT d.date,d.app_id,d.country_code,d.target_app_id,SUBSTRING_INDEX(d.more,'|',1) AS spend,SUBSTRING_INDEX(d.more,'|',-1) as installed,")
                         .append("IFNULL(d.ad_impression,0) as ad_impression,")
                         .append("IFNULL(d.ad_click,0) as ad_click,")
                         .append("IFNULL(d.ad_installed,0) as ad_installed ")
                         .append(" FROM (")
-                                .append("SELECT DISTINCT r.date,r.app_id,r.country_code,r.target_app_id,")
+                                .append("SELECT DISTINCT r.date,r.app_id,r.country_code,r.target_app_id,fetchCPA(r.date,r.country_code,r.app_id) AS more,")
                                 .append("(SELECT s1.value from app_recommend_daily_history s1 WHERE s1.action = '显示' and s1.date = r.date and s1.app_id = r.app_id and s1.country_code = r.country_code and s1.target_app_id = r.target_app_id) as ad_impression, ")
                                 .append("(SELECT s2.value from app_recommend_daily_history s2 WHERE s2.action = '点击' and s2.date = r.date and s2.app_id = r.app_id and s2.country_code = r.country_code and s2.target_app_id = r.target_app_id) as ad_click, ")
                                 .append("(SELECT s3.value from app_recommend_daily_history s3 WHERE s3.action = '安装' and s3.date = r.date and s3.app_id = r.app_id and s3.country_code = r.country_code and s3.target_app_id = r.target_app_id) as ad_installed ")
@@ -156,7 +156,7 @@ public class RecommendReport extends HttpServlet {
                 sql += " limit " + index * size + "," + size;
                 List<JSObject> list = DB.findListBySql(sql);
 
-                String[] columns = {"date","app_id","country_code","target_app_id","ad_impression","ad_click","ad_installed"};
+                String[] columns = {"date","app_id","country_code","target_app_id","ad_impression","ad_click","ad_installed","spend","installed"};
                 List<String> fields = Arrays.asList(columns);
                 //从app_ads_daily_metrics_history中获取CPA作为互推应用的收益；计算互推应用的ECPM等
                 JsonArray array = new JsonArray();
@@ -193,7 +193,7 @@ public class RecommendReport extends HttpServlet {
                     double spend = 0D;//总花费
                     int installed = 0;//总安装
 
-                    //取app_ads_daily_metrics_history中的CPA 作为收益 -begin
+                    /*//取app_ads_daily_metrics_history中的CPA 作为收益 -begin
                     String revenueSql = "select sum(spend) as spend,sum(installed) as installed from app_ads_daily_metrics_history where 1=1 ";
                     revenueSql += " and date = '" + one.get("date").getAsString().replace("\"","") +"'";
                     revenueSql += " and app_id = '" + one.get("app_id").getAsString().replace("\"","") + "'";
@@ -215,7 +215,10 @@ public class RecommendReport extends HttpServlet {
                     }else{
                         spend = Utils.convertDouble(cpaObj.get("spend"),0);//总花费
                         installed = Utils.parseInt(cpaObj.get("installed").toString(),0);//总安装
-                    }
+                    }*/
+
+                    spend = Double.parseDouble(list.get(i).get("spend"));//总花费
+                    installed = Integer.parseInt(list.get(i).get("installed"));//总安装
 
                     double revenue = installed == 0 ? 0 : Utils.convertDouble(spend/installed,0);
 
