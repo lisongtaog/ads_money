@@ -54,6 +54,9 @@ public class RecommendReport extends HttpServlet {
             String filter = request.getParameter("filter");
             String filterTarget = request.getParameter("filterTarget");
             String filterCountry = request.getParameter("filterCountry");
+            int order = Utils.parseInt(request.getParameter("order"), 0);
+            boolean desc = order < 1000;
+            if (order >= 1000) order = order - 1000;
 
             if (filter == null || filter.isEmpty()) {
                 filter = "";
@@ -137,7 +140,16 @@ public class RecommendReport extends HttpServlet {
 
                 List<JSObject> count = DB.findListBySql(sqlBuff.toString());
 
-                sqlBuff.append("ORDER BY d.date,d.app_id,d.country_code,d.target_app_id");
+                String[] orders = {" order by date "," order by app_id", " order by country_code"," order by target_app_id ",
+                        " order by ad_impression", " order by ad_click"," order by ad_installed ",
+                        " order by ad_revenue ", " order by ecpm "," order by ctr " //这三个值是计算出来的，暂时无法排序
+                };
+                if (order < orders.length) {//单列排序
+                    sqlBuff.append(orders[order] + (desc ? " desc" : ""));
+                }else{//默认排序
+                    sqlBuff.append("ORDER BY d.date,d.app_id,d.country_code,d.target_app_id");
+                }
+
                 String sql = sqlBuff.toString();
 
 

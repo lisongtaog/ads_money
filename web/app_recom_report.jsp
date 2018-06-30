@@ -472,9 +472,9 @@
             { data: 'ad_impression' },
             { data: 'ad_click' },
             { data: 'ad_installed' },
-            { data: 'ad_revenue' },
-            { data: 'ecpm' },
-            { data: 'ctr' }
+            { data: 'ad_revenue',"orderable":false },
+            { data: 'ecpm',"orderable":false },
+            { data: 'ctr',"orderable":false }
         ];
         if ($.fn.DataTable.isDataTable("#metricTable")) {
             $('#metricTable').DataTable().clear().destroy();
@@ -519,7 +519,7 @@
         }
         */
         $('#metricTable').DataTable({
-            "ordering": false,
+            "ordering": true,
             "processing": true,
             "serverSide": true,
             "searching": false,
@@ -534,6 +534,8 @@
                 postData.end_date = endDate;
                 postData.page_index = data.start / data.length;
                 postData.page_size = data.length;
+                postData.order = data.order[0].column + (data.order[0].dir == 'asc' ? 1000 : 0);
+
                 $.post("recommendReport/query", postData, function (data) {
                     if (data && data.ret == 1) {
                         var list = [];

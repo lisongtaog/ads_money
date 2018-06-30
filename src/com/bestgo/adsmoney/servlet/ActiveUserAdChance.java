@@ -37,7 +37,7 @@ public class ActiveUserAdChance extends HttpServlet {
                 String filterCountry = request.getParameter("filterCountry");
                 int order = Utils.parseInt(request.getParameter("order"), 0);
                 boolean desc = order < 1000;
-                if (order > 1000) order = order - 1000;
+                if (order >= 1000) order = order - 1000;
 
                 if (filter == null || filter.isEmpty()) {
                     filter = "";
