@@ -472,9 +472,9 @@
             { data: 'ad_impression' },
             { data: 'ad_click' },
             { data: 'ad_installed' },
-            { data: 'ad_revenue',"orderable":false },
-            { data: 'ecpm',"orderable":false },
-            { data: 'ctr',"orderable":false }
+            { data: 'ad_revenue'},
+            { data: 'ecpm'},
+            { data: 'ctr'}
         ];
         if ($.fn.DataTable.isDataTable("#metricTable")) {
             $('#metricTable').DataTable().clear().destroy();

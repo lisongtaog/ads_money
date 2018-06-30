@@ -87,8 +87,20 @@ public class RecommendReport extends HttpServlet {
             }
 
             try {
+                StringBuffer countSql = new StringBuffer();
+                countSql.append("SELECT DISTINCT r.date,r.app_id,r.country_code,r.target_app_id")
+                        .append(" from app_recommend_daily_history r ")
+                        .append(" WHERE date between '").append(startDate).append("' and '").append(endDate).append("' ");
+
                 StringBuffer sqlBuff = new StringBuffer();
-                sqlBuff.append("SELECT d.date,d.app_id,d.country_code,d.target_app_id,SUBSTRING_INDEX(d.more,'|',1) AS spend,SUBSTRING_INDEX(d.more,'|',-1) as installed,")
+                sqlBuff.append("SELECT f.* ," )
+                        .append(" IF(f.installed > 0,f.spend / f.installed,0) as ad_revenue," )
+                        .append(" IF(f.ad_impression > 0 and f.installed > 0,f.spend / (f.ad_impression*f.installed) * 1000,0)  as ecpm," )
+                        .append(" IF(f.ad_impression > 0,f.ad_click * 1.0 / f.ad_impression * 100,0) as ctr " )
+                        .append("from (" );
+                sqlBuff.append("SELECT d.date,d.app_id,d.country_code,d.target_app_id," )
+                        .append("1* SUBSTRING_INDEX(d.more,'|',1)  AS spend,")
+                        .append("1* SUBSTRING_INDEX(d.more,'|',-1) AS installed,")
                         .append("IFNULL(d.ad_impression,0) as ad_impression,")
                         .append("IFNULL(d.ad_click,0) as ad_click,")
                         .append("IFNULL(d.ad_installed,0) as ad_installed ")
@@ -111,6 +123,7 @@ public class RecommendReport extends HttpServlet {
                             ss += "'" + appIds.get(i) + "'";
                         }
                     }
+                    countSql.append(" and app_id in (" + ss + ")");
                     sqlBuff.append(" and app_id in (" + ss + ")");
                 }
 
@@ -123,6 +136,7 @@ public class RecommendReport extends HttpServlet {
                             ss += "'" + targAppIds.get(i) + "'";
                         }
                     }
+                    countSql.append(" and target_app_id in (" + ss + ")");
                     sqlBuff.append(" and target_app_id in (" + ss + ")");
                 }
 
@@ -135,10 +149,13 @@ public class RecommendReport extends HttpServlet {
                             ss += "'" + countryCodes.get(i) + "'";
                         }
                     }
+                    countSql.append(" and country_code in (" + ss + ")");
                     sqlBuff.append(" and country_code in (" + ss + ")");
                 }
 
-                List<JSObject> count = DB.findListBySql(sqlBuff.toString());
+                sqlBuff.append(" ) f");//三层嵌套
+
+                List<JSObject> count = DB.findListBySql(countSql.toString());
 
                 String[] orders = {" order by date "," order by app_id", " order by country_code"," order by target_app_id ",
                         " order by ad_impression", " order by ad_click"," order by ad_installed ",
@@ -156,7 +173,7 @@ public class RecommendReport extends HttpServlet {
                 sql += " limit " + index * size + "," + size;
                 List<JSObject> list = DB.findListBySql(sql);
 
-                String[] columns = {"date","app_id","country_code","target_app_id","ad_impression","ad_click","ad_installed","spend","installed"};
+                String[] columns = {"date","app_id","country_code","target_app_id","ad_impression","ad_click","ad_installed"};
                 List<String> fields = Arrays.asList(columns);
                 //从app_ads_daily_metrics_history中获取CPA作为互推应用的收益；计算互推应用的ECPM等
                 JsonArray array = new JsonArray();
@@ -189,49 +206,18 @@ public class RecommendReport extends HttpServlet {
                     one.addProperty("ad_impression", list.get(i).get("ad_impression").toString());
                     one.addProperty("ad_click", list.get(i).get("ad_click").toString());
 
-
-                    double spend = 0D;//总花费
-                    int installed = 0;//总安装
-
-                    /*//取app_ads_daily_metrics_history中的CPA 作为收益 -begin
-                    String revenueSql = "select sum(spend) as spend,sum(installed) as installed from app_ads_daily_metrics_history where 1=1 ";
-                    revenueSql += " and date = '" + one.get("date").getAsString().replace("\"","") +"'";
-                    revenueSql += " and app_id = '" + one.get("app_id").getAsString().replace("\"","") + "'";
-                    revenueSql += " and country_code = '" + one.get("country_code").getAsString().replace("\"","") + "'";
-                    revenueSql += " group by date,app_id,country_code";
-                    JSObject cpaObj = DB.findOneBySql(revenueSql);
-
-                    if(null == cpaObj.get("installed")){//查不到数据，则默认取值为0
-                        spend = 0D;//总花费
-                        installed = 0;//总安装
-                    }else if(null != cpaObj.get("installed") && Utils.parseInt(cpaObj.get("installed").toString(),0) == 0){//如果安装数量为0，查询全局的（没有国家维度）
-                        revenueSql = "select sum(spend) as spend,sum(installed) as installed from app_ads_daily_metrics_history where 1=1 ";
-                        revenueSql += " and date = '" + one.get("date").getAsString().replace("\"","") +"'";
-                        revenueSql += " and app_id = '" + one.get("app_id").getAsString().replace("\"","") + "'";
-                        revenueSql += " group by date,app_id";
-                        cpaObj = DB.findOneBySql(revenueSql);
-                        spend = Utils.convertDouble(cpaObj.get("spend"),0);//总花费
-                        installed = Utils.parseInt(cpaObj.get("installed").toString(),0);//总安装
-                    }else{
-                        spend = Utils.convertDouble(cpaObj.get("spend"),0);//总花费
-                        installed = Utils.parseInt(cpaObj.get("installed").toString(),0);//总安装
-                    }*/
-
-                    spend = Double.parseDouble(list.get(i).get("spend"));//总花费
-                    installed = Integer.parseInt(list.get(i).get("installed"));//总安装
-
-                    double revenue = installed == 0 ? 0 : Utils.convertDouble(spend/installed,0);
-
-                    revenue = Utils.trimDouble(revenue);
-                    one.addProperty("ad_revenue", revenue);
-                    //取app_ads_daily_metrics_history中的CPA 作为收益 -end
-
                     //target目标app展示次数
                     int impression = Utils.parseInt(list.get(i).get("ad_impression").toString(), 0);
                     //target目标app点击数
                     long click = Utils.convertLong(list.get(i).get("ad_click"), 0);
+
+                    double revenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"),0));
+                    double ecpm = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ecpm"),0));
+                    double ctr = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ctr"),0));
+                    one.addProperty("ad_revenue", revenue);
                     one.addProperty("ecpm", impression > 0 ? Utils.trimDouble(revenue / impression * 1000) : 0);
                     one.addProperty("ctr", impression > 0 ? Utils.trimDouble(click * 1.0 / impression * 100) : 0);
+
                     array.add(one);
                 }
 
