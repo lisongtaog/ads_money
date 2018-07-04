@@ -43,7 +43,12 @@ public class AppTrend extends HttpServlet {
                     end = sdf.parse(endDate);
                     Calendar cal = Calendar.getInstance();
                     cal.setTime(end);
-                    cal.add(Calendar.DAY_OF_MONTH, -90);
+                    if (period == 3) {
+                        cal.add(Calendar.MONTH, -2);
+                        cal.set(Calendar.DAY_OF_MONTH, 1);
+                    } else {
+                        cal.add(Calendar.DAY_OF_MONTH, -90);
+                    }
                     start = cal.getTime();
                 } catch (ParseException e) {
                     e.printStackTrace();
@@ -329,11 +334,22 @@ public class AppTrend extends HttpServlet {
                     }
                     AppMonitorMetrics one = new AppMonitorMetrics();
                     double lastARPU = -1;
+                    int lastMonth = -1;
                     for (int i = 0; i < tmpDataList.size(); i++) {
-                        if (i % remainder == 0) {
-                            one = new AppMonitorMetrics();
-                            one.date = tmpDataList.get(i).date;
-                            resultList.add(one);
+                        if (remainder == 30) {
+                            if (lastMonth != tmpDataList.get(i).date.getMonth()) {
+                                one = new AppMonitorMetrics();
+                                one.date = tmpDataList.get(i).date;
+                                one.date.setDate(1);
+                                resultList.add(one);
+                                lastMonth = one.date.getMonth();
+                            }
+                        } else {
+                            if (i % remainder == 0) {
+                                one = new AppMonitorMetrics();
+                                one.date = tmpDataList.get(i).date;
+                                resultList.add(one);
+                            }
                         }
                         one.cost += tmpDataList.get(i).cost;
                         one.purchasedUser += tmpDataList.get(i).purchasedUser;
