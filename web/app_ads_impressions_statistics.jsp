@@ -199,7 +199,7 @@
                         <!-- /.col -->
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>End Date:</label>
+                                <label>Install Date:</label>
                                 <div class="input-group date">
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
@@ -256,47 +256,9 @@
                 <!-- /.box-body -->
             </div>
             <!-- /.row -->
-            <div style="width:50%;height:50%">
+            <div style="width:80%;height:70%">
                 <canvas id="canvas"></canvas>
             </div>
-            <%--<div class="row">--%>
-                <%--<div class="col-md-12">--%>
-                    <%--<div class="box">--%>
-                        <%--<div class="box-header with-border">--%>
-                            <%--<h3 class="box-title">Chart Report</h3>--%>
-
-                            <%--<div class="box-tools pull-right">--%>
-                                <%--<button type="button" class="btn btn-box-tool" data-widget="collapse"><i--%>
-                                        <%--class="fa fa-minus"></i>--%>
-                                <%--</button>--%>
-                                <%--<button type="button" class="btn btn-box-tool" data-widget="remove"><i--%>
-                                        <%--class="fa fa-times"></i></button>--%>
-                            <%--</div>--%>
-                        <%--</div>--%>
-                        <%--<!-- /.box-header -->--%>
-                        <%--<div class="box-body">--%>
-                            <%--<div class="row">--%>
-                                <%--<div class="col-md-12">--%>
-                                    <%--<p class="text-center">--%>
-                                        <%--<strong id="revenueChartTitle"></strong>--%>
-                                    <%--</p>--%>
-
-                                    <%--<div class="chart">--%>
-                                        <%--<!-- Sales Chart Canvas -->--%>
-                                        <%--<canvas id="revenueChart" style="height: 480px;"></canvas>--%>
-                                    <%--</div>--%>
-                                    <%--<!-- /.chart-responsive -->--%>
-                                <%--</div>--%>
-                                <%--<!-- /.col -->--%>
-                            <%--</div>--%>
-                            <%--<!-- /.row -->--%>
-                        <%--</div>--%>
-                        <%--<!-- ./box-body -->--%>
-                    <%--</div>--%>
-                    <%--<!-- /.box -->--%>
-                <%--</div>--%>
-                <%--<!-- /.col -->--%>
-            <%--</div>--%>
 
         </section>
         <!-- /.content -->
@@ -367,7 +329,7 @@
         var filter = $('#filter').val();
         var filterCountry = $('#filterCountry').val();
 
-        $.post('/query_app_ads_impressions_statistics', {
+        $.post('query_app_ads_impressions_statistics', {
             date: date,
             app_id: filter,
             country_code: filterCountry
