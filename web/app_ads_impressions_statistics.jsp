@@ -446,6 +446,15 @@
                 hitRadius:1,
                 hoverRadius:4,
                 hoverBorderWidth:1
+            },
+            scales: {
+                xAxes: [{
+                    type: 'linear',  // "linear" "category" "logarithmic" "time"
+                    ticks: {
+                        min:0,    //坐标轴的最小范围
+                        // max:100   //坐标轴的最大范围
+                    }
+                }],
             }
         };
         var myChart = new Chart(ctx, {
