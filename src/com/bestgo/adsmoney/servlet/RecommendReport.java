@@ -94,16 +94,16 @@ public class RecommendReport extends HttpServlet {
 
                 StringBuffer sqlBuff = new StringBuffer();
                 sqlBuff.append("SELECT f.* ," )
-                        .append(" IF(f.installed > 0,f.spend / f.installed,0) as ad_revenue," )
-                        .append(" IF(f.ad_impression > 0 and f.installed > 0,f.spend / (f.ad_impression*f.installed) * 1000,0)  as ecpm," )
+                        .append(" IF(f.installed > 0,f.ad_installed * f.spend / f.installed,0) as ad_revenue," )
+                        .append(" IF(f.ad_impression > 0 and f.installed > 0,f.ad_installed * f.spend / (f.ad_impression*f.installed) * 1000,0)  as ecpm," )
                         .append(" IF(f.ad_impression > 0,f.ad_click * 1.0 / f.ad_impression * 100,0) as ctr " )
                         .append("from (" );
                 sqlBuff.append("SELECT d.date,d.app_id,d.country_code,d.target_app_id," )
-                        .append("1* SUBSTRING_INDEX(d.more,'|',1)  AS spend,")
-                        .append("1* SUBSTRING_INDEX(d.more,'|',-1) AS installed,")
-                        .append("IFNULL(d.ad_impression,0) as ad_impression,")
-                        .append("IFNULL(d.ad_click,0) as ad_click,")
-                        .append("IFNULL(d.ad_installed,0) as ad_installed ")
+                        .append("1* SUBSTRING_INDEX(d.more,'|',1)  AS spend,")  //历史花费
+                        .append("1* SUBSTRING_INDEX(d.more,'|',-1) AS installed,") // 历史安装数量
+                        .append("IFNULL(d.ad_impression,0) as ad_impression,") //互推展示数量
+                        .append("IFNULL(d.ad_click,0) as ad_click,") //互推点击数量
+                        .append("IFNULL(d.ad_installed,0) as ad_installed ")//互推安装数量
                         .append(" FROM (")
                                 .append("SELECT DISTINCT r.date,r.app_id,r.country_code,r.target_app_id,fetchCPA(r.date,r.country_code,r.app_id) AS more,")
                                 .append("(SELECT s1.value from app_recommend_daily_history s1 WHERE s1.action = '显示' and s1.date = r.date and s1.app_id = r.app_id and s1.country_code = r.country_code and s1.target_app_id = r.target_app_id) as ad_impression, ")
