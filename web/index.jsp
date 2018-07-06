@@ -129,9 +129,9 @@
                     </a>
                 </li>
                 <li class="">
-                    <a href="app_report.jsp">
+                    <a href="app_active_user_statistics.jsp">
                         <i class="fa fa-folder"></i>
-                        <span>App Report</span>
+                        <span>App Active User Statistics</span>
                     </a>
                 </li>
                 <li class="">
@@ -144,6 +144,12 @@
                     <a href="app_trend.jsp">
                         <i class="fa fa-superpowers"></i>
                         <span>App Trend</span>
+                    </a>
+                </li>
+                <li class="">
+                    <a href="app_report.jsp">
+                        <i class="fa fa-folder"></i>
+                        <span>App Report</span>
                     </a>
                 </li>
                 <li class="">
