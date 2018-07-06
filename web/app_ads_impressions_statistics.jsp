@@ -204,7 +204,7 @@
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
-                                    <input type="text" class="form-control pull-right" id="txtStartDate">
+                                    <input type="text" class="form-control pull-right" id="txtInstallDate">
                                 </div>
                             </div>
                         </div>
@@ -219,7 +219,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Filter</label>
-                                <select  id="filter" class="form-control select2 select2-hidden-accessible" multiple="" data-placeholder="Select app" style="width: 100%;" tabindex="-1" aria-hidden="true">
+                                <select  id="filter" class="form-control select2 select2-hidden-accessible" data-placeholder="Select app" style="width: 100%;" tabindex="-1" aria-hidden="true">
                                     <%
                                         for (int i = 0; i < appDatas.size(); i++) {
                                             AppData one = appDatas.get(i);
@@ -230,7 +230,7 @@
                                     %>
                                 </select>
 
-                                <select  id="filterCountry" class="form-control select2 select2-hidden-accessible" multiple="" data-placeholder="Select country" style="width: 100%;" tabindex="-1" aria-hidden="true">
+                                <select  id="filterCountry" class="form-control select2 select2-hidden-accessible" data-placeholder="Select country" style="width: 100%;" tabindex="-1" aria-hidden="true">
                                     <%
                                         for (String countryCode : countryMap.keySet()) {
                                             String name = countryMap.get(countryCode);
@@ -313,26 +313,26 @@
 
 <script>
     $('.select2').select2();
-    $('#txtStartDate').datepicker({
+    $('#txtInstallDate').datepicker({
         format: 'yyyy-mm-dd',
         autoclose: true
     });
-    $('#txtStartDate').datepicker('setDate', moment().subtract(0, 'days').format('YYYY-MM-DD'));
+    $('#txtInstallDate').datepicker('setDate', moment().subtract(0, 'days').format('YYYY-MM-DD'));
 
     $('#btnQuery').click(function() {
         queryData();
     });
 
-    queryData();
+//    queryData();
     function queryData() {
-        var date = moment($('#txtStartDate').data('datepicker').dates[0]).format('YYYY-MM-DD');
+        var date = moment($('#txtInstallDate').data('datepicker').dates[0]).format('YYYY-MM-DD');
         var filter = $('#filter').val();
         var filterCountry = $('#filterCountry').val();
 
         $.post('query_app_ads_impressions_statistics', {
             date: date,
-            app_id: filter,
-            country_code: filterCountry
+            appId: filter,
+            countryCode: filterCountry
         }, function (result) {
             if (result && result.ret == 1) {
                 var xData = result.data_array;//X轴数据展示
@@ -424,9 +424,9 @@
             data: {
                 labels : yData,
                 datasets: [{   //数组格式：每个数组元素为一个数据系列
-                    label: "data-series-one",
+                    label: "累计收入",
                     data: xData, //数据系列的个数与labels参数里的元素个数相同
-                    backgroundColor: '#ccc',  //也可以设为数组形式; 最后一个数为透明度(0-1)
+                    backgroundColor: '#46fcde',  //也可以设为数组形式; 最后一个数为透明度(0-1)
                     borderColor:  'rgba(255,99,132,1)',
                     borderWidth: 1,  //设置边界宽度
                 }
