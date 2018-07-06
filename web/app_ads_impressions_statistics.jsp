@@ -361,7 +361,7 @@
                 }
             },
             legend: {  //数据图例
-                display: true,
+                display: false,
                 labels: {
                     fontColor: 'rgb(255, 99, 132)',
                     boxWidth:40,
@@ -424,7 +424,7 @@
             data: {
                 labels : yData,
                 datasets: [{   //数组格式：每个数组元素为一个数据系列
-                    label: "data-series-one",
+                    label: "revenue",
                     data: xData, //数据系列的个数与labels参数里的元素个数相同
                     backgroundColor: '#ccc',  //也可以设为数组形式; 最后一个数为透明度(0-1)
                     borderColor:  'rgba(255,99,132,1)',
