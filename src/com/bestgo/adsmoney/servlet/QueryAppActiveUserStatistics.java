@@ -34,8 +34,8 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
         try {
             String sql = "SELECT event_date,sum(active_num) AS total_acitve_num FROM app_active_user_statistics " +
                     "WHERE installed_date = '" + date + "' " +
-                    (appId.isEmpty() ? " " : "AND app_id = '" + appId + "' ") +
-                    (countryCode.isEmpty() ? " " : "AND country_code = '" + countryCode + "' ") +
+                    ("all".equals(appId) || appId.isEmpty() ? " " : "AND app_id = '" + appId + "' ") +
+                    ("all".equals(countryCode) || countryCode.isEmpty() ? " " : "AND country_code = '" + countryCode + "' ") +
                     "GROUP BY event_date ORDER BY event_date";
             List<JSObject> revenueList = DB.findListBySql(sql);
             JsonArray array1 = new JsonArray();

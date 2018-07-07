@@ -35,8 +35,8 @@ public class QueryAppAdsImpressionsStatistics extends HttpServlet {
         try {
             String sql = "SELECT event_date,sum(revenue) AS total_revenue FROM app_ads_impressions_statistics " +
                     "WHERE installed_date = '" + date + "' " +
-                    (appId.isEmpty() ? " " : "AND app_id = '" + appId + "' ") +
-                    (countryCode.isEmpty() ? " " : "AND country_code = '" + countryCode + "' ") +
+                    ("all".equals(appId) || appId.isEmpty() ? " " : "AND app_id = '" + appId + "' ") +
+                    ("all".equals(countryCode) || countryCode.isEmpty() ? " " : "AND country_code = '" + countryCode + "' ") +
                     "GROUP BY event_date ORDER BY event_date";
             List<JSObject> revenueList = DB.findListBySql(sql);
             JsonArray array1 = new JsonArray();

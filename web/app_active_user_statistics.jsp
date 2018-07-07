@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Ads Money | App Ads Impressions Statistics</title>
+    <title>Ads Money | App Active User Statistics</title>
     <link rel="shortcut icon" href="/images/favicon.ico">
 
     <!-- Tell the browser to be responsive to screen width -->
@@ -108,7 +108,7 @@
                             <div class="form-group">
                                 <label>Filter</label>
                                 <select  id="filter" class="form-control select2 select2-hidden-accessible" data-placeholder="Select app" style="width: 100%;" tabindex="-1" aria-hidden="true">
-                                    <option value="">全部</option>
+                                    <option value="all">全部</option>
                                     <%
                                         for (int i = 0; i < appDatas.size(); i++) {
                                             AppData one = appDatas.get(i);
@@ -120,7 +120,7 @@
                                 </select>
 
                                 <select  id="filterCountry" class="form-control select2 select2-hidden-accessible" data-placeholder="Select country" style="width: 100%;" tabindex="-1" aria-hidden="true">
-                                    <option value="">全部</option>
+                                    <option value="all">全部</option>
                                     <%
                                         for (String countryCode : countryMap.keySet()) {
                                             String name = countryMap.get(countryCode);
