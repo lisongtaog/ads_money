@@ -143,6 +143,12 @@
                     </a>
                 </li>
                 <li class="">
+                    <a href="app_active_user_statistics.jsp">
+                        <i class="fa fa-folder"></i>
+                        <span>App Active User Statistics</span>
+                    </a>
+                </li>
+                <li class="">
                     <a href="country_report.jsp">
                         <i class="fa fa-free-code-camp"></i>
                         <span>Country Report</span>

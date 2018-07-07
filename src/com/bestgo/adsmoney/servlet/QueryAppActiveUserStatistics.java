@@ -17,7 +17,7 @@ import java.util.List;
 /**
  * @author mengjun
  * @date 2018/7/5 14:25
- * @description 应用广告展示统计
+ * @description 应用活跃用户统计
  */
 @WebServlet(name = "QueryAppActiveUserStatistics", urlPatterns = {"/query_app_active_user_statistics"})
 public class QueryAppActiveUserStatistics extends HttpServlet {

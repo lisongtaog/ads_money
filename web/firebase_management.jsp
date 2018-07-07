@@ -158,6 +158,18 @@
                         <span>App Hourly Trend</span>
                     </a>
                 </li>
+                <li class="">
+                    <a href="app_active_user_statistics.jsp">
+                        <i class="fa fa-folder"></i>
+                        <span>App Active User Statistics</span>
+                    </a>
+                </li>
+                <li class="">
+                    <a href="app_ads_impressions_statistics.jsp">
+                        <i class="fa fa-list-alt"></i>
+                        <span>App Ads Impressions Statistics</span>
+                    </a>
+                </li>
             </ul>
         </section>
         <!-- /.sidebar -->

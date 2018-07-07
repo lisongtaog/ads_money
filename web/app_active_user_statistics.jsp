@@ -118,6 +118,12 @@
                         <span>Ad Unit Management</span>
                     </a>
                 </li>
+                <li class="active">
+                    <a href="app_active_user_statistics.jsp">
+                        <i class="fa fa-folder"></i>
+                        <span>App Active User Statistics</span>
+                    </a>
+                </li>
                 <li class="">
                     <a href="user_defined_sql.jsp">
                         <i class="fa fa-scribd"></i>
@@ -136,7 +142,7 @@
                         <span>App Recommend Report</span>
                     </a>
                 </li>
-                <li class="active">
+                <li class="">
                     <a href="#">
                         <i class="fa fa-superpowers"></i>
                         <span>App Ads Impressions Statistics</span>
