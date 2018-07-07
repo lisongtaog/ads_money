@@ -40,15 +40,13 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
             List<JSObject> revenueList = DB.findListBySql(sql);
             JsonArray array1 = new JsonArray();
             JsonArray array2 = new JsonArray();
-            double sumTotalActiveNum = 0;
             for (int i = 0,len = revenueList.size();i < len;i++) {
                 JSObject revenueJS = revenueList.get(i);
                 if (revenueJS.hasObjectData()) {
                     String eventDate = revenueJS.get("event_date").toString();
                     array1.add(eventDate);
                     double totalActiveNum = Utils.convertDouble(revenueJS.get("total_acitve_num"),0);
-                    sumTotalActiveNum += totalActiveNum;
-                    array2.add(sumTotalActiveNum);
+                    array2.add(totalActiveNum);
                 }
             }
             json.add("date_array",array1);

@@ -389,7 +389,7 @@
                 fontStyle:"bold",
                 padding:10,
                 lineHeight:1.2,
-                text:"累计活跃用户图表"
+                text:"活跃用户图表"
             },
             //工具条
             tooltip:{
@@ -432,7 +432,7 @@
             data: {
                 labels : yData,
                 datasets: [{   //数组格式：每个数组元素为一个数据系列
-                    label: "累计活跃用户",
+                    label: "活跃用户",
                     data: xData, //数据系列的个数与labels参数里的元素个数相同
                     backgroundColor: '#96fcb7',  //也可以设为数组形式; 最后一个数为透明度(0-1)
                     borderColor:  'rgba(255,99,132,1)',
