@@ -470,37 +470,38 @@
 
                     var maps = {};
                     var labels = [];
-                    var adRequest = [];
-                    var adFilled = [];
                     var adImpression = [];
                     var adClick = [];
+                    var adInstalled = [];
                     var adRevenue = [];
                     var adECPM = [];
+                    var adCTR = [];
                     for (var i = list.length - 1; i >= 0; i--) {
                         var one = list[i];
                         var date = new Date(one.date).toLocaleDateString();
                         var item = maps[date];
                         if (!item) {
                             labels.push(date);
-                            item = {"ad_request": one.ad_request, "ad_filled": one.ad_filled, "ad_impression": one.ad_impression, "ad_click": one.ad_click, "ad_revenue": one.ad_revenue, "ecpm": one.ecpm};
+                            item = {"ad_impression": one.ad_impression, "ad_click": one.ad_click, "ad_installed": one.ad_installed, "ad_revenue":
+                                one.ad_revenue,"ecpm": one.ecpm,"ctr":one.ctr};
                             maps[date] = item;
                         } else {
-                            item.ad_request += one.ad_request;
-                            item.ad_filled += one.ad_filled;
                             item.ad_impression += one.ad_impression;
                             item.ad_click += one.ad_click;
+                            item.ad_installed += one.ad_installed;
                             item.ad_revenue += one.ad_revenue;
-                            item.ecpm = item.ad_impression > 0 ? item.ad_revenue / item.ad_impression * 1000 : 0;
+                            item.ecpm += one.ecpm;
+                            item.ctr += one.ctr;
                         }
                     }
                     for (var i = 0; i < labels.length; i++) {
                         var item = maps[labels[i]];
-                        adRequest.push(item.ad_request);
-                        adFilled.push(item.ad_filled);
                         adImpression.push(item.ad_impression);
                         adClick.push(item.ad_click);
+                        adInstalled.push(item.ad_installed);
                         adRevenue.push(item.ad_revenue);
                         adECPM.push(item.ecpm);
+                        adCTR.push(item.ctr);
                     }
                     var chartConfig = {
                         'type': 'line',
@@ -508,40 +509,40 @@
                             'labels': labels,
                             'datasets': [
                                 {
-                                    label               : 'Request',
-                                    borderColor         : '#00c0ef',
-                                    fill: false,
-                                    data                : adRequest
-                                },
-                                {
-                                    label               : 'Filled',
-                                    borderColor         : '#dd4b39',
-                                    fill: false,
-                                    data                : adFilled
-                                },
-                                {
                                     label               : 'Impression',
-                                    borderColor         : '#00a65a',
+                                    borderColor         : '#00c0ef',
                                     fill: false,
                                     data                : adImpression
                                 },
                                 {
                                     label               : 'Click',
-                                    borderColor         : '#f39c12',
+                                    borderColor         : '#dd4b39',
                                     fill: false,
                                     data                : adClick
                                 },
                                 {
+                                    label               : 'Installed',
+                                    borderColor         : '#00a65a',
+                                    fill: false,
+                                    data                : adInstalled
+                                },
+                                {
                                     label               : 'Revenue',
-                                    borderColor         : '#0073b7',
+                                    borderColor         : '#f39c12',
                                     fill: false,
                                     data                : adRevenue
                                 },
                                 {
                                     label               : 'ECPM',
-                                    borderColor         : '#e842f4',
+                                    borderColor         : '#0073b7',
                                     fill: false,
                                     data                : adECPM
+                                },
+                                {
+                                    label               : 'CTR',
+                                    borderColor         : '#e842f4',
+                                    fill: false,
+                                    data                : adCTR
                                 },
                             ],
                         },

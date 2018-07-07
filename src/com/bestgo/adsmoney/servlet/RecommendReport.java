@@ -110,7 +110,6 @@ public class RecommendReport extends HttpServlet {
                                 .append("(SELECT s2.value from app_recommend_daily_history s2 WHERE s2.action = '点击' and s2.date = r.date and s2.app_id = r.app_id and s2.country_code = r.country_code and s2.target_app_id = r.target_app_id) as ad_click, ")
                                 .append("(SELECT s3.value from app_recommend_daily_history s3 WHERE s3.action = '安装' and s3.date = r.date and s3.app_id = r.app_id and s3.country_code = r.country_code and s3.target_app_id = r.target_app_id) as ad_installed ")
                                 .append(" from app_recommend_daily_history r ")
-                                .append("ORDER BY r.date,r.app_id,r.country_code,r.target_app_id")
                                 .append(") d")
                         .append(" WHERE date between '").append(startDate).append("' and '").append(endDate).append("' ");
 
@@ -229,8 +228,145 @@ public class RecommendReport extends HttpServlet {
                 json.addProperty("ret", 0);
                 json.addProperty("message", ex.getMessage());
             }
-        }
+        }else if(path.startsWith("/get")){
+            String tableName = "app_recommend_daily_history";
 
+            String startDate = request.getParameter("start_date");
+            String endDate = request.getParameter("end_date");
+            String filter = request.getParameter("filter");
+            String filterTarget = request.getParameter("filterTarget");
+            String filterCountry = request.getParameter("filterCountry");
+
+            if (filter == null || filter.isEmpty()) {
+                filter = "";
+            }
+            if (filterTarget == null || filterTarget.isEmpty()) {
+                filterTarget = "";
+            }
+            if (filterCountry == null || filterCountry.isEmpty()) {
+                filterCountry = "";
+            }
+            ArrayList<String> appIds = new ArrayList<>();
+            ArrayList<String> targAppIds = new ArrayList<>();
+            ArrayList<String> countryCodes = new ArrayList<>();
+            String[] filters = filter.split(",");
+            for (String appId : filters) {
+                if (appId.isEmpty()) continue;
+                appIds.add(appId);
+            }
+            filters = filterTarget.split(",");
+            for (String targAppId : filters) {
+                if (targAppId.isEmpty()) continue;
+                targAppIds.add(targAppId);
+            }
+            filters = filterCountry.split(",");
+            for (String countryCode : filters) {
+                if (countryCode.isEmpty()) continue;
+                countryCodes.add(countryCode);
+            }
+
+            try{
+                StringBuffer countSql = new StringBuffer();
+                countSql.append("SELECT DISTINCT r.date,r.app_id,r.country_code,r.target_app_id")
+                        .append(" from app_recommend_daily_history r ")
+                        .append(" WHERE date between '").append(startDate).append("' and '").append(endDate).append("' ");
+
+                StringBuffer sqlBuff = new StringBuffer();
+                sqlBuff.append("SELECT fnl.date,sum(fnl.spend) as spend, sum(fnl.installed) as installed, sum(fnl.ad_impression)as ad_impression, ")
+                        .append("sum(fnl.ad_click) as ad_click,sum(fnl.ad_installed) as ad_installed, ")
+                        .append("sum(fnl.ad_revenue)as ad_revenue,sum(fnl.ecpm) as ecpm,sum(fnl.ctr) as ctr FROM")
+                        .append("(SELECT f.* ," )
+                        .append(" IF(f.installed > 0,f.spend / f.installed,0) as ad_revenue," )
+                        .append(" IF(f.ad_impression > 0 and f.installed > 0,f.spend / (f.ad_impression*f.installed) * 1000,0)  as ecpm," )
+                        .append(" IF(f.ad_impression > 0,f.ad_click * 1.0 / f.ad_impression * 100,0) as ctr " )
+                        .append("from (" );
+                sqlBuff.append("SELECT d.date, " )
+                        .append("1* SUBSTRING_INDEX(d.more,'|',1)  AS spend,")
+                        .append("1* SUBSTRING_INDEX(d.more,'|',-1) AS installed,")
+                        .append("IFNULL(d.ad_impression,0) as ad_impression,")
+                        .append("IFNULL(d.ad_click,0) as ad_click,")
+                        .append("IFNULL(d.ad_installed,0) as ad_installed ")
+                        .append(" FROM (")
+                        .append("SELECT DISTINCT r.date,fetchCPA(r.date,r.country_code,r.app_id) AS more,")
+                        .append("(SELECT s1.value from app_recommend_daily_history s1 WHERE s1.action = '显示' and s1.date = r.date and s1.app_id = r.app_id and s1.country_code = r.country_code and s1.target_app_id = r.target_app_id) as ad_impression, ")
+                        .append("(SELECT s2.value from app_recommend_daily_history s2 WHERE s2.action = '点击' and s2.date = r.date and s2.app_id = r.app_id and s2.country_code = r.country_code and s2.target_app_id = r.target_app_id) as ad_click, ")
+                        .append("(SELECT s3.value from app_recommend_daily_history s3 WHERE s3.action = '安装' and s3.date = r.date and s3.app_id = r.app_id and s3.country_code = r.country_code and s3.target_app_id = r.target_app_id) as ad_installed ")
+                        .append(" from app_recommend_daily_history r ")
+                        .append(") d")
+                        .append(" WHERE date between '").append(startDate).append("' and '").append(endDate).append("' ");
+
+                if (appIds.size() > 0) {
+                    String ss = "";
+                    for (int i = 0; i < appIds.size(); i++) {
+                        if (i < appIds.size() - 1) {
+                            ss += "'" + appIds.get(i) + "',";
+                        } else {
+                            ss += "'" + appIds.get(i) + "'";
+                        }
+                    }
+                    countSql.append(" and app_id in (" + ss + ")");
+                    sqlBuff.append(" and app_id in (" + ss + ")");
+                }
+
+                if (targAppIds.size() > 0) {
+                    String ss = "";
+                    for (int i = 0; i < targAppIds.size(); i++) {
+                        if (i < targAppIds.size() - 1) {
+                            ss += "'" + targAppIds.get(i) + "',";
+                        } else {
+                            ss += "'" + targAppIds.get(i) + "'";
+                        }
+                    }
+                    countSql.append(" and target_app_id in (" + ss + ")");
+                    sqlBuff.append(" and target_app_id in (" + ss + ")");
+                }
+
+                if (countryCodes.size() > 0) {
+                    String ss = "";
+                    for (int i = 0; i < countryCodes.size(); i++) {
+                        if (i < countryCodes.size() - 1) {
+                            ss += "'" + countryCodes.get(i) + "',";
+                        } else {
+                            ss += "'" + countryCodes.get(i) + "'";
+                        }
+                    }
+                    countSql.append(" and country_code in (" + ss + ")");
+                    sqlBuff.append(" and country_code in (" + ss + ")");
+                }
+
+                sqlBuff.append(" ) f");
+                sqlBuff.append(" )fnl group by fnl.date"); //四层嵌套
+
+                String sql = sqlBuff.toString();
+                List<JSObject> list = DB.findListBySql(sql);
+
+                JsonArray array = new JsonArray();
+                for (int i = 0; i < list.size(); i++) {
+                    JsonObject one = new JsonObject();
+                    one.addProperty("date", ((Date)list.get(i).get("date")).getTime());
+                    one.addProperty("spend", Utils.convertLong(list.get(i).get("spend"), 0));
+                    one.addProperty("installed", Utils.convertLong(list.get(i).get("installed"), 0));
+                    one.addProperty("ad_impression", Utils.convertLong(list.get(i).get("ad_impression"), 0));
+                    one.addProperty("ad_click", Utils.convertLong(list.get(i).get("ad_click"), 0));
+                    one.addProperty("ad_installed", Utils.convertLong(list.get(i).get("ad_installed"), 0));
+                    one.addProperty("ad_revenue", Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0)));
+
+                    int impression = Utils.parseInt(list.get(i).get("ad_impression").toString(), 0);
+                    double revenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0));
+                    one.addProperty("ecpm", impression > 0 ? Utils.trimDouble(revenue / impression * 1000) : 0);
+                    long click = Utils.convertLong(list.get(i).get("ad_click"), 0);
+                    one.addProperty("ctr", impression > 0 ? Utils.trimDouble(click * 1.0 / impression * 100) : 0);
+                    array.add(one);
+                }
+
+                json.addProperty("ret", 1);
+                json.addProperty("message", "成功");
+                json.add("data", array);
+            }catch (Exception e){
+                json.addProperty("ret", 0);
+                json.addProperty("message", "失败");
+            }
+        }
         response.getWriter().write(json.toString());
     }
 }
