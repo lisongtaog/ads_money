@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Ads Money | Country Report</title>
+    <title>Ads Money | App Ads Impressions Statistics</title>
     <link rel="shortcut icon" href="/images/favicon.ico">
 
     <!-- Tell the browser to be responsive to screen width -->
@@ -70,11 +70,11 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                Country Report
+                App Ads Impressions Statistics
             </h1>
             <ol class="breadcrumb">
                 <li><a href="index.jsp"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li class="active">Country Report</li>
+                <li class="active">App Ads Impressions Statistics</li>
             </ol>
         </section>
 
@@ -87,8 +87,28 @@
                         <!-- /.col -->
                         <div class="col-md-6">
                             <div class="form-group">
+                                <label>Install Date:</label>
+                                <div class="input-group date">
+                                    <div class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </div>
+                                    <input type="text" class="form-control pull-right" id="txtInstallDate">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- /.col -->
+                        <!-- /.col -->
+                    </div>
+                    <!-- /.row -->
+
+                    <div class="row">
+                        <!-- /.col -->
+
+                        <div class="col-md-6">
+                            <div class="form-group">
                                 <label>Filter</label>
-                                <select  id="filter" class="form-control select2 select2-hidden-accessible" multiple="" data-placeholder="Select app" style="width: 100%;" tabindex="-1" aria-hidden="true">
+                                <select  id="filter" class="form-control select2 select2-hidden-accessible" data-placeholder="Select app" style="width: 100%;" tabindex="-1" aria-hidden="true">
+                                    <option value="">全部</option>
                                     <%
                                         for (int i = 0; i < appDatas.size(); i++) {
                                             AppData one = appDatas.get(i);
@@ -98,68 +118,36 @@
                                         }
                                     %>
                                 </select>
+
+                                <select  id="filterCountry" class="form-control select2 select2-hidden-accessible" data-placeholder="Select country" style="width: 100%;" tabindex="-1" aria-hidden="true">
+                                    <option value="">全部</option>
+                                    <%
+                                        for (String countryCode : countryMap.keySet()) {
+                                            String name = countryMap.get(countryCode);
+                                    %>
+                                    <option value="<%=countryCode%>"><%=name%></option>
+                                    <%
+                                        }
+                                    %>
+                                </select>
                             </div>
                         </div>
                         <!-- /.col -->
 
-                        <div class="col-md-4">
-                            <!-- Date and time range -->
-                            <div class="form-group">
-                                <label>Date range:</label>
-
-                                <div class="input-group">
-                                    <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-                                        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
-                                        <span></span> <b class="caret"></b>
-                                    </div>
-                                </div>
-
-                            </div>
-                            <!-- /.form group -->
-                        </div>
-
-                        <div class="col-md-2">
+                        <div class="col-md-1">
                             <div class="form-group">
                                 <label>&nbsp;</label>
                                 <button id="btnQuery" type="button" class="btn btn-block btn-primary">Query</button>
                             </div>
                         </div>
-
-                        <!-- /.col -->
                     </div>
-                    <!-- /.row -->
 
                 </div>
                 <!-- /.box-body -->
             </div>
             <!-- /.row -->
-
-            <div class="box box-default">
-                <div class="box-header with-border">
-                    <h3 class="box-title">Metrics</h3>
-                </div>
-                <!-- /.box-header -->
-                <div class="box-body" style="overflow-x: auto">
-                    <table id="metricTable" class="table table-bordered table-hover" cellspacing="0" width="100%">
-                        <thead>
-                        <tr>
-                            <th>Country</th>
-                            <th>Cost</th>
-                            <th>PurchasedUser</th>
-                            <th>Installed</th>
-                            <th>Uninstalled</th>
-                            <th>UninstalledRate</th>
-                            <th>TotalUser</th>
-                            <th>ActiveUser</th>
-                            <th>CPA</th>
-                            <th>Revenue</th>
-                            <th>ECPM</th>
-                            <th>Incoming</th>
-                            <th>LTV</th>
-                        </tr>
-                        </thead>
-                    </table>
-                </div>
+            <div style="width:80%;height:70%">
+                <canvas id="canvas"></canvas>
             </div>
 
         </section>
@@ -214,111 +202,131 @@
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.4.2/js/buttons.print.min.js"></script>
 
 <script>
-    $("li[role='menu_li']:eq(11)").addClass("active");
+    $("li[role='menu_li']:eq(7)").addClass("active");
     $('.select2').select2();
-
-    //Date range as a button
-    $('#reportrange').daterangepicker(
-            {
-                ranges   : {
-                    'Today'       : [moment(), moment()],
-                    'Yesterday'   : [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    'Last 7 Days' : [moment().subtract(6, 'days'), moment()],
-                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                    'This Month'  : [moment().startOf('month'), moment().endOf('month')],
-                    'Last Month'  : [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                },
-                startDate: moment().subtract(1, 'days'),
-                endDate  : moment().subtract(1, 'days')
-            },
-            function (start, end) {
-                $('#reportrange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'))
-            }
-    );
-
-    var start = moment().subtract(1, 'days');
-    var end = moment().subtract(1, 'days');
-    function setInitDate(start, end) {
-        $('#reportrange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'))
-    }
-    setInitDate(start, end);
+    $('#txtInstallDate').datepicker({
+        format: 'yyyy-mm-dd',
+        autoclose: true
+    });
+    $('#txtInstallDate').datepicker('setDate', moment().subtract(0, 'days').format('YYYY-MM-DD'));
 
     $('#btnQuery').click(function() {
         queryData();
     });
 
-    queryData();
-
+//    queryData();
     function queryData() {
+        var date = moment($('#txtInstallDate').data('datepicker').dates[0]).format('YYYY-MM-DD');
         var filter = $('#filter').val();
-        var drp = $('#reportrange').data('daterangepicker');
-        var startDate = drp.startDate.format('YYYY-MM-DD');
-        var endDate = drp.endDate.format('YYYY-MM-DD');
+        var filterCountry = $('#filterCountry').val();
 
-        var columns = [
-            { data: 'country_name' },
-            { data: 'cost' },
-            { data: 'purchased_user' },
-            { data: 'total_installed' },
-            { data: 'total_uninstalled' },
-            { data: 'uninstalled_rate' },
-            { data: 'total_user' },
-            { data: 'active_user' },
-            { data: 'cpa' },
-            { data: 'revenue' },
-            { data: 'ecpm' },
-            { data: 'incoming' },
-            { data: 'estimated_revenue' },
-        ];
-
-        if ($.fn.DataTable.isDataTable("#metricTable")) {
-            $('#metricTable').DataTable().clear().destroy();
-        }
-
-        $('#metricTable').DataTable({
-            "ordering": true,
-            "processing": true,
-            "serverSide": true,
-            "searching": false,
-            "pageLength": 500,
-            "lengthMenu": [[10, 25, 50, 100, 500, 1000], [10, 25, 50, 100, 500, 1000]],
-            "ajax": function (data, callback, settings) {
-                var postData = {};
-                postData.filter = filter.join(",");
-                postData.start_date = startDate;
-                postData.end_date = endDate;
-                postData.page_index = data.start / data.length;
-                postData.page_size = data.length;
-                postData.order = data.order[0].column + (data.order[0].dir == 'asc' ? 1000 : 0);
-                $.post("country_report/query", postData, function (data) {
-                    if (data && data.ret == 1) {
-                        var list = [];
-                        for (var i = 0; i < data.data.length; i++) {
-                            list.push(data.data[i]
-                            );
-                        }
-                        callback(
-                                {
-                                    "recordsTotal": data.total,
-                                    "recordsFiltered": data.total,
-                                    "data": list
-                                }
-                        );
-                    } else {
-                        alert(data.msg);
-                    }
-                }, "json");
+        $.post('query_app_active_user_statistics', {
+            date: date,
+            appId: filter,
+            countryCode: filterCountry
+        }, function (result) {
+            if (result && result.ret == 1) {
+                var xData = result.data_array;//X轴数据展示
+                var yData = result.date_array;//Y轴日期展示
+                setData(yData,xData);
+            } else {
+                admanager.showCommonDlg("错误", result.message);
+            }
+        }, 'json');
+    }
+    function setData(yData,xData) {
+        var ctx = document.getElementById("canvas");
+        var options = {
+            animation:{
+                duration:1000 ,//动画持续时长 ms
+                easing:'easeOutQuart', // easing function to use
+                onProgress: null, //动画过程中的回调函数
+                onComplete:null  //动画结束后回调函数
             },
-            columns: columns,
-            select: true,
-            dom: 'Blfrtip',
-            buttons: [{
-                extend: 'collection',
-                text: 'Export',
-                buttons: ['copy', 'excel', 'csv', 'pdf', 'print']
+            layout: {   //全局设置
+                padding: {    //图表边界距离
+                    left: 50,
+                    right: 0,
+                    top: 0,
+                    bottom: 0
+                }
+            },
+            legend: {  //数据图例
+                display: false,
+                labels: {
+                    fontColor: 'rgb(255, 99, 132)',
+                    boxWidth:40,
+                    fontSize:12,
+                    fontStyle:"normal",
+                    fontFamily:"Arial"
+                },
+                text:"legend name",
+                hidden: false //设置显示或隐藏
+            },
+            title:{
+                display:true,
+                position:"top",
+                fontSize:12,
+                fontFamily:"Arial",
+                fontColor:"#666",
+                fontStyle:"bold",
+                padding:10,
+                lineHeight:1.2,
+                text:"活跃用户图表"
+            },
+            //工具条
+            tooltip:{
+                enabled:false,
+                custom:null,
+                mode:"nearest",
+                intersect:true,
+                position:"average",
+                backgroundColor:"rgba(0,0,0,0.8)",
+                titleFontFamily:"Arial",
+                titleFontSize:12,
+                titleFontStyle:"bold",
+                titleFontColor:"#fff",
+                titleSpacing:2,
+                titleMarginBottom:6
+            },
+            //对点元素的设置
+            elements:{
+                radius:3,
+                pointStyle:"circle",
+                backgroundColor:"rgba(0,0,0,0.1)",
+                borderWidth:1,
+                borderColor:"rgba(0,0,0,0.1)",
+                hitRadius:1,
+                hoverRadius:4,
+                hoverBorderWidth:1
+            },
+            scales: {
+                xAxes: [{
+                    type: 'linear',  // "linear" "category" "logarithmic" "time"
+                    ticks: {
+                        min:0,    //坐标轴的最小范围
+                        // max:100   //坐标轴的最大范围
+                    }
                 }],
+            }
+        };
+        var myChart = new Chart(ctx, {
+            type: 'horizontalBar', // line:曲线 bar:垂直柱状 radar:雷达图 pie:饼图 doughnut：环图 polarArea:扇形图 scatter:散点 (默认的图类型)
+            data: {
+                labels : yData,
+                datasets: [{   //数组格式：每个数组元素为一个数据系列
+                    label: "活跃用户",
+                    data: xData, //数据系列的个数与labels参数里的元素个数相同
+                    backgroundColor: '#96fcb7',  //也可以设为数组形式; 最后一个数为透明度(0-1)
+                    borderColor:  'rgba(255,99,132,1)',
+                    borderWidth: 1,  //设置边界宽度
+                }
+                ]
+            },
+            options:options
         });
     }
+
 </script>
 </body>
 </html>

@@ -251,7 +251,8 @@ public class UserDefinedSql extends HttpServlet {
             new SqlType("广告机会Day1", "ad_chance_day1"),
             new SqlType("广告机会Day2", "ad_chance_day2"),
             new SqlType("广告机会Day3", "ad_chance_day3"),
-            new SqlType("广告机会Day4", "ad_chance_day4")
+            new SqlType("广告机会Day4", "ad_chance_day4"),
+            new SqlType("活跃用户判定条件", "active_user_judge_condition")
     };
 
     public static ArrayList<SqlType> getSqlTypeList() {
