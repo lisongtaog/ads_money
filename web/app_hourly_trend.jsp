@@ -63,131 +63,7 @@
         HashMap<String, String> countryMap = Utils.getCountryMap();
     %>
 
-    <header class="main-header">
-
-        <!-- Logo -->
-        <a href="index.jsp" class="logo">
-            <!-- mini logo for sidebar mini 50x50 pixels -->
-            <span class="logo-mini"><b>Money</b></span>
-            <!-- logo for regular state and mobile devices -->
-            <span class="logo-lg">Ads <b>Money</b></span>
-        </a>
-
-        <!-- Header Navbar: style can be found in header.less -->
-        <nav class="navbar navbar-static-top">
-            <!-- Sidebar toggle button-->
-            <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
-                <span class="sr-only">Toggle navigation</span>
-            </a>
-            <!-- Navbar Right Menu -->
-        </nav>
-    </header>
-    <!-- Left side column. contains the logo and sidebar -->
-    <aside class="main-sidebar">
-        <!-- sidebar: style can be found in sidebar.less -->
-        <section class="sidebar">
-            <!-- sidebar menu: : style can be found in sidebar.less -->
-            <ul class="sidebar-menu" data-widget="tree">
-                <li class="header">NAVIGATION</li>
-                <li class="">
-                    <a href="index.jsp">
-                        <i class="fa fa-dashboard"></i> <span>Dashboard</span>
-                    </a>
-                </li>
-                <li class="">
-                    <a href="app_management.jsp">
-                        <i class="fa fa-files-o"></i>
-                        <span>App Management</span>
-                    </a>
-                </li>
-                <li class="">
-                    <a href="firebase_management.jsp">
-                        <i class="fa fa-book"></i>
-                        <span>Firebase Management</span>
-                    </a>
-                </li>
-                <li class="">
-                    <a href="admob_account_management.jsp">
-                        <i class="fa fa-th"></i>
-                        <span>AdMob Account Management</span>
-                    </a>
-                </li>
-                <li class="">
-                    <a href="ad_unit_management.jsp">
-                        <i class="fa fa-list-alt"></i>
-                        <span>Ad Unit Management</span>
-                    </a>
-                </li>
-                <li class="">
-                    <a href="user_defined_sql.jsp">
-                        <i class="fa fa-scribd"></i>
-                        <span>User Defined SQL</span>
-                    </a>
-                </li>
-                <li class="">
-                    <a href="app_report.jsp">
-                        <i class="fa fa-folder"></i>
-                        <span>App Report</span>
-                    </a>
-                </li>
-                <li class="">
-                    <a href="app_recom_report.jsp">
-                        <i class="fa fa-folder"></i>
-                        <span>App Recommend Report</span>
-                    </a>
-                </li>
-                <li class="">
-                    <a href="app_trend.jsp">
-                        <i class="fa fa-superpowers"></i>
-                        <span>App Trend</span>
-                    </a>
-                </li>
-                <li class="">
-                    <a href="country_report.jsp">
-                        <i class="fa fa-free-code-camp"></i>
-                        <span>Country Report</span>
-                    </a>
-                </li>
-                <li class="">
-                    <a href="ctr_monitor.jsp">
-                        <i class="fa fa-check"></i>
-                        <span>CTR Monitor</span>
-                    </a>
-                </li>
-                <li class="">
-                    <a href="ad_impression_monitor.jsp">
-                        <i class="fa fa-snowflake-o"></i>
-                        <span>Ad Impression Monitor</span>
-                    </a>
-                </li>
-                <li class="">
-                    <a href="active_user_ad_chance_report.jsp">
-                        <i class="fa fa-microchip"></i>
-                        <span>Active User Ad Chance</span>
-                    </a>
-                </li>
-                <li class="active">
-                    <a href="app_hourly_trend.jsp">
-                        <i class="fa fa-quora"></i>
-                        <span>App Hourly Trend</span>
-                    </a>
-                </li>
-                <li class="">
-                    <a href="app_active_user_statistics.jsp">
-                        <i class="fa fa-folder"></i>
-                        <span>App Active User Statistics</span>
-                    </a>
-                </li>
-                <li class="">
-                    <a href="app_ads_impressions_statistics.jsp">
-                        <i class="fa fa-list-alt"></i>
-                        <span>App Ads Impressions Statistics</span>
-                    </a>
-                </li>
-            </ul>
-        </section>
-        <!-- /.sidebar -->
-    </aside>
+    <%@include file="common/main_sidebar.jsp"%>
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
@@ -378,6 +254,7 @@
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.4.2/js/buttons.print.min.js"></script>
 
 <script>
+    $("li[role='menu_li']:eq(15)").addClass("active");
     $('.select2').select2();
 
     //Date range as a button
