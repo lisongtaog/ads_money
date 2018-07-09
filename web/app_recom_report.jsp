@@ -190,44 +190,6 @@
                 <!-- /.col -->
             </div>
 
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="box">
-                        <div class="box-header with-border">
-                            <h3 class="box-title">Firebase Data</h3>
-
-                            <div class="box-tools pull-right">
-                                <button type="button" class="btn btn-box-tool" data-widget="collapse"><i
-                                        class="fa fa-minus"></i>
-                                </button>
-                                <button type="button" class="btn btn-box-tool" data-widget="remove"><i
-                                        class="fa fa-times"></i></button>
-                            </div>
-                        </div>
-                        <!-- /.box-header -->
-                        <div class="box-body">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <p class="text-center">
-                                        <strong id="firebaseChartTitle"></strong>
-                                    </p>
-
-                                    <div class="chart">
-                                        <!-- Sales Chart Canvas -->
-                                        <canvas id="firebaseChart" style="height: 280px;"></canvas>
-                                    </div>
-                                    <!-- /.chart-responsive -->
-                                </div>
-                                <!-- /.col -->
-                            </div>
-                            <!-- /.row -->
-                        </div>
-                        <!-- ./box-body -->
-                    </div>
-                    <!-- /.box -->
-                </div>
-                <!-- /.col -->
-            </div>
 
             <div class="box box-default">
                 <div class="box-header with-border">
@@ -341,7 +303,7 @@
 
     queryData();
 
-    var firebaseChart;
+    // var firebaseChart;
     var revenueChart;
 
     function queryData() {
@@ -568,108 +530,6 @@
             }
         }, "json");
 
-        $.post("/recommendReport/getFirebase", {
-            filter: filter.join(","),
-            filterCountry: filterCountry.join(","),
-            start_date: startDate,
-            end_date: endDate
-        }, function (data) {
-            if (data && data.ret == 1) {
-                var list = data.data;
-                if (list.length > 0) {
-                    var first = list[0];
-                    var last = list[list.length - 1];
-                    $('#firebaseChartTitle').text(new Date(last.date).toLocaleDateString()  + " - " + new Date(first.date).toLocaleDateString());
-
-                    var maps = {};
-                    var labels = [];
-                    var totalUser = [];
-                    var activeUser = [];
-                    var installed = [];
-                    var uninstalled = [];
-                    var todayUninstalled = [];
-                    for (var i = list.length - 1; i >= 0; i--) {
-                        var one = list[i];
-                        var date = new Date(one.date).toLocaleDateString();
-                        var item = maps[date];
-                        if (!item) {
-                            labels.push(date);
-                            item = {"total_user": one.total_user, "active_user": one.active_user, "installed": one.installed, "uninstalled": one.uninstalled, "today_uninstalled": one.today_uninstalled};
-                            maps[date] = item;
-                        } else {
-                            item.total_user += one.total_user;
-                            item.active_user += one.active_user;
-                            item.installed += one.installed;
-                            item.uninstalled += one.uninstalled;
-                            item.today_uninstalled += one.today_uninstalled;
-                        }
-                    }
-                    for (var i = 0; i < labels.length; i++) {
-                        var item = maps[labels[i]];
-                        totalUser.push(item.total_user);
-                        activeUser.push(item.active_user);
-                        installed.push(item.installed);
-                        uninstalled.push(item.uninstalled);
-                        todayUninstalled.push(item.today_uninstalled);
-                    }
-                    var chartConfig = {
-                        'type': 'line',
-                        'data' : {
-                            'labels': labels,
-                            'datasets': [
-                                {
-                                    label               : 'TotalUser',
-                                    borderColor         : '#00c0ef',
-                                    fill: false,
-                                    data                : totalUser
-                                },
-                                {
-                                    label               : 'ActiveUser',
-                                    borderColor         : '#dd4b39',
-                                    fill: false,
-                                    data                : activeUser
-                                },
-                                {
-                                    label               : 'Installed',
-                                    borderColor         : '#00a65a',
-                                    fill: false,
-                                    data                : installed
-                                },
-                                {
-                                    label               : 'Uninstalled',
-                                    borderColor         : '#f39c12',
-                                    fill: false,
-                                    data                : uninstalled
-                                },
-                                {
-                                    label               : 'TodayUninstalled',
-                                    borderColor         : '#0073b7',
-                                    fill: false,
-                                    data                : todayUninstalled
-                                },
-                            ],
-                        },
-                        options: {
-                            scaleShowGridLines      : true,
-                            scaleGridLineWidth      : 1,
-                            legend : {
-                                position: 'bottom'
-                            }
-                        }
-                    };
-
-                    var firebaseChartCanvas = $('#firebaseChart').get(0).getContext('2d');
-                    // This will get the first returned node in the jQuery collection.
-                    if (firebaseChart) {
-                        firebaseChart.data = chartConfig.data;
-                        firebaseChart.update();
-                    } else {
-                        firebaseChart = new Chart(firebaseChartCanvas, chartConfig);
-                    }
-                }
-            } else {
-            }
-        }, "json");
     }
 </script>
 </body>
