@@ -146,8 +146,7 @@
                 <!-- /.box-body -->
             </div>
             <!-- /.row -->
-            <div style="width:80%;height:70%">
-                <canvas id="canvas"></canvas>
+            <div style="width:80%;height:70%" id="canvas_dev">
             </div>
 
         </section>
@@ -214,21 +213,24 @@
         queryData();
     });
 
-//    queryData();
     function queryData() {
         var date = moment($('#txtInstallDate').data('datepicker').dates[0]).format('YYYY-MM-DD');
         var filter = $('#filter').val();
         var filterCountry = $('#filterCountry').val();
-
+        var xData = [];
+        var yData = [];
+        $("#canvas_dev").empty();
+        $("#canvas_dev").append('<canvas id="canvas"></canvas>');
         $.post('query_app_ads_impressions_statistics', {
             date: date,
             appId: filter,
             countryCode: filterCountry
         }, function (result) {
             if (result && result.ret == 1) {
-                var xData = result.data_array;//X轴数据展示
-                var yData = result.date_array;//Y轴日期展示
+                xData = result.data_array;//X轴数据展示
+                yData = result.date_array;//Y轴日期展示
                 setData(yData,xData);
+                $("#canvas").show();
             } else {
                 admanager.showCommonDlg("错误", result.message);
             }

@@ -146,8 +146,7 @@
                 <!-- /.box-body -->
             </div>
             <!-- /.row -->
-            <div style="width:80%;height:70%">
-                <canvas id="canvas"></canvas>
+            <div style="width:80%;height:70%" id="canvas_dev">
             </div>
 
         </section>
@@ -219,7 +218,8 @@
         var date = moment($('#txtInstallDate').data('datepicker').dates[0]).format('YYYY-MM-DD');
         var filter = $('#filter').val();
         var filterCountry = $('#filterCountry').val();
-
+        $("#canvas_dev").empty();
+        $("#canvas_dev").append('<canvas id="canvas"></canvas>');
         $.post('query_app_active_user_statistics', {
             date: date,
             appId: filter,
