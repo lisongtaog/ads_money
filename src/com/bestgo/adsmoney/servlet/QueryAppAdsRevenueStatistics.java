@@ -18,10 +18,10 @@ import java.util.List;
 /**
  * @author mengjun
  * @date 2018/7/5 14:25
- * @description 应用广告展示统计
+ * @description 应用广告收入统计
  */
-@WebServlet(name = "QueryAppAdsImpressionsStatistics", urlPatterns = {"/query_app_ads_impressions_statistics"})
-public class QueryAppAdsImpressionsStatistics extends HttpServlet {
+@WebServlet(name = "QueryAppAdsRevenueStatistics", urlPatterns = {"/query_app_ads_revenue_statistics"})
+public class QueryAppAdsRevenueStatistics extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!Utils.isAdmin(request, response)) return;
         String date = request.getParameter("date");
