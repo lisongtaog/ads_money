@@ -2,14 +2,14 @@
 <%@ page import="com.bestgo.adsmoney.bean.AppData" %>
 <%@ page import="com.bestgo.adsmoney.servlet.AppManagement" %>
 <%@ page import="java.util.HashMap" %>
-<%@ page import="com.bestgo.adsmoney.Utils" %>
+<%@ page import="com.bestgo.adsmoney.utils.Utils" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <html>
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Ads Money | App Ads Impressions Statistics</title>
+    <title>Ads Money | App Ads Revenue Statistics</title>
     <link rel="shortcut icon" href="/images/favicon.ico">
 
     <!-- Tell the browser to be responsive to screen width -->
@@ -70,11 +70,11 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                App Ads Impressions Statistics
+                App Ads Revenue Statistics
             </h1>
             <ol class="breadcrumb">
                 <li><a href="index.jsp"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li class="active">App Ads Impressions Statistics</li>
+                <li class="active">App Ads Revenue Statistics</li>
             </ol>
         </section>
 
@@ -205,6 +205,8 @@
     $('.select2').select2();
     $('#txtInstallDate').datepicker({
         format: 'yyyy-mm-dd',
+        startDate:"2018-06-27",
+        endDate: new Date(),
         autoclose: true
     });
     $('#txtInstallDate').datepicker('setDate', moment().subtract(0, 'days').format('YYYY-MM-DD'));
@@ -221,7 +223,7 @@
         var yData = [];
         $("#canvas_dev").empty();
         $("#canvas_dev").append('<canvas id="canvas"></canvas>');
-        $.post('query_app_ads_impressions_statistics', {
+        $.post('query_app_ads_revenue_statistics', {
             date: date,
             appId: filter,
             countryCode: filterCountry

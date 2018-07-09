@@ -130,9 +130,9 @@
                 </a>
             </li>
             <li role="menu_li">
-                <a href="app_ads_impressions_statistics.jsp">
+                <a href="app_ads_revenue_statistics.jsp">
                     <i class="fa fa-list-alt"></i>
-                    <span>App Ads Impressions Statistics</span>
+                    <span>App Ads Revenue Statistics</span>
                 </a>
             </li>
             <li role="menu_li">

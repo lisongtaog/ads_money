@@ -1,6 +1,7 @@
 package com.bestgo.adsmoney.servlet;
 
-import com.bestgo.adsmoney.Utils;
+import com.bestgo.adsmoney.utils.NumberUtil;
+import com.bestgo.adsmoney.utils.Utils;
 import com.bestgo.common.database.services.DB;
 import com.bestgo.common.database.utils.JSObject;
 import com.google.gson.JsonArray;
@@ -12,16 +13,15 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author mengjun
  * @date 2018/7/5 14:25
- * @description 应用广告展示统计
+ * @description 应用广告收入统计
  */
-@WebServlet(name = "QueryAppAdsImpressionsStatistics", urlPatterns = {"/query_app_ads_impressions_statistics"})
-public class QueryAppAdsImpressionsStatistics extends HttpServlet {
+@WebServlet(name = "QueryAppAdsRevenueStatistics", urlPatterns = {"/query_app_ads_revenue_statistics"})
+public class QueryAppAdsRevenueStatistics extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!Utils.isAdmin(request, response)) return;
         String date = request.getParameter("date");
@@ -54,7 +54,7 @@ public class QueryAppAdsImpressionsStatistics extends HttpServlet {
                         array1.add(eventDate);
                         double totalRevenue = revenueJS.get("total_revenue");
                         sumRevenue += totalRevenue;
-                        array2.add(sumRevenue);
+                        array2.add(NumberUtil.trimDouble(sumRevenue,5));
                     }
                 }
                 json.add("date_array",array1);

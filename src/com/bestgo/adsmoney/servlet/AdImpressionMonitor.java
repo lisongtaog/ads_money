@@ -1,9 +1,8 @@
 package com.bestgo.adsmoney.servlet;
 
-import com.bestgo.adsmoney.Utils;
+import com.bestgo.adsmoney.utils.Utils;
 import com.bestgo.adsmoney.bean.AppAdImpressionMetrics;
 import com.bestgo.adsmoney.bean.AppData;
-import com.bestgo.adsmoney.bean.CountryReportMetrics;
 import com.bestgo.common.database.services.DB;
 import com.bestgo.common.database.utils.JSObject;
 import com.google.gson.JsonArray;

@@ -1,8 +1,7 @@
 package com.bestgo.adsmoney.servlet;
 
 import com.bestgo.adsmoney.OperationResult;
-import com.bestgo.adsmoney.Utils;
-import com.bestgo.adsmoney.bean.AppAdUnitConfig;
+import com.bestgo.adsmoney.utils.Utils;
 import com.bestgo.adsmoney.bean.AppUserDefinedSql;
 import com.bestgo.common.database.services.DB;
 import com.bestgo.common.database.utils.JSObject;
@@ -17,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**

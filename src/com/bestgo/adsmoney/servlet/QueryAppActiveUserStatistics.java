@@ -1,6 +1,7 @@
 package com.bestgo.adsmoney.servlet;
 
-import com.bestgo.adsmoney.Utils;
+import com.bestgo.adsmoney.utils.NumberUtil;
+import com.bestgo.adsmoney.utils.Utils;
 import com.bestgo.common.database.services.DB;
 import com.bestgo.common.database.utils.JSObject;
 import com.google.gson.JsonArray;
@@ -52,7 +53,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                         String eventDate = revenueJS.get("event_date").toString();
                         array1.add(eventDate);
                         double totalActiveNum = Utils.convertDouble(revenueJS.get("total_acitve_num"),0);
-                        array2.add(totalActiveNum);
+                        array2.add(NumberUtil.trimDouble(totalActiveNum,0));
                     }
                 }
                 json.add("date_array",array1);

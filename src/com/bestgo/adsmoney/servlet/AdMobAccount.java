@@ -1,7 +1,7 @@
 package com.bestgo.adsmoney.servlet;
 
 import com.bestgo.adsmoney.OperationResult;
-import com.bestgo.adsmoney.Utils;
+import com.bestgo.adsmoney.utils.Utils;
 import com.bestgo.adsmoney.bean.AppAdMobAccount;
 import com.bestgo.common.database.services.DB;
 import com.bestgo.common.database.utils.JSObject;

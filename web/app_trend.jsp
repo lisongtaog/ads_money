@@ -2,7 +2,7 @@
 <%@ page import="com.bestgo.adsmoney.bean.AppData" %>
 <%@ page import="com.bestgo.adsmoney.servlet.AppManagement" %>
 <%@ page import="java.util.HashMap" %>
-<%@ page import="com.bestgo.adsmoney.Utils" %>
+<%@ page import="com.bestgo.adsmoney.utils.Utils" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <html>
