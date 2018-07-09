@@ -1,20 +1,18 @@
 package com.bestgo.adsmoney.servlet;
 
-import com.bestgo.adsmoney.Utils;
+import com.bestgo.adsmoney.utils.Utils;
 import com.bestgo.adsmoney.bean.AppAdsMetrics;
 import com.bestgo.common.database.services.DB;
 import com.bestgo.common.database.utils.JSObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-import javax.rmi.CORBA.Util;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;

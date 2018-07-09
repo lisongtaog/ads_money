@@ -1,6 +1,6 @@
 package com.bestgo.adsmoney.cache;
 
-import com.bestgo.adsmoney.Utils;
+import com.bestgo.adsmoney.utils.Utils;
 import com.bestgo.adsmoney.bean.AppAdUnitMetrics;
 import com.bestgo.common.database.services.DB;
 import com.bestgo.common.database.utils.JSObject;

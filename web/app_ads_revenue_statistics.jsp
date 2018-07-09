@@ -2,7 +2,7 @@
 <%@ page import="com.bestgo.adsmoney.bean.AppData" %>
 <%@ page import="com.bestgo.adsmoney.servlet.AppManagement" %>
 <%@ page import="java.util.HashMap" %>
-<%@ page import="com.bestgo.adsmoney.Utils" %>
+<%@ page import="com.bestgo.adsmoney.utils.Utils" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <html>
@@ -205,6 +205,8 @@
     $('.select2').select2();
     $('#txtInstallDate').datepicker({
         format: 'yyyy-mm-dd',
+        startDate:"2018-06-27",
+        endDate: new Date(),
         autoclose: true
     });
     $('#txtInstallDate').datepicker('setDate', moment().subtract(0, 'days').format('YYYY-MM-DD'));

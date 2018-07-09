@@ -1,6 +1,7 @@
 package com.bestgo.adsmoney.servlet;
 
-import com.bestgo.adsmoney.Utils;
+import com.bestgo.adsmoney.utils.NumberUtil;
+import com.bestgo.adsmoney.utils.Utils;
 import com.bestgo.common.database.services.DB;
 import com.bestgo.common.database.utils.JSObject;
 import com.google.gson.JsonArray;
@@ -37,6 +38,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                 json.addProperty("ret", 0);
                 json.addProperty("message", "只能查询6月27号到前天的数据,今晚23点以后可查询昨天的数据");
             } else {
+                date = "2018-06-20";
                 String sql = "SELECT event_date,sum(active_num) AS total_acitve_num FROM app_active_user_statistics " +
                         "WHERE installed_date = '" + date + "' " +
                         ("all".equals(appId) || appId.isEmpty() ? " " : "AND app_id = '" + appId + "' ") +
@@ -52,7 +54,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                         String eventDate = revenueJS.get("event_date").toString();
                         array1.add(eventDate);
                         double totalActiveNum = Utils.convertDouble(revenueJS.get("total_acitve_num"),0);
-                        array2.add(totalActiveNum);
+                        array2.add(NumberUtil.trimDouble(totalActiveNum,0));
                     }
                 }
                 json.add("date_array",array1);

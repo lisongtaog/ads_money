@@ -1,4 +1,4 @@
-package com.bestgo.adsmoney;
+package com.bestgo.adsmoney.utils;
 
 import com.bestgo.common.database.services.DB;
 import com.bestgo.common.database.utils.JSObject;

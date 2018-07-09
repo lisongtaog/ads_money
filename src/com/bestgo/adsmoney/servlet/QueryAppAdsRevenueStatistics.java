@@ -1,6 +1,7 @@
 package com.bestgo.adsmoney.servlet;
 
-import com.bestgo.adsmoney.Utils;
+import com.bestgo.adsmoney.utils.NumberUtil;
+import com.bestgo.adsmoney.utils.Utils;
 import com.bestgo.common.database.services.DB;
 import com.bestgo.common.database.utils.JSObject;
 import com.google.gson.JsonArray;
@@ -12,7 +13,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,7 +54,7 @@ public class QueryAppAdsRevenueStatistics extends HttpServlet {
                         array1.add(eventDate);
                         double totalRevenue = revenueJS.get("total_revenue");
                         sumRevenue += totalRevenue;
-                        array2.add(sumRevenue);
+                        array2.add(NumberUtil.trimDouble(sumRevenue,2));
                     }
                 }
                 json.add("date_array",array1);
