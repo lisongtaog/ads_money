@@ -54,7 +54,7 @@ public class QueryAppAdsRevenueStatistics extends HttpServlet {
                         array1.add(eventDate);
                         double totalRevenue = revenueJS.get("total_revenue");
                         sumRevenue += totalRevenue;
-                        array2.add(NumberUtil.trimDouble(sumRevenue,2));
+                        array2.add(NumberUtil.trimDouble(sumRevenue,5));
                     }
                 }
                 json.add("date_array",array1);
