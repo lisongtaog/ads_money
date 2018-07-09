@@ -87,12 +87,13 @@
                         <!-- /.col -->
                         <div class="col-md-6">
                             <div class="form-group">
-                                <label>Install Date:</label>
+                                <label>Install Date (只能查询6月27号到前天的数据,今晚23点以后可查询昨天的数据):</label>
                                 <div class="input-group date">
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
                                     <input type="text" class="form-control pull-right" id="txtInstallDate">
+
                                 </div>
                             </div>
                         </div>
@@ -230,7 +231,7 @@
                 var yData = result.date_array;//Y轴日期展示
                 setData(yData,xData);
             } else {
-                admanager.showCommonDlg("错误", result.message);
+                alert(result.message);
             }
         }, 'json');
     }
