@@ -98,20 +98,19 @@ public class RecommendReport extends HttpServlet {
                         .append(" IF(f.ad_impression > 0 and f.installed > 0,f.ad_installed * f.spend / (f.ad_impression*f.installed) * 1000,0)  as ecpm," )
                         .append(" IF(f.ad_impression > 0,f.ad_click * 1.0 / f.ad_impression * 100,0) as ctr " )
                         .append("from (" );
-                sqlBuff.append("SELECT d.date,d.app_id,d.country_code,d.target_app_id," )
+                sqlBuff.append("SELECT DISTINCT d.date,d.app_id,d.country_code,d.target_app_id," )
                         .append("1* SUBSTRING_INDEX(d.more,'|',1)  AS spend,")  //历史花费
                         .append("1* SUBSTRING_INDEX(d.more,'|',-1) AS installed,") // 历史安装数量
-                        .append("IFNULL(d.ad_impression,0) as ad_impression,") //互推展示数量
-                        .append("IFNULL(d.ad_click,0) as ad_click,") //互推点击数量
-                        .append("IFNULL(d.ad_installed,0) as ad_installed ")//互推安装数量
+                        .append("SUM(d.ad_impression) AS ad_impression,") //互推展示数量
+                        .append("SUM(d.ad_click) AS ad_click,") //互推点击数量
+                        .append("SUM(d.ad_installed) AS ad_installed ")//互推安装数量
                         .append(" FROM (")
-                                .append("SELECT DISTINCT r.date,r.app_id,r.country_code,r.target_app_id,fetchCPA(r.date,r.country_code,r.app_id) AS more,")
-                                .append("(SELECT s1.value from app_recommend_daily_history s1 WHERE s1.action = '显示' and s1.date = r.date and s1.app_id = r.app_id and s1.country_code = r.country_code and s1.target_app_id = r.target_app_id) as ad_impression, ")
-                                .append("(SELECT s2.value from app_recommend_daily_history s2 WHERE s2.action = '点击' and s2.date = r.date and s2.app_id = r.app_id and s2.country_code = r.country_code and s2.target_app_id = r.target_app_id) as ad_click, ")
-                                .append("(SELECT s3.value from app_recommend_daily_history s3 WHERE s3.action = '安装' and s3.date = r.date and s3.app_id = r.app_id and s3.country_code = r.country_code and s3.target_app_id = r.target_app_id) as ad_installed ")
+                                .append("SELECT r.date,r.app_id,r.country_code,r.target_app_id,fetchCPA(r.date,r.country_code,r.app_id) AS more,")
+                                .append("CASE WHEN r.action = '显示' THEN r.VALUE ELSE 0 END AS ad_impression, ")
+                                .append("CASE WHEN r.action = '点击' THEN r.VALUE ELSE 0 END AS ad_click, ")
+                                .append("CASE WHEN r.action = '安装' THEN r.VALUE ELSE 0 END AS ad_installed ")
                                 .append(" from app_recommend_daily_history r ")
-                                .append(") d")
-                        .append(" WHERE date between '").append(startDate).append("' and '").append(endDate).append("' ");
+                                .append(" WHERE r.date between '").append(startDate).append("' and '").append(endDate).append("' ");
 
                 if (appIds.size() > 0) {
                     String ss = "";
@@ -152,6 +151,8 @@ public class RecommendReport extends HttpServlet {
                     sqlBuff.append(" and country_code in (" + ss + ")");
                 }
 
+                sqlBuff.append(") d")
+                        .append(" GROUP BY d.date,d.app_id,d.country_code,d.target_app_id,d.more ");
                 sqlBuff.append(" ) f");//三层嵌套
 
                 List<JSObject> count = DB.findListBySql(countSql.toString());
