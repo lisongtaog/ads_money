@@ -101,7 +101,7 @@
 <script src="http://money.uugame.info/admin_lte/dist/js/adminlte.min.js"></script>
 
 <script>
-    $("li[role='menu_li']:eq(6)").addClass("active");
+    $("li[role='menu_li']:eq(5)").addClass("active");
     var editor = new $.fn.dataTable.Editor( {
         "table": "#appTable",
         "ajax": function ( method, url, data, success, error ) {

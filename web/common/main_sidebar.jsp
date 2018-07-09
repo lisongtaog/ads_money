@@ -52,20 +52,15 @@
                 </a>
             </li>
             <li role="menu_li">
-                <a href="app_ads_impressions_statistics.jsp">
-                    <i class="fa fa-list-alt"></i>
-                    <span>App Ads Impressions Statistics</span>
-                </a>
-            </li>
-            <%-- id为0-3  end--%>
-
-            <%-- id为4-7  start--%>
-            <li role="menu_li">
                 <a href="admob_account_management.jsp">
                     <i class="fa fa-th"></i>
                     <span>AdMob Account Management</span>
                 </a>
             </li>
+            <%-- id为0-3  end--%>
+
+            <%-- id为4-7  start--%>
+
             <li role="menu_li">
                 <a href="ad_unit_management.jsp">
                     <i class="fa fa-list-alt"></i>
@@ -79,15 +74,6 @@
                 </a>
             </li>
             <li role="menu_li">
-                <a href="app_active_user_statistics.jsp">
-                    <i class="fa fa-folder"></i>
-                    <span>App Active User Statistics</span>
-                </a>
-            </li>
-            <%-- id为4-7  end--%>
-
-            <%-- id为8-12  start--%>
-            <li role="menu_li">
                 <a href="app_recom_report.jsp">
                     <i class="fa fa-folder"></i>
                     <span>App Recommend Report</span>
@@ -99,6 +85,10 @@
                     <span>App Trend</span>
                 </a>
             </li>
+            <%-- id为4-7  end--%>
+
+            <%-- id为8-12  start--%>
+
             <li role="menu_li">
                 <a href="app_report.jsp">
                     <i class="fa fa-folder"></i>
@@ -117,9 +107,6 @@
                     <span>CTR Monitor</span>
                 </a>
             </li>
-            <%-- id为8-12  end--%>
-
-            <%-- id为13-15  start--%>
             <li role="menu_li">
                 <a href="ad_impression_monitor.jsp">
                     <i class="fa fa-snowflake-o"></i>
@@ -132,10 +119,26 @@
                     <span>Active User Ad Chance</span>
                 </a>
             </li>
+            <%-- id为8-12  end--%>
+
+            <%-- id为13-15  start--%>
+
             <li role="menu_li">
                 <a href="app_hourly_trend.jsp">
                     <i class="fa fa-quora"></i>
                     <span>App Hourly Trend</span>
+                </a>
+            </li>
+            <li role="menu_li">
+                <a href="app_ads_impressions_statistics.jsp">
+                    <i class="fa fa-list-alt"></i>
+                    <span>App Ads Impressions Statistics</span>
+                </a>
+            </li>
+            <li role="menu_li">
+                <a href="app_active_user_statistics.jsp">
+                    <i class="fa fa-folder"></i>
+                    <span>App Active User Statistics</span>
                 </a>
             </li>
             <%-- id为13-15  end--%>

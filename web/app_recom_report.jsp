@@ -306,7 +306,7 @@
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.4.2/js/buttons.print.min.js"></script>
 
 <script>
-    $("li[role='menu_li']:eq(8)").addClass("active");
+    $("li[role='menu_li']:eq(6)").addClass("active");
     $('.select2').select2();
 
     //Date range as a button
