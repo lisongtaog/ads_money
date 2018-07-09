@@ -38,7 +38,6 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                 json.addProperty("ret", 0);
                 json.addProperty("message", "只能查询6月27号到前天的数据,今晚23点以后可查询昨天的数据");
             } else {
-                date = "2018-06-20";
                 String sql = "SELECT event_date,sum(active_num) AS total_acitve_num FROM app_active_user_statistics " +
                         "WHERE installed_date = '" + date + "' " +
                         ("all".equals(appId) || appId.isEmpty() ? " " : "AND app_id = '" + appId + "' ") +
