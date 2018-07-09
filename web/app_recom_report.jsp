@@ -301,7 +301,7 @@
         queryData();
     });
 
-    queryData();
+    //queryData();
 
     // var firebaseChart;
     var revenueChart;

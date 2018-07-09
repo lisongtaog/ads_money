@@ -85,27 +85,20 @@
                 <div class="box-body">
                     <div class="row">
                         <!-- /.col -->
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
-                                <label>Install Date (只能查询6月27号到前天的数据,今晚23点以后可查询昨天的数据):</label>
+                                <label>Install Date:</label>
                                 <div class="input-group date">
                                     <div class="input-group-addon">
                                         <i class="fa fa-calendar"></i>
                                     </div>
                                     <input type="text" class="form-control pull-right" id="txtInstallDate">
-
                                 </div>
+                                <span style="color: red">只能查询6.27日到前天的数据；当晚23点后可查询昨天的数据</span>
                             </div>
                         </div>
-                        <!-- /.col -->
-                        <!-- /.col -->
-                    </div>
-                    <!-- /.row -->
 
-                    <div class="row">
-                        <!-- /.col -->
-
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label>Filter</label>
                                 <select  id="filter" class="form-control select2 select2-hidden-accessible" data-placeholder="Select app" style="width: 100%;" tabindex="-1" aria-hidden="true">
@@ -210,7 +203,7 @@
         endDate: new Date(),
         autoclose: true
     });
-    $('#txtInstallDate').datepicker('setDate', moment().subtract(0, 'days').format('YYYY-MM-DD'));
+    $('#txtInstallDate').datepicker('setDate', moment().subtract(2, 'days').format('YYYY-MM-DD'));
 
     $('#btnQuery').click(function() {
         queryData();
