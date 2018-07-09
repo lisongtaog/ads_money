@@ -70,11 +70,11 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                App Ads Impressions Statistics
+                App Active User Statistics
             </h1>
             <ol class="breadcrumb">
                 <li><a href="index.jsp"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li class="active">App Ads Impressions Statistics</li>
+                <li class="active">App Active User Statistics</li>
             </ol>
         </section>
 
