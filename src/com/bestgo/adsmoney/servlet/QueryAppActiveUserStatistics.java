@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -57,11 +58,17 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
             JSObject obj = DB.findOneBySql(purchaseInstallSql);
             JSObject obj2 = DB.findOneBySql(allInstallSql);
             int purchaseInstalled=0,allInstalled = 0;
-            if(obj.get("purchase_installed") != null){
-                purchaseInstalled = Utils.parseInt(obj.get("purchase_installed"),0);
-            }
-            if(obj.get("all_installed") != null){
-                allInstalled = Utils.parseInt(obj.get("all_installed"),0);
+            try {
+                if(obj.get("purchase_installed") != null){
+                    //purchaseInstalled = Utils.parseInt(obj.get("purchase_installed"),0);
+                    purchaseInstalled = new BigDecimal(obj.get("purchase_installed").toString()).intValue();
+                }
+                if(obj2.get("all_installed") != null){
+                    //allInstalled = Utils.parseInt(obj.get("all_installed"),0);
+                    allInstalled = new BigDecimal(obj2.get("all_installed").toString()).intValue();
+                }
+            }catch (Exception e){
+                e.printStackTrace();
             }
 
             JsonArray array1 = new JsonArray();
@@ -82,7 +89,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                     item.add(purchaseInstalled);
                     item.add(eventDate);
                     item.add(activeNum);
-                    item.add(allInstalled >0 ? activeNum / allInstalled : 0);
+                    item.add(Utils.trimDouble(allInstalled >0 ? activeNum / allInstalled : 0));
                     dataArray.add(item);
                 }
             }
