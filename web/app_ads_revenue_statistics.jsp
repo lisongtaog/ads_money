@@ -143,6 +143,24 @@
             <div style="width:80%;height:70%" id="canvas_dev">
             </div>
 
+            <div class="box box-default">
+                <!-- /.box-header -->
+                <div class="box-body" style="overflow-x: hidden">
+                    <table id="metricTable" class="table table-bordered table-hover" cellspacing="0" >
+                        <thead>
+                        <tr>
+                            <th>Install Date</th>
+                            <th>总安装量</th>
+                            <th>购买安装量</th>
+                            <th>Active Date</th>
+                            <th>活跃用户数</th>
+                            <th>活跃占比</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+
         </section>
         <!-- /.content -->
     </div>
@@ -225,7 +243,9 @@
             if (result && result.ret == 1) {
                 xData = result.data_array;//X轴数据展示
                 yData = result.date_array;//Y轴日期展示
+                var dataSet = result.data_table;//表格数据
                 setData(yData,xData);
+                renderTable(dataSet);
             } else {
                 alert(result.message);
             }
@@ -321,6 +341,28 @@
                 ]
             },
             options:options
+        });
+    }
+
+    function  renderTable(dataSet) {
+        var columns = [
+            { title: "Install Date" },
+            { title: "花费" },
+            { title: "用户数" },
+            { title: "统计日期" },
+            { title: "累计收入" },
+            { title: "收支比例" }
+        ];
+        if ($.fn.DataTable.isDataTable("#metricTable")) {
+            $('#metricTable').DataTable().clear().destroy();
+        }
+
+        $('#metricTable').DataTable({
+            searching: false,
+            paging: false,
+            ordering: false,
+            columns: columns,
+            data:dataSet
         });
     }
 
