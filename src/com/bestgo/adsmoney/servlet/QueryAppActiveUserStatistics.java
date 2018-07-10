@@ -57,23 +57,23 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
             List<JSObject> revenueList = DB.findListBySql(sql);
             JSObject obj = DB.findOneBySql(purchaseInstallSql);
             JSObject obj2 = DB.findOneBySql(allInstallSql);
-            int purchaseInstalled=0,allInstalled = 0;
+            double purchaseInstalled=0,allInstalled = 0;
             try {
 
                 if(obj.get("purchase_installed") != null && !"".equals(obj.get("purchase_installed"))){
                     //purchaseInstalled = Utils.parseInt(obj.get("purchase_installed"),0);
-                    purchaseInstalled = new BigDecimal(obj.get("purchase_installed").toString()).intValue();
+                    purchaseInstalled = new BigDecimal(obj.get("purchase_installed").toString()).doubleValue();
                 }
                 if(obj2.get("all_installed") != null && !"".equals(obj2.get("all_installed"))){
                     //allInstalled = Utils.parseInt(obj.get("all_installed"),0);
-                    allInstalled = new BigDecimal(obj2.get("all_installed").toString()).intValue();
+                    allInstalled = new BigDecimal(obj2.get("all_installed").toString()).doubleValue();
                 }
             }catch (Exception e){
                 e.printStackTrace();
             }
 
-            int installActive = 0;
-            int preActive = 0;
+            double installActive = 0;
+            double preActive = 0;
 
             JsonArray array1 = new JsonArray();
             JsonArray array2 = new JsonArray();
@@ -86,7 +86,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                     String eventDate = revenueJS.get("event_date").toString();
                     array1.add(eventDate);
                     double totalActiveNum = Utils.convertDouble(revenueJS.get("total_acitve_num"),0);
-                    int activeNum = ((Double)NumberUtil.trimDouble(totalActiveNum,0)).intValue();
+                    double activeNum = NumberUtil.trimDouble(totalActiveNum,0);
                     if(i == 0){
                         installActive = activeNum;
                         preActive = activeNum;
@@ -95,11 +95,11 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                     item.add(date);
                     item.add(allInstalled);//总安装量
                     item.add(purchaseInstalled);//购买安装量
-                    item.add(Utils.trimDouble(allInstalled >0 ? 100*purchaseInstalled / allInstalled : 0));//购买安装占比
+                    item.add(Utils.trimDouble(allInstalled >0 ? 100*(purchaseInstalled / allInstalled): 0));//购买安装占比
                     item.add(eventDate);
                     item.add(activeNum);
-                    item.add(Utils.trimDouble(allInstalled >0 ? 100*activeNum / allInstalled : 0));//活跃占比
-                    item.add(Utils.trimDouble(installActive >0 ? 100*activeNum / installActive : 0));//首日占比
+                    item.add(Utils.trimDouble(allInstalled >0 ? 100*(activeNum / allInstalled): 0));//活跃占比
+                    item.add(Utils.trimDouble(installActive >0 ? 100*(activeNum / installActive): 0));//首日占比
                     item.add(activeNum - preActive);//递进值
                     dataArray.add(item);
                     preActive = activeNum;
