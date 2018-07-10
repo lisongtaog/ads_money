@@ -144,17 +144,26 @@
             </div>
 
             <div class="box box-default">
+                <div class="box-header with-border">
+                   <span style="color: coral">公式：</span>购买占比=购买安装量/总安装量 *100 &nbsp;;&nbsp;&nbsp;活跃占比=活跃用户数/总安装量 *100
+                    &nbsp;;&nbsp;&nbsp;首日占比 = 当日活跃用户数/安装日期活跃用户数 *100
+                    <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    递进值=当前日活跃用户数 - 上一日活跃用户数 （正数表示递增，负数表示递减）
+                </div>
                 <!-- /.box-header -->
                 <div class="box-body" style="overflow-x: hidden">
                     <table id="metricTable" class="table table-bordered table-hover" cellspacing="0" >
                         <thead>
                         <tr>
-                            <th>Install Date</th>
+                            <th>安装日期</th>
                             <th>总安装量</th>
                             <th>购买安装量</th>
-                            <th>Active Date</th>
+                            <th>购买占比%</th>
+                            <th>活跃日期</th>
                             <th>活跃用户数</th>
-                            <th>活跃占比</th>
+                            <th>活跃占比%</th>
+                            <th>首日占比%</th>
+                            <th>递进值</th>
                         </tr>
                         </thead>
                     </table>
@@ -345,12 +354,15 @@
 
     function  renderTable(dataSet) {
         var columns = [
-            { title: "Install Date" },
+            { title: "安装日期" },
             { title: "总安装量" },
             { title: "购买安装量" },
-            { title: "Active Date" },
+            { title: "购买占比%" },
+            { title: "活跃日期" },
             { title: "活跃用户数" },
-            { title: "活跃占比" }
+            { title: "活跃占比%" },
+            { title: "首日占比%" },
+            { title: "递进值" }
         ];
         if ($.fn.DataTable.isDataTable("#metricTable")) {
             $('#metricTable').DataTable().clear().destroy();
