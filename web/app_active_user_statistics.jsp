@@ -143,6 +143,24 @@
             <div style="width:80%;height:70%" id="canvas_dev">
             </div>
 
+            <div class="box box-default">
+                <!-- /.box-header -->
+                <div class="box-body" style="overflow-x: hidden">
+                    <table id="metricTable" class="table table-bordered table-hover" cellspacing="0" >
+                        <thead>
+                        <tr>
+                            <th>Install Date</th>
+                            <th>总安装量</th>
+                            <th>购买安装量</th>
+                            <th>Active Date</th>
+                            <th>活跃用户数</th>
+                            <th>活跃占比</th>
+                        </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+
         </section>
         <!-- /.content -->
     </div>
@@ -206,14 +224,14 @@
     $('#txtInstallDate').datepicker('setDate', moment().subtract(2, 'days').format('YYYY-MM-DD'));
 
     $('#btnQuery').click(function() {
-        queryData();
-    });
-
-//    queryData();
-    function queryData() {
         var date = moment($('#txtInstallDate').data('datepicker').dates[0]).format('YYYY-MM-DD');
         var filter = $('#filter').val();
         var filterCountry = $('#filterCountry').val();
+        queryData(date,filter,filterCountry);
+    });
+
+//    queryData();
+    function queryData(date,filter,filterCountry) {
         $("#canvas_dev").empty();
         $("#canvas_dev").append('<canvas id="canvas"></canvas>');
         $.post('query_app_active_user_statistics', {
@@ -224,7 +242,9 @@
             if (result && result.ret == 1) {
                 var xData = result.data_array;//X轴数据展示
                 var yData = result.date_array;//Y轴日期展示
+                var dataSet = result.data_table;//表格数据
                 setData(yData,xData);
+                renderTable(dataSet);
             } else {
                 alert(result.message);
             }
@@ -320,6 +340,28 @@
                 ]
             },
             options:options
+        });
+    }
+
+    function  renderTable(dataSet) {
+        var columns = [
+            { title: "Install Date" },
+            { title: "总安装量" },
+            { title: "购买安装量" },
+            { title: "Active Date" },
+            { title: "活跃用户数" },
+            { title: "活跃占比" }
+        ];
+        if ($.fn.DataTable.isDataTable("#metricTable")) {
+            $('#metricTable').DataTable().clear().destroy();
+        }
+
+        $('#metricTable').DataTable({
+            searching: false,
+            paging: false,
+            ordering: false,
+            columns: columns,
+            data:dataSet
         });
     }
 
