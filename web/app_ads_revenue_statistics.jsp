@@ -149,12 +149,13 @@
                     <table id="metricTable" class="table table-bordered table-hover" cellspacing="0" >
                         <thead>
                         <tr>
-                            <th>Install Date</th>
+                            <th>安装日期</th>
+                            <th>花费</th>
                             <th>总安装量</th>
                             <th>购买安装量</th>
-                            <th>Active Date</th>
-                            <th>活跃用户数</th>
-                            <th>活跃占比</th>
+                            <th>统计日期</th>
+                            <th>累计收入</th>
+                            <th>收支比例</th>
                         </tr>
                         </thead>
                     </table>
@@ -346,9 +347,10 @@
 
     function  renderTable(dataSet) {
         var columns = [
-            { title: "Install Date" },
+            { title: "安装日期" },
             { title: "花费" },
-            { title: "用户数" },
+            { title: "总安装量" },
+            { title: "购买安装量" },
             { title: "统计日期" },
             { title: "累计收入" },
             { title: "收支比例" }
