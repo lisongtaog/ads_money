@@ -145,6 +145,10 @@
 
             <div class="box box-default">
                 <!-- /.box-header -->
+                <div class="box-header with-border">
+                    <span style="color: coral">公式：</span>购买占比=购买安装量/总安装量 &nbsp;;&nbsp;&nbsp; 购买累计收支比=购买安装累计收入/花费
+                </div>
+
                 <div class="box-body" style="overflow-x: hidden">
                     <table id="metricTable" class="table table-bordered table-hover" cellspacing="0" >
                         <thead>
@@ -153,9 +157,12 @@
                             <th>花费</th>
                             <th>总安装量</th>
                             <th>购买安装量</th>
+                            <th>购买安装比例</th>
                             <th>统计日期</th>
-                            <th>累计收入</th>
-                            <th>收支比例</th>
+                            <th>购买安装收入</th>
+                            <th>总安装累计收入</th>
+                            <th>购买安装累计收入</th>
+                            <th>购买累计收支比</th>
                         </tr>
                         </thead>
                     </table>
@@ -351,9 +358,12 @@
             { title: "花费" },
             { title: "总安装量" },
             { title: "购买安装量" },
+            { title: "购买安装比例" },
             { title: "统计日期" },
-            { title: "累计收入" },
-            { title: "收支比例" }
+            { title: "购买安装收入" },
+            { title: "总安装累计收入" },
+            { title: "购买安装累计收入" },
+            { title: "购买累计收支比" }
         ];
         if ($.fn.DataTable.isDataTable("#metricTable")) {
             $('#metricTable').DataTable().clear().destroy();

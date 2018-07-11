@@ -58,7 +58,8 @@ public class QueryAppAdsRevenueStatistics extends HttpServlet {
                 purchaseInstalled = NumberUtil.convertDouble(one.get("purchase_installed"),0);
                 actualInstallationRatio = totalInstalled == 0 ? 0 : purchaseInstalled / totalInstalled;
             }
-
+            double purchaseInstallRatio = totalInstalled == 0 ? 0 : purchaseInstalled / totalInstalled; //购买安装比例
+            String purchaseInstallRatioTrim = NumberUtil.trimDouble(purchaseInstallRatio * 100, 3) + "%";
             JsonArray dateArray = new JsonArray();
             JsonArray dataArray = new JsonArray();
             JsonArray dataTable = new JsonArray();
@@ -73,7 +74,8 @@ public class QueryAppAdsRevenueStatistics extends HttpServlet {
                     "GROUP BY event_date ORDER BY event_date";
             List<JSObject> revenueList = DB.findListBySql(sql);
 
-            double sumRevenue = 0;
+            double sumPurchaseRevenue = 0;
+            double sumTotalRevenue = 0;
             totalSpend = NumberUtil.trimDouble(totalSpend,5);
             for (int i = 0,len = revenueList.size();i < len;i++) {
                 JSObject revenueJS = revenueList.get(i);
@@ -82,19 +84,26 @@ public class QueryAppAdsRevenueStatistics extends HttpServlet {
                     String eventDate = revenueJS.get("event_date").toString();
                     dateArray.add(eventDate);
                     double totalRevenue = revenueJS.get("total_revenue");
-                    sumRevenue += totalRevenue * actualInstallationRatio;
-                    double sumRevenueTrim = NumberUtil.trimDouble(sumRevenue,5);
+                    double purchaseRevenue = totalRevenue * actualInstallationRatio;
+                    sumPurchaseRevenue += purchaseRevenue;
+                    sumTotalRevenue += totalRevenue;
+                    double sumRevenueTrim = NumberUtil.trimDouble(sumPurchaseRevenue,5);
                     dataArray.add(sumRevenueTrim);
 
-                    //安装日期-花费-总安装-购买安装-统计日期-累计收入-收支比例
-                    item.add(date);
-                    item.add(totalSpend);
-                    item.add(totalInstalled);
-                    item.add(purchaseInstalled);
-                    item.add(eventDate);
-                    item.add(sumRevenueTrim);
-                    double revenueCostRatio = totalSpend == 0 ? 0 : sumRevenue / totalSpend;
-                    item.add(NumberUtil.trimDouble(revenueCostRatio,5));
+                    //安装日期-花费-总安装量-购买安装量-购买安装比例-统计日期-购买安装收入-总安装累计收入-购买安装累计收入-购买累计收支比
+                    item.add(date); //安装日期
+                    item.add(totalSpend); //花费
+                    item.add(totalInstalled); //总安装量
+                    item.add(purchaseInstalled); //购买安装量
+                    item.add(purchaseInstallRatioTrim); //购买安装比例
+                    item.add(eventDate); //统计日期
+                    item.add(NumberUtil.trimDouble(purchaseRevenue,5)); //购买安装收入
+                    item.add(NumberUtil.trimDouble(sumTotalRevenue,5)); // 总安装累计收入
+                    item.add(sumRevenueTrim); // 购买安装累计收入
+
+                    double purchaseRevenueCostRatio = totalSpend == 0 ? 0 : sumPurchaseRevenue / totalSpend;
+                    item.add(NumberUtil.trimDouble(purchaseRevenueCostRatio * 100,3) + "%"); // 购买累计收支比
+
                     dataTable.add(item);
                 }
             }
