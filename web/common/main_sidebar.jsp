@@ -5,7 +5,6 @@
   Time: 17:15
   Desc: 包含所有链接的侧边栏
 --%>
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <header class="main-header">
 
     <!-- Logo -->

@@ -157,7 +157,7 @@
                             <th>花费</th>
                             <th>总安装量</th>
                             <th>购买安装量</th>
-                            <th>购买安装比例</th>
+                            <th>购买占比</th>
                             <th>统计日期</th>
                             <th>购买安装收入</th>
                             <th>总安装累计收入</th>
@@ -174,13 +174,7 @@
     </div>
     <!-- /.content-wrapper -->
 
-    <footer class="main-footer">
-        <div class="pull-right hidden-xs">
-            <b>Version</b> 1.0
-        </div>
-        <strong>Copyright &copy; 2012-2017 <a href="#">Think Mobile</a>.</strong> All rights
-        reserved.
-    </footer>
+    <%@include file="common/main_footer.jsp"%>
 
 </div>
 <!-- ./wrapper -->
@@ -358,7 +352,7 @@
             { title: "花费" },
             { title: "总安装量" },
             { title: "购买安装量" },
-            { title: "购买安装比例" },
+            { title: "购买占比" },
             { title: "统计日期" },
             { title: "购买安装收入" },
             { title: "总安装累计收入" },

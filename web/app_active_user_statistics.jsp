@@ -175,13 +175,7 @@
     </div>
     <!-- /.content-wrapper -->
 
-    <footer class="main-footer">
-        <div class="pull-right hidden-xs">
-            <b>Version</b> 1.0
-        </div>
-        <strong>Copyright &copy; 2012-2017 <a href="#">Think Mobile</a>.</strong> All rights
-        reserved.
-    </footer>
+    <%@include file="common/main_footer.jsp"%>
 
 </div>
 <!-- ./wrapper -->
