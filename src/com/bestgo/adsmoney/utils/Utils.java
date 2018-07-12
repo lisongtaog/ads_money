@@ -106,6 +106,13 @@ public class Utils {
         return Float.parseFloat(String.format("%.4f", value));
     }
 
+    public static String trimString(String str) {
+        if (str != null) {
+            return str.trim();
+        }
+        return str;
+    }
+
     public static HashMap getCountryMap() {
         if (countryCodeMap == null) {
             try {
