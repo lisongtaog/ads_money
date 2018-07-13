@@ -42,18 +42,20 @@ public class InterActiveUserAndImpressionSta extends HttpServlet {
 
         String path = request.getPathInfo();
         JsonArray jsonArray = null;
-        if(path == null){
+        if (path == null) {
             response.getWriter().write(jsonArray.toString());
             return;
         }
-
+        String token = request.getParameter("token");
         String startDate = request.getParameter("startDate");
         String endDate = request.getParameter("endDate");
         //常规业务逻辑
-        if (path.startsWith("/activeUser")) {//活跃用户
-            jsonArray = queryActiveUser(startDate,endDate);
-        }else if(path.startsWith("/revenue")){//展示次数及收益
-            jsonArray = queryRevenue(startDate,endDate);
+        if ("iLoveMoney".equals(token)) {
+            if (path.startsWith("/activeUser")) {//活跃用户
+                jsonArray = queryActiveUser(startDate,endDate);
+            }else if(path.startsWith("/revenue")){//展示次数及收益
+                jsonArray = queryRevenue(startDate,endDate);
+            }
         }
         response.getWriter().write(jsonArray.toString());
     }
@@ -65,9 +67,27 @@ public class InterActiveUserAndImpressionSta extends HttpServlet {
      * @param endDate 统计日期结束时间
      * @return
      */
-    private JsonArray queryActiveUser(String startDate,String endDate){
+    private JsonArray queryActiveUser(String startDate,String endDate) {
         JsonArray jArray = new JsonArray();
-        //TODO 获取活跃用户数据，并转换为JsonArray
+        try {
+            List<JSObject> jsList = fetchCampaignActiveUserByInstalledDate(startDate, endDate);
+            for (int i = 0,len = jsList.size();i < len;i++) {
+                JSObject js = jsList.get(i);
+                if (js.hasObjectData()) {
+                    JsonObject json = new JsonObject();
+                    json.addProperty("installed_date",js.get("installed_date").toString());
+                    json.addProperty("event_date",js.get("event_date").toString());
+                    json.addProperty("app_id",js.get("app_id").toString());
+                    json.addProperty("campaign_name",js.get("campaign_name").toString());
+                    json.addProperty("country_code",js.get("country_code").toString());
+                    json.addProperty("active_num", Utils.convertDouble(js.get("active_num"), 0));
+                    jArray.add(json);
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return jArray;
     }
@@ -85,4 +105,21 @@ public class InterActiveUserAndImpressionSta extends HttpServlet {
 
         return jArray;
     }
+
+    /**
+     * 根据安装日期区间获取系列活跃用户数
+     * @param startDate
+     * @param endDate
+     * @return
+     * @throws Exception
+     */
+    private List<JSObject> fetchCampaignActiveUserByInstalledDate(String startDate,String endDate) throws Exception {
+        String sql = "SELECT installed_date,event_date,app_id,campaign_name,country_code,active_num \n" +
+                "FROM app_campaign_active_user_statistics\n" +
+                "WHERE installed_date BETWEEN '"+startDate+"' AND '" + endDate + "'\n" +
+                "ORDER BY installed_date";
+        List<JSObject> list = DB.findListBySql(sql);
+        return list;
+    }
+
 }
