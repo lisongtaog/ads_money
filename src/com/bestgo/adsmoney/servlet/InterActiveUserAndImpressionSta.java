@@ -38,7 +38,6 @@ public class InterActiveUserAndImpressionSta extends HttpServlet {
     }
 
     protected void doRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        if (!Utils.isAdmin(request, response)) return;
 
         String path = request.getPathInfo();
         JsonArray jsonArray = null;
