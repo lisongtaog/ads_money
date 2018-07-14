@@ -62,7 +62,7 @@ public class InterActiveUserAndImpressionSta extends HttpServlet {
 
 
     /**
-     * 拉取活跃用户
+     * 查询已经拉取的系列活跃用户
      * @param startDate 统计日期开始时间
      * @param endDate 统计日期结束时间
      * @return
@@ -70,7 +70,7 @@ public class InterActiveUserAndImpressionSta extends HttpServlet {
     private JsonArray queryActiveUser(String startDate,String endDate) {
         JsonArray jArray = new JsonArray();
         try {
-            List<JSObject> jsList = fetchCampaignActiveUserByInstalledDate(startDate, endDate);
+            List<JSObject> jsList = fetchCampaignActiveUserByEventDate(startDate, endDate);
             for (int i = 0,len = jsList.size();i < len;i++) {
                 JSObject js = jsList.get(i);
                 if (js.hasObjectData()) {
@@ -113,11 +113,10 @@ public class InterActiveUserAndImpressionSta extends HttpServlet {
      * @return
      * @throws Exception
      */
-    private List<JSObject> fetchCampaignActiveUserByInstalledDate(String startDate,String endDate) throws Exception {
+    private List<JSObject> fetchCampaignActiveUserByEventDate(String startDate,String endDate) throws Exception {
         String sql = "SELECT installed_date,event_date,app_id,campaign_name,country_code,active_num \n" +
                 "FROM app_campaign_active_user_statistics\n" +
-                "WHERE installed_date BETWEEN '"+startDate+"' AND '" + endDate + "'\n" +
-                "ORDER BY installed_date";
+                "WHERE event_date BETWEEN '"+startDate+"' AND '" + endDate + "'";
         List<JSObject> list = DB.findListBySql(sql);
         return list;
     }
