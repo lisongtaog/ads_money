@@ -100,13 +100,34 @@ public class InterActiveUserAndImpressionSta extends HttpServlet {
      */
     private JsonArray queryRevenue(String startDate,String endDate){
         JsonArray jArray = new JsonArray();
-        //TODO 获取活跃用户数据，并转换为JsonArray
+        try {
+            List<JSObject> jsList = fetchCampaignRevenueByEventDate(startDate,endDate);
+            for (int i = 0,len = jsList.size();i < len;i++) {
+                JSObject js = jsList.get(i);
+                if (js.hasObjectData()) {
+                    JsonObject json = new JsonObject();
+                    json.addProperty("installed_date",js.get("installed_date").toString());
+                    json.addProperty("event_date",js.get("event_date").toString());
+                    json.addProperty("app_id",js.get("app_id").toString());
+                    json.addProperty("campaign_name",js.get("campaign_name").toString());
+                    json.addProperty("country_code",js.get("country_code").toString());
+                    json.addProperty("ad_unit_id",js.get("ad_unit_id").toString());
+                    json.addProperty("impressions", Utils.convertDouble(js.get("impressions"), 0));
+                    json.addProperty("ecpm", Utils.convertDouble(js.get("ecpm"), 0));
+                    json.addProperty("revenue", Utils.convertDouble(js.get("revenue"), 0));
+                    jArray.add(json);
+                }
+
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         return jArray;
     }
 
     /**
-     * 根据安装日期区间获取系列活跃用户数
+     * 根据事件日期日期区间获取系列活跃用户数
      * @param startDate
      * @param endDate
      * @return
@@ -115,7 +136,22 @@ public class InterActiveUserAndImpressionSta extends HttpServlet {
     private List<JSObject> fetchCampaignActiveUserByEventDate(String startDate,String endDate) throws Exception {
         String sql = "SELECT installed_date,event_date,app_id,campaign_name,country_code,active_num \n" +
                 "FROM app_campaign_active_user_statistics\n" +
-                "WHERE event_date BETWEEN '"+startDate+"' AND '" + endDate + "'";
+                "WHERE event_date BETWEEN '" + startDate + "' AND '" + endDate + "'";
+        List<JSObject> list = DB.findListBySql(sql);
+        return list;
+    }
+
+    /**
+     * 根据事件日期区间获取系列收入
+     * @param startDate
+     * @param endDate
+     * @return
+     * @throws Exception
+     */
+    private List<JSObject> fetchCampaignRevenueByEventDate(String startDate,String endDate) throws Exception {
+        String sql = "SELECT installed_date,event_date,app_id,country_code,ad_unit_id,campaign_name,impressions,ecpm,revenue \n" +
+                "FROM app_campaign_impressions_statistics \n" +
+                "WHERE event_date BETWEEN '" + startDate + "' AND '" + endDate + "'";
         List<JSObject> list = DB.findListBySql(sql);
         return list;
     }
