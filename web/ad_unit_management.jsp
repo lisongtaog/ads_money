@@ -67,6 +67,7 @@
                         <th>Network</th>
                         <th>Ad Unit Type</th>
                         <th>Ad Unit Id</th>
+                        <th>Flag</th>
                         <th>Ad Unit Name</th>
                         <th>AdMob Account</th>
                     </tr>
@@ -191,6 +192,11 @@
             "label": "Ad Unit Id:",
             "name": "ad_unit_id"
         }, {
+            "label": "Flag:",
+            "name": "flag",
+            "type": "select",
+            "options": [{label:"常规",value:"0"},{label:"新安装",value:"1"},]
+        }, {
             "label": "Ad Unit Name:",
             "name": "ad_unit_name",
         }, {
@@ -245,9 +251,18 @@
             { data: 'ad_network' },
             { data: 'ad_unit_type' },
             { data: 'ad_unit_id' },
+            { data: 'flag' },
             { data: 'ad_unit_name' },
             { data: 'admob_account' },
             // etc
+        ],"columnDefs":[
+            {//倒数第一列
+                "targets":4,
+                render: function(data, type, row) {
+                    var html = "1" == row.flag ? "新安装": "常规";
+                    return html;
+                }
+            }
         ],
         select: true,
         buttons: [

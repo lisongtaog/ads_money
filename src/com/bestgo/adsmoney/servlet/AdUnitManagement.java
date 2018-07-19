@@ -23,7 +23,7 @@ import java.util.List;
  */
 @WebServlet(name = "AdUnitManagement", urlPatterns = {"/ad_unit_management/*"})
 public class AdUnitManagement extends HttpServlet {
-    private static final String[] FIELDS = {"id", "app_id", "ad_network", "ad_unit_type", "ad_unit_id", "ad_unit_name", "admob_account"};
+    private static final String[] FIELDS = {"id", "app_id", "ad_network", "ad_unit_type", "ad_unit_id", "flag", "ad_unit_name", "admob_account"};
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!Utils.isAdmin(request, response)) return;
@@ -38,6 +38,7 @@ public class AdUnitManagement extends HttpServlet {
                 adUnitConfig.adNetwork = request.getParameter("ad_network");
                 adUnitConfig.adUnitType = request.getParameter("ad_unit_type");
                 adUnitConfig.adUnitId = request.getParameter("ad_unit_id");
+                adUnitConfig.flag = request.getParameter("flag");
                 adUnitConfig.adUnitName = request.getParameter("ad_unit_name");
                 adUnitConfig.admobAccount = request.getParameter("admob_account");
 
@@ -56,6 +57,7 @@ public class AdUnitManagement extends HttpServlet {
                 adUnitConfig.adNetwork = request.getParameter("ad_network");
                 adUnitConfig.adUnitType = request.getParameter("ad_unit_type");
                 adUnitConfig.adUnitId = request.getParameter("ad_unit_id");
+                adUnitConfig.flag = request.getParameter("flag");
                 adUnitConfig.adUnitName = request.getParameter("ad_unit_name");
                 adUnitConfig.admobAccount = request.getParameter("admob_account");
 
@@ -112,8 +114,9 @@ public class AdUnitManagement extends HttpServlet {
         List<JSObject> list = new ArrayList<>();
         try {
             String sql = "select app_ad_unit_config.id, app_ad_unit_config.app_id, app_ad_unit_config.ad_network, app_ad_unit_config.ad_unit_type, " +
-                    "app_ad_unit_config.ad_unit_id, app_ad_unit_config.ad_unit_name, app_ad_unit_config.admob_account from app_ad_unit_config, app_data " +
-                    "where app_ad_unit_config.app_id=app_data.app_id and (app_name like " + "'%" + word + "%' or app_ad_unit_config.app_id like " + "'%" + word + "%'" +") order by id";
+                    "app_ad_unit_config.ad_unit_id, app_ad_unit_config.flag, app_ad_unit_config.ad_unit_name, app_ad_unit_config.admob_account from app_ad_unit_config, app_data " +
+                    "where app_ad_unit_config.app_id=app_data.app_id and (app_name like " + "'%" + word + "%' or app_ad_unit_config.app_id like " + "'%" + word + "%'" +") "+
+                    " order by id ASC,app_id ASC,flag ASC";
             return DB.findListBySql(sql);
         } catch (Exception ex) {
             Logger logger = Logger.getRootLogger();
@@ -125,7 +128,8 @@ public class AdUnitManagement extends HttpServlet {
     public static List<JSObject> fetchData(int index, int size) {
         List<JSObject> list = new ArrayList<>();
         try {
-            return DB.scan("app_ad_unit_config").select(FIELDS).limit(size).start(index * size).orderByAsc("id").execute();
+            String[] orders = {"id","app_id","flag"};
+            return DB.scan("app_ad_unit_config").select(FIELDS).orderByAsc(orders).limit(size).start(index * size).execute();
         } catch (Exception ex) {
             Logger logger = Logger.getRootLogger();
             logger.error(ex.getMessage(), ex);
@@ -213,6 +217,7 @@ public class AdUnitManagement extends HttpServlet {
                     .put("ad_network", adUnitConfig.adNetwork)
                     .put("ad_unit_type", adUnitConfig.adUnitType)
                     .put("ad_unit_id", adUnitConfig.adUnitId)
+                    .put("flag", adUnitConfig.flag)
                     .put("ad_unit_name", adUnitConfig.adUnitName)
                     .put("admob_account", adUnitConfig.admobAccount)
                     .where(DB.filter().whereEqualTo("id", adUnitConfig.id))
@@ -228,6 +233,7 @@ public class AdUnitManagement extends HttpServlet {
                 ret.data.addProperty("ad_network", adUnitConfig.adNetwork);
                 ret.data.addProperty("ad_unit_type", adUnitConfig.adUnitType);
                 ret.data.addProperty("ad_unit_id", adUnitConfig.adUnitId);
+                ret.data.addProperty("flag", adUnitConfig.flag);
                 ret.data.addProperty("ad_unit_name", adUnitConfig.adUnitName);
                 ret.data.addProperty("admob_account", adUnitConfig.admobAccount);
             }

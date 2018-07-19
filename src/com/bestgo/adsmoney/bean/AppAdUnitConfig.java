@@ -9,6 +9,7 @@ public class AppAdUnitConfig {
     public String adNetwork;
     public String adUnitType;
     public String adUnitId;
+    public String flag;
     public String adUnitName;
     public String admobAccount;
 }
