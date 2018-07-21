@@ -251,7 +251,7 @@
         var endDate = drp.endDate.format('YYYY-MM-DD');
 
         var columns = [
-            { data: 'country_name' },
+            { data: 'country_name'},
             { data: 'cost' },
             { data: 'purchased_user' },
             { data: 'total_installed' },
@@ -273,6 +273,7 @@
 
         $('#metricTable').DataTable({
             "ordering": true,
+            "order": [[ 1, "desc" ]],
             "processing": true,
             "serverSide": true,
             "searching": false,
