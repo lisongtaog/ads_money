@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.*;
 
 @WebServlet(name = "QueryCountryDailyMetrics", urlPatterns = "/query_country_daily_metric")
-public class QueryCountryDailyMetrics extends HttpServlet {
+public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系统拉取国家统计数据
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String token = request.getParameter("token");
         String date = request.getParameter("date");
@@ -28,7 +28,7 @@ public class QueryCountryDailyMetrics extends HttpServlet {
                 JsonArray array = new JsonArray();
 
                 try {
-                    String sql = "select app_id, country_code, sum(ad_revenue) as ad_revenue, sum(ad_impression) as ad_impression " +
+                    String sql = "select app_id, country_code, sum(ad_revenue) as ad_revenue, sum(ad_impression) as ad_impression,sum(ad_new_revenue) as ad_new_revenue" +
                             "from app_daily_metrics_history " +
                             "where date between '" + date + "' and '" + date + "' and app_id=? group by app_id, country_code";
                     List<JSObject> list = DB.findListBySql(sql, app_id);
@@ -37,6 +37,7 @@ public class QueryCountryDailyMetrics extends HttpServlet {
                         String appId = list.get(i).get("app_id");
                         String countryCode = list.get(i).get("country_code");
                         double revenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0));
+                        double nowRevenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_new_revenue"), 0));
                         long impression = Utils.convertLong(list.get(i).get("ad_impression"), 0);
                         ResponseItem one = metricsMap.get(getKey(appId, countryCode));
                         if (one == null) {
@@ -48,6 +49,7 @@ public class QueryCountryDailyMetrics extends HttpServlet {
                         one.countryCode = countryCode;
                         one.impression = impression;
                         one.revenue = revenue;
+                        one.nowRevenue = nowRevenue;//当日新安装用户收益
                     }
 
                     sql = "select app_id, country_code, sum(installed) as total_installed, sum(today_uninstalled) as today_uninstalled, sum(uninstalled) as total_uninstalled, sum(total_user) as total_user, sum(active_user) as active_user " +
@@ -117,6 +119,7 @@ public class QueryCountryDailyMetrics extends HttpServlet {
                         jsonObject.addProperty("active_user", one.activeUser);
                         jsonObject.addProperty("impression", one.impression);
                         jsonObject.addProperty("revenue", Utils.trimDouble(one.revenue));
+                        jsonObject.addProperty("nowRevenue", Utils.trimDouble(one.nowRevenue));//当日安装用户收益
                         double arpu = one.activeUser > 0 ? (float) (one.revenue / one.activeUser) : 0;
                         double arpu1 = one.totalUser > 0 ? (float) (one.revenue / one.totalUser) : 0;
                         jsonObject.addProperty("estimated_revenue", Utils.trimDouble(estimateRevenue(one.purchasedUser,
@@ -158,6 +161,7 @@ public class QueryCountryDailyMetrics extends HttpServlet {
         public long totalUser;
         public long activeUser;
         public double revenue;
+        public double nowRevenue;
         public double estimatedRevenue14;
         public double uninstallRate;
         public long impression;

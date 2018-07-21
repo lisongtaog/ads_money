@@ -36,7 +36,7 @@ public class CountryReport extends HttpServlet {
                 String filter = request.getParameter("filter");
                 int order = Utils.parseInt(request.getParameter("order"), 0);
                 boolean desc = order < 1000;
-                if (order > 1000) order = order - 1000;
+                if (order >= 1000) order = order - 1000;
 
                 if (filter == null || filter.isEmpty()) {
                     filter = "";
@@ -69,7 +69,7 @@ public class CountryReport extends HttpServlet {
 
                     List<JSObject> list = DB.findListBySql(sql);
 
-                    for (int i = 0; i < list.size(); i++) {
+                    for (int i = 0; i < list.size(); i++) {//收益、ECPM从变现系统数据抓取
                         String countryCode = list.get(i).get("country_code");
                         double revenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0));
                         long impression = Utils.convertLong(list.get(i).get("ad_impression"), 0);
@@ -79,6 +79,7 @@ public class CountryReport extends HttpServlet {
                             metricsMap.put(countryCode, one);
                             resultList.add(one);
                         }
+                        one.countryCode = countryCode;
                         one.countryName = countryCode;
                         one.revenue = revenue;
                         one.ecpm = impression > 0 ? revenue / impression : 0;
@@ -101,7 +102,7 @@ public class CountryReport extends HttpServlet {
                     sql += " group by country_code";
                     list = DB.findListBySql(sql);
 
-                    for (int i = 0; i < list.size(); i++) {
+                    for (int i = 0; i < list.size(); i++) {//安装、卸载、用户数 等从firebase抓取
                         String countryCode = list.get(i).get("country_code");
                         long totalIntalled = Utils.convertLong(list.get(i).get("total_installed"), 0);
                         long totalUninstalled = Utils.convertLong(list.get(i).get("total_uninstalled"), 0);
@@ -114,6 +115,7 @@ public class CountryReport extends HttpServlet {
                             metricsMap.put(countryCode, one);
                             resultList.add(one);
                         }
+                        one.countryCode = countryCode;
                         one.countryName = countryCode;
                         one.totalInstalled = totalIntalled;
                         one.totalUninstalled = totalUninstalled;
@@ -137,7 +139,6 @@ public class CountryReport extends HttpServlet {
                         }
                         sql += " and app_id in (" + ss + ")";
                     }
-
                     sql += " group by country_code";
                     list = DB.findListBySql(sql);
                     for (int i = 0; i < list.size(); i++) {
@@ -149,10 +150,12 @@ public class CountryReport extends HttpServlet {
                             metricsMap.put(countryCode, one);
                             resultList.add(one);
                         }
+                        one.countryCode = countryCode;
                         one.countryName = countryCode;
                         one.estimatedRevenue = estimatedRevenue;
                     }
 
+                    //花费、成本、安装、点击等数据来源于 投放系统 从广告后台 拉取的数据
                     sql = "select country_code, sum(spend) as cost, sum(installed) as purchasedUser " +
                             "from app_ads_daily_metrics_history " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
@@ -180,6 +183,7 @@ public class CountryReport extends HttpServlet {
                             metricsMap.put(countryCode, one);
                             resultList.add(one);
                         }
+                        one.countryCode = countryCode;
                         one.countryName = countryCode;
                         one.cost = cost;
                         one.purchasedUser = purchasedUser;
@@ -187,36 +191,43 @@ public class CountryReport extends HttpServlet {
                         one.incoming = one.revenue - one.cost;
                     }
 
-                    for (int i = 0; i < resultList.size(); i++) {
-                        CountryReportMetrics one = resultList.get(i);
-                        if (one.estimatedRevenue == 0) {
-                            CountryARPU item = arpuHashMap.get(one.countryName);
-                            if (item != null && item.activeUser > 0) {
-                                one.estimatedRevenue = one.totalInstalled * item.estimatedRevenue / item.activeUser;
+
+                    //当日新安装用户广告收益数据SQL
+                    sql = "SELECT country_code,SUM(ad_revenue) AS revenue_now " +
+                            "FROM app_ad_unit_metrics_history " +
+                            "WHERE date between '" + startDate + "' and '" + endDate + "' ";
+                    if (appIds.size() > 0) {
+                        String ss = "";
+                        for (int i = 0; i < appIds.size(); i++) {
+                            if (i < appIds.size() - 1) {
+                                ss += "'" + appIds.get(i) + "',";
+                            } else {
+                                ss += "'" + appIds.get(i) + "'";
                             }
                         }
+                        sql += " AND app_id in (" + ss + ") ";
+                        sql += " AND ad_unit_id IN (SELECT ad_unit_id from app_ad_unit_config WHERE flag = '1' AND app_id IN (" + ss + ")) ";
+                        //flag='1'标识为 新用户安装时 的广告单元ID
+                    }
+                    sql += " group by country_code";
+                    list = DB.findListBySql(sql);
+
+                    //当日新安装用户广告收益数据
+                    for (int i = 0; i < list.size(); i++) {
+                        String countryCode = list.get(i).get("country_code");
+                        double revenue_now = Utils.convertDouble(list.get(i).get("revenue_now"), 0);
+                        CountryReportMetrics one = metricsMap.get(countryCode);
+                        if (one == null) {
+                            one = new CountryReportMetrics();
+                            metricsMap.put(countryCode, one);
+                            resultList.add(one);
+                        }
+                        one.countryCode = countryCode;
+                        one.countryName = countryCode;
+                        one.nowRevenue = revenue_now;
                     }
 
                     metricsMap.clear();
-                    Collections.sort(resultList, new Comparator<CountryReportMetrics>() {
-                        @Override
-                        public int compare(CountryReportMetrics o1, CountryReportMetrics o2) {
-                            double ret = o1.cost - o2.cost;
-                            if (ret > 0) {
-                                return -1;
-                            } else if (ret == 0) {
-                                return 0;
-                            } else {
-                                return 1;
-                            }
-                        }
-                    });
-                    for (int i = 0; i < resultList.size(); i++) {
-                        CountryReportMetrics one = resultList.get(i);
-                        HashMap<String, String> countryMap = Utils.getCountryMap();
-                        String countryName = countryMap.get(one.countryName);
-                        one.countryName = (countryName == null ? one.countryName : countryName);
-                    }
 
                     int orderIndex = order;
                     resultList.sort(new Comparator<CountryReportMetrics>() {
@@ -225,42 +236,46 @@ public class CountryReport extends HttpServlet {
                             double ret = 0;
                             switch (orderIndex) {
                                 case 0:
-                                    ret = o1.countryName.compareTo(o2.countryName);
+                                    //ret = o1.countryName.compareTo(o2.countryName);
+                                    ret = o1.countryCode.compareTo(o2.countryCode);
                                     break;
                                 case 1:
                                     ret = o1.cost - o2.cost;
                                     break;
                                 case 2:
-                                    ret = o1.purchasedUser - o2.purchasedUser;
+                                    ret = o1.nowRevenue - o2.nowRevenue;
                                     break;
                                 case 3:
-                                    ret = o1.totalInstalled - o2.totalInstalled;
+                                    ret = o1.purchasedUser - o2.purchasedUser;
                                     break;
                                 case 4:
-                                    ret = o1.totalUninstalled - o2.totalUninstalled;
+                                    ret = o1.totalInstalled - o2.totalInstalled;
                                     break;
                                 case 5:
-                                    ret = o1.uninstallRate - o2.uninstallRate;
+                                    ret = o1.totalUninstalled - o2.totalUninstalled;
                                     break;
                                 case 6:
-                                    ret = o1.totalUser - o2.totalUser;
+                                    ret = o1.uninstallRate - o2.uninstallRate;
                                     break;
                                 case 7:
-                                    ret = o1.activeUser - o2.activeUser;
+                                    ret = o1.totalUser - o2.totalUser;
                                     break;
                                 case 8:
-                                    ret = o1.cpa - o2.cpa;
+                                    ret = o1.activeUser - o2.activeUser;
                                     break;
                                 case 9:
-                                    ret = o1.revenue - o2.revenue;
+                                    ret = o1.cpa - o2.cpa;
                                     break;
                                 case 10:
-                                    ret = o1.ecpm - o2.ecpm;
+                                    ret = o1.revenue - o2.revenue;
                                     break;
                                 case 11:
-                                    ret = o1.incoming - o2.incoming;
+                                    ret = o1.ecpm - o2.ecpm;
                                     break;
                                 case 12:
+                                    ret = o1.incoming - o2.incoming;
+                                    break;
+                                case 13:
                                     ret = o1.estimatedRevenue - o2.estimatedRevenue;
                                     break;
                             }
@@ -274,12 +289,25 @@ public class CountryReport extends HttpServlet {
                         }
                     });
 
+                    HashMap<String, String> countryMap = Utils.getCountryMap();
+                    String countryName = null;
                     JsonArray array = new JsonArray();
                     for (int i = index; i < resultList.size() && i < (index + size); i++) {
                         JsonObject jsonObject = new JsonObject();
                         CountryReportMetrics one = resultList.get(i);
+                        countryName = countryMap.get(one.countryCode);
+                        one.countryName = (countryName == null ? one.countryCode : countryName);
+                        if (one.estimatedRevenue == 0) {
+                            CountryARPU item = arpuHashMap.get(one.countryCode);
+                            if (item != null && item.activeUser > 0) {
+                                one.estimatedRevenue = one.totalInstalled * item.estimatedRevenue / item.activeUser;
+                            }
+                        }
+
+                        //jsonObject.addProperty("country_code", one.countryCode);
                         jsonObject.addProperty("country_name", one.countryName);
                         jsonObject.addProperty("cost", Utils.trimDouble(one.cost));
+                        jsonObject.addProperty("revenue_now", Utils.trimDouble(one.nowRevenue));//当日新安装用户广告收益数据
                         jsonObject.addProperty("purchased_user", one.purchasedUser);
                         jsonObject.addProperty("total_installed", one.totalInstalled);
                         jsonObject.addProperty("total_uninstalled", one.totalUninstalled);

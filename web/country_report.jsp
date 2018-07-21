@@ -153,6 +153,7 @@
                             <th>ActiveUser</th>
                             <th>CPA</th>
                             <th>Revenue</th>
+                            <th>NewRevenue</th>
                             <th>ECPM</th>
                             <th>Incoming</th>
                             <th>LTV</th>
@@ -260,6 +261,7 @@
             { data: 'active_user' },
             { data: 'cpa' },
             { data: 'revenue' },
+            { data: 'revenue_now' },
             { data: 'ecpm' },
             { data: 'incoming' },
             { data: 'estimated_revenue' },

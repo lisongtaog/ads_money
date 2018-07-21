@@ -15,7 +15,7 @@ import java.io.IOException;
 import java.util.List;
 
 @WebServlet(name = "QueryAppReportMetrics", urlPatterns = "/query_app_report_metric")
-public class QueryAppReportMetrics extends HttpServlet {
+public class QueryAppReportMetrics extends HttpServlet {//admanager投放系统同步数据使用
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String token = request.getParameter("token");
         String date = request.getParameter("date");

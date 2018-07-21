@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
  * Created by jikai on 11/13/17.
  */
 @WebServlet(name = "AppAdImport", urlPatterns = {"/app_ad_data_import"})
-public class AppAdImport extends HttpServlet {
+public class AppAdImport extends HttpServlet {//投放系统admanager_tools 请求此接口，上报
     private static ExecutorService executors = Executors.newFixedThreadPool(1);
 
     @Override
