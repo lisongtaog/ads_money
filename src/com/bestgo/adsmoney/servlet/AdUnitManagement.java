@@ -180,6 +180,7 @@ public class AdUnitManagement extends HttpServlet {
                         .put("ad_network", adUnitConfig.adNetwork)
                         .put("ad_unit_type", adUnitConfig.adUnitType)
                         .put("ad_unit_id", adUnitConfig.adUnitId)
+                        .put("flag", adUnitConfig.flag)
                         .put("ad_unit_name", adUnitConfig.adUnitName)
                         .put("admob_account", adUnitConfig.admobAccount)
                         .execute();
@@ -194,6 +195,7 @@ public class AdUnitManagement extends HttpServlet {
                     ret.data.addProperty("ad_network", adUnitConfig.adNetwork);
                     ret.data.addProperty("ad_unit_type", adUnitConfig.adUnitType);
                     ret.data.addProperty("ad_unit_id", adUnitConfig.adUnitId);
+                    ret.data.addProperty("flag", adUnitConfig.flag);
                     ret.data.addProperty("ad_unit_name", adUnitConfig.adUnitName);
                     ret.data.addProperty("admob_account", adUnitConfig.admobAccount);
                 }

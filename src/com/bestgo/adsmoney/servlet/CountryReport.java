@@ -208,6 +208,8 @@ public class CountryReport extends HttpServlet {
                         sql += " AND app_id in (" + ss + ") ";
                         sql += " AND ad_unit_id IN (SELECT ad_unit_id from app_ad_unit_config WHERE flag = '1' AND app_id IN (" + ss + ")) ";
                         //flag='1'标识为 新用户安装时 的广告单元ID
+                    }else{
+                        sql += " AND ad_unit_id IN (SELECT ad_unit_id from app_ad_unit_config WHERE flag = '1' ) ";
                     }
                     sql += " group by country_code";
                     list = DB.findListBySql(sql);
