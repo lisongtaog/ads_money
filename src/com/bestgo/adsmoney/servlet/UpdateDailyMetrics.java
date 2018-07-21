@@ -23,9 +23,9 @@ public class UpdateDailyMetrics extends HttpServlet {//供money_tools调用使�
                         "(SELECT SUM(IFNULL(s.ad_revenue,0)) FROM app_ad_unit_metrics_history s WHERE s.date = d.date "+
                         "   AND s.app_id = d.app_id AND s.ad_network = d.ad_network AND s.country_code = d.country_code "+
                         "   AND s.ad_unit_id IN (SELECT ad_unit_id from app_ad_unit_config WHERE flag = '1' ) "+
-                        "）AS ad_new_revenue "+
+                        ")AS ad_new_revenue "+
                         " from app_ad_unit_metrics_history d " +
-                        "where date = '" + date + "' group by date, app_id, ad_network, country_code";
+                        " where date = '" + date + "' group by date, app_id, ad_network, country_code";
                 DB.updateBySql(sql);
                 response.getWriter().write("ok");
             } catch (Exception e) {
