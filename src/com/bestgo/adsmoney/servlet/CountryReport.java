@@ -243,31 +243,31 @@ public class CountryReport extends HttpServlet {
                                     ret = o1.cost - o2.cost;
                                     break;
                                 case 2:
-                                    ret = o1.nowRevenue - o2.nowRevenue;
-                                    break;
-                                case 3:
                                     ret = o1.purchasedUser - o2.purchasedUser;
                                     break;
-                                case 4:
+                                case 3:
                                     ret = o1.totalInstalled - o2.totalInstalled;
                                     break;
-                                case 5:
+                                case 4:
                                     ret = o1.totalUninstalled - o2.totalUninstalled;
                                     break;
-                                case 6:
+                                case 5:
                                     ret = o1.uninstallRate - o2.uninstallRate;
                                     break;
-                                case 7:
+                                case 6:
                                     ret = o1.totalUser - o2.totalUser;
                                     break;
-                                case 8:
+                                case 7:
                                     ret = o1.activeUser - o2.activeUser;
                                     break;
-                                case 9:
+                                case 8:
                                     ret = o1.cpa - o2.cpa;
                                     break;
-                                case 10:
+                                case 9:
                                     ret = o1.revenue - o2.revenue;
+                                    break;
+                                case 10:
+                                    ret = o1.nowRevenue - o2.nowRevenue;
                                     break;
                                 case 11:
                                     ret = o1.ecpm - o2.ecpm;
