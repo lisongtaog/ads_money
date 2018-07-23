@@ -209,8 +209,6 @@ public class CountryReport extends HttpServlet {
                             }
                         }
                         sql += " and app_id in (" + ss + ")";
-                    }else{
-                        sql += " AND ad_unit_id IN (SELECT ad_unit_id from app_ad_unit_config WHERE flag = '1' ) ";
                     }
                     sql += " group by country_code";
                     list = DB.findListBySql(sql);
@@ -236,7 +234,7 @@ public class CountryReport extends HttpServlet {
                     }
 
 
-                    /*//当日新安装用户广告收益数据SQL
+                    //当日新安装用户广告收益数据SQL
                     sql = "SELECT country_code,SUM(ad_revenue) AS revenue_now " +
                             "FROM app_ad_unit_metrics_history " +
                             "WHERE date between '" + startDate + "' and '" + endDate + "' ";
@@ -271,7 +269,7 @@ public class CountryReport extends HttpServlet {
                         one.countryCode = countryCode;
                         one.countryName = countryCode;
                         one.nowRevenue = revenue_now;//当日
-                    }*/
+                    }
 
                     metricsMap.clear();
 
