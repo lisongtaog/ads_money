@@ -52,6 +52,39 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         one.nowRevenue = nowRevenue;//当日新安装用户收益
                     }
 
+                    sql = "select app_id,country_code, sum(user_num_nature) as user_num_nature, " +//自然量 用户数
+                            " sum(revenue_purchase) as user_num_purchase, " +//购买量 用户数
+                            " sum(revenue_total) as user_num_total, " +//新安装 总用户数
+                            " sum(revenue_nature) as revenue_nature, " +//自然量 收益
+                            " sum(revenue_purchase) as revenue_purchase, " +//购买量 收益
+                            " sum(revenue_total) as revenue_total " +//新安装 总收益
+                            " from app_first_install_data " +
+                            " where date between '" + date + "' and '" + date + "'"+
+                            " and app_id=? group by app_id, country_code";
+                    list = DB.findListBySql(sql, app_id);
+                    for (int i = 0; i < list.size(); i++) {
+                        String appId = list.get(i).get("app_id");
+                        String countryCode = list.get(i).get("country_code");
+                        double revenueNature = Utils.convertDouble(list.get(i).get("revenue_nature"), 0);//自然量收益
+                        double revenuePurchase = Utils.convertDouble(list.get(i).get("revenue_purchase"), 0); //当日购买用户总、收益
+                        double revenueNow = Utils.convertDouble(list.get(i).get("revenue_total"), 0); //当日新安装用户总收益
+                        long natureUser = Utils.convertLong(list.get(i).get("user_num_nature"), 0);//自然量用户数
+
+                        ResponseItem one = metricsMap.get(getKey(appId, countryCode));
+                        if (one == null) {
+                            one = new ResponseItem();
+                            metricsMap.put(getKey(appId, countryCode), one);
+                            resultList.add(one);
+                        }
+                        one.appId = appId;
+                        one.countryCode = countryCode;
+                        one.natureUser = natureUser;
+                        one.natureRevenue = revenueNature;//自然量 用户收益
+                        one.purchaseRevenue = revenuePurchase;//购买安装用户收益
+                        one.nowRevenue = revenueNow;//当日 购买用户总收益
+                    }
+
+
                     sql = "select app_id, country_code, sum(installed) as total_installed, sum(today_uninstalled) as today_uninstalled, sum(uninstalled) as total_uninstalled, sum(total_user) as total_user, sum(active_user) as active_user " +
                             "from app_firebase_daily_metrics_history " +
                             "where date between '" + date + "' and '" + date + "' and app_id=? group by app_id, country_code";
@@ -120,6 +153,9 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         jsonObject.addProperty("impression", one.impression);
                         jsonObject.addProperty("revenue", Utils.trimDouble(one.revenue));
                         jsonObject.addProperty("nowRevenue", Utils.trimDouble(one.nowRevenue));//当日安装用户收益
+                        jsonObject.addProperty("natureRevenue", Utils.trimDouble(one.natureRevenue));//自然量 用户收益
+                        jsonObject.addProperty("purchaseRevenue", Utils.trimDouble(one.purchaseRevenue));//购买安装用户收益
+
                         double arpu = one.activeUser > 0 ? (float) (one.revenue / one.activeUser) : 0;
                         double arpu1 = one.totalUser > 0 ? (float) (one.revenue / one.totalUser) : 0;
                         jsonObject.addProperty("estimated_revenue", Utils.trimDouble(estimateRevenue(one.purchasedUser,
@@ -155,13 +191,16 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
         public String countryCode;
         public double cost;
         public long purchasedUser;
+        public long natureUser;
         public long installed;
         public long uninstalled;
         public long todayUninstalled;
         public long totalUser;
         public long activeUser;
         public double revenue;
-        public double nowRevenue;
+        public double nowRevenue;//当日新安装 总用户的收益
+        public double natureRevenue;//当日新安装 自然量用户的收益
+        public double purchaseRevenue;//当日新安装 购买安装用户的收益
         public double estimatedRevenue14;
         public double uninstallRate;
         public long impression;
