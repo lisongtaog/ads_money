@@ -191,8 +191,51 @@ public class CountryReport extends HttpServlet {
                         one.incoming = one.revenue - one.cost;
                     }
 
+                    sql = "select country_code, sum(user_num_nature) as user_num_nature, " +//自然量 用户数
+                            " sum(revenue_purchase) as user_num_purchase, " +//购买量 用户数
+                            " sum(revenue_total) as user_num_total, " +//新安装 总用户数
+                            " sum(revenue_nature) as revenue_nature, " +//自然量 收益
+                            " sum(revenue_purchase) as revenue_purchase, " +//购买量 收益
+                            " sum(revenue_total) as revenue_total " +//新安装 总收益
+                            " from app_first_install_data " +
+                            " where date between '" + startDate + "' and '" + endDate + "' ";
+                    if (appIds.size() > 0) {
+                        String ss = "";
+                        for (int i = 0; i < appIds.size(); i++) {
+                            if (i < appIds.size() - 1) {
+                                ss += "'" + appIds.get(i) + "',";
+                            } else {
+                                ss += "'" + appIds.get(i) + "'";
+                            }
+                        }
+                        sql += " and app_id in (" + ss + ")";
+                    }else{
+                        sql += " AND ad_unit_id IN (SELECT ad_unit_id from app_ad_unit_config WHERE flag = '1' ) ";
+                    }
+                    sql += " group by country_code";
+                    list = DB.findListBySql(sql);
 
-                    //当日新安装用户广告收益数据SQL
+                    for (int i = 0; i < list.size(); i++) {
+                        String countryCode = list.get(i).get("country_code");
+                        double revenueNature = Utils.convertDouble(list.get(i).get("revenue_nature"), 0);//自然量收益
+                        double revenue_purchase = Utils.convertDouble(list.get(i).get("revenue_purchase"), 0); //当日购买用户总、收益
+                        //double revenue_now = Utils.convertDouble(list.get(i).get("revenue_total"), 0); //当日新安装用户总收益
+                        long natureUser = Utils.convertLong(list.get(i).get("user_num_nature"), 0);//自然量用户数
+                        CountryReportMetrics one = metricsMap.get(countryCode);
+                        if (one == null) {
+                            one = new CountryReportMetrics();
+                            metricsMap.put(countryCode, one);
+                            resultList.add(one);
+                        }
+                        one.countryCode = countryCode;
+                        one.countryName = countryCode;
+                        one.natureUser = natureUser;
+                        one.natureRevenue = revenueNature;
+                        one.nowRevenue = revenue_purchase;//当日 购买用户总收益
+                    }
+
+
+                    /*//当日新安装用户广告收益数据SQL
                     sql = "SELECT country_code,SUM(ad_revenue) AS revenue_now " +
                             "FROM app_ad_unit_metrics_history " +
                             "WHERE date between '" + startDate + "' and '" + endDate + "' ";
@@ -226,8 +269,8 @@ public class CountryReport extends HttpServlet {
                         }
                         one.countryCode = countryCode;
                         one.countryName = countryCode;
-                        one.nowRevenue = revenue_now;
-                    }
+                        one.nowRevenue = revenue_now;//当日
+                    }*/
 
                     metricsMap.clear();
 
@@ -272,12 +315,15 @@ public class CountryReport extends HttpServlet {
                                     ret = o1.nowRevenue - o2.nowRevenue;
                                     break;
                                 case 11:
-                                    ret = o1.ecpm - o2.ecpm;
+                                    ret = o1.natureUser - o2.natureUser;
                                     break;
                                 case 12:
-                                    ret = o1.incoming - o2.incoming;
+                                    ret = o1.ecpm - o2.ecpm;
                                     break;
                                 case 13:
+                                    ret = o1.incoming - o2.incoming;
+                                    break;
+                                case 14:
                                     ret = o1.estimatedRevenue - o2.estimatedRevenue;
                                     break;
                             }
@@ -309,7 +355,7 @@ public class CountryReport extends HttpServlet {
                         //jsonObject.addProperty("country_code", one.countryCode);
                         jsonObject.addProperty("country_name", one.countryName);
                         jsonObject.addProperty("cost", Utils.trimDouble(one.cost));
-                        jsonObject.addProperty("revenue_now", Utils.trimDouble(one.nowRevenue));//当日新安装用户广告收益数据
+                        //jsonObject.addProperty("revenue_now", Utils.trimDouble(one.nowRevenue));//当日新安装用户广告收益数据
                         jsonObject.addProperty("purchased_user", one.purchasedUser);
                         jsonObject.addProperty("total_installed", one.totalInstalled);
                         jsonObject.addProperty("total_uninstalled", one.totalUninstalled);
@@ -321,6 +367,12 @@ public class CountryReport extends HttpServlet {
                         jsonObject.addProperty("ecpm", Utils.trimDouble(one.ecpm * 1000));
                         jsonObject.addProperty("incoming", Utils.trimDouble(one.incoming));
                         jsonObject.addProperty("estimated_revenue", Utils.trimDouble(resultList.get(i).estimatedRevenue));
+
+                        jsonObject.addProperty("nature_user", one.natureUser);//自然量用户数
+                        jsonObject.addProperty("revenue_nature", Utils.trimDouble(one.natureRevenue));//自然量 用户收益
+                        jsonObject.addProperty("revenue_now", Utils.trimDouble(one.nowRevenue));//当日 购买用户总收益
+
+
                         array.add(jsonObject);
                     }
 
