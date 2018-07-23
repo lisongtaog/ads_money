@@ -30,8 +30,8 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                 try {
                     String sql = "select app_id, country_code, sum(ad_revenue) as ad_revenue, sum(ad_impression) as ad_impression,sum(ad_new_revenue) as ad_new_revenue " +
                             " from app_daily_metrics_history " +
-                            " where date between '" + date + "' and '" + date + "' and app_id=? group by app_id, country_code";
-                    List<JSObject> list = DB.findListBySql(sql, app_id);
+                            " where date = '" + date + "' and app_id = '" + app_id + "'  group by app_id, country_code";
+                    List<JSObject> list = DB.findListBySql(sql);
 
                     for (int i = 0; i < list.size(); i++) {
                         String appId = list.get(i).get("app_id");
@@ -116,8 +116,8 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
 
                     sql = "select app_id, country_code, sum(spend) as cost, sum(installed) as purchasedUser " +
                             "from app_ads_daily_metrics_history " +
-                            "where date between '" + date + "' and '" + date + "' and app_id=? group by app_id, country_code";
-                    list = DB.findListBySql(sql, app_id);
+                            " where date = '" + date + "' and app_id = '" + app_id + "'  group by app_id, country_code";
+                    list = DB.findListBySql(sql);
 
                     for (int i = 0; i < list.size(); i++) {
                         String appId = list.get(i).get("app_id");

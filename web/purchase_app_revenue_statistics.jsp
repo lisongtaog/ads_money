@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Ads Money | App Active User Statistics</title>
+    <title>Ads Money | Buyed User Ads Revenue Statistics</title>
     <link rel="shortcut icon" href="/images/favicon.ico">
 
     <!-- Tell the browser to be responsive to screen width -->
@@ -70,11 +70,11 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                App Active User Statistics
+                Buyed User Ads Revenue Statistics
             </h1>
             <ol class="breadcrumb">
                 <li><a href="index.jsp"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li class="active">App Active User Statistics</li>
+                <li class="active">Buyed User Ads Revenue Statistics</li>
             </ol>
         </section>
 
@@ -144,26 +144,23 @@
             </div>
 
             <div class="box box-default">
-                <div class="box-header with-border">
-                   <span style="color: coral">公式：</span>购买占比=购买安装量/总安装量 *100 &nbsp;;&nbsp;&nbsp;活跃占比=活跃用户数/总安装量 *100
-                    &nbsp;;&nbsp;&nbsp;首日占比 = 当日活跃用户数/安装日期活跃用户数 *100
-                    <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    递进值=当前日活跃用户数 - 上一日活跃用户数 （正数表示递增，负数表示递减）
-                </div>
                 <!-- /.box-header -->
+                <div class="box-header with-border">
+                    <span style="color: coral">公式：</span> 购买累计收支比=购买安装累计收入/花费
+                </div>
+
                 <div class="box-body" style="overflow-x: hidden">
                     <table id="metricTable" class="table table-bordered table-hover" cellspacing="0" >
                         <thead>
                         <tr>
                             <th>安装日期</th>
+                            <th>花费</th>
                             <th>总安装量</th>
                             <th>购买安装量</th>
-                            <th>购买占比%</th>
-                            <th>活跃日期</th>
-                            <th>活跃用户数</th>
-                            <th>活跃占比%</th>
-                            <th>首日占比%</th>
-                            <th>递进值</th>
+                            <th>统计日期</th>
+                            <th>购买安装收入</th>
+                            <th>购买安装累计收入</th>
+                            <th>购买累计收支比</th>
                         </tr>
                         </thead>
                     </table>
@@ -216,7 +213,7 @@
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.4.2/js/buttons.print.min.js"></script>
 
 <script>
-    $("li[role='menu_li']:eq(16)").addClass("active");
+    $("li[role='menu_li']:eq(15)").addClass("active");
     $('.select2').select2();
     $('#txtInstallDate').datepicker({
         format: 'yyyy-mm-dd',
@@ -227,24 +224,25 @@
     $('#txtInstallDate').datepicker('setDate', moment().subtract(2, 'days').format('YYYY-MM-DD'));
 
     $('#btnQuery').click(function() {
+        queryData();
+    });
+
+    function queryData() {
         var date = moment($('#txtInstallDate').data('datepicker').dates[0]).format('YYYY-MM-DD');
         var filter = $('#filter').val();
         var filterCountry = $('#filterCountry').val();
-        queryData(date,filter,filterCountry);
-    });
-
-//    queryData();
-    function queryData(date,filter,filterCountry) {
+        var xData = [];
+        var yData = [];
         $("#canvas_dev").empty();
         $("#canvas_dev").append('<canvas id="canvas"></canvas>');
-        $.post('query_app_active_user_statistics', {
+        $.post('query_buy_app_revenue_statistics', {
             date: date,
             appId: filter,
             countryCode: filterCountry
         }, function (result) {
             if (result && result.ret == 1) {
-                var xData = result.data_array;//X轴数据展示
-                var yData = result.date_array;//Y轴日期展示
+                xData = result.data_array;//X轴数据展示
+                yData = result.date_array;//Y轴日期展示
                 var dataSet = result.data_table;//表格数据
                 setData(yData,xData);
                 renderTable(dataSet);
@@ -291,7 +289,7 @@
                 fontStyle:"bold",
                 padding:10,
                 lineHeight:1.2,
-                text:"活跃用户图表"
+                text:"购买安装累计收入图表"
             },
             //工具条
             tooltip:{
@@ -334,7 +332,7 @@
             data: {
                 labels : yData,
                 datasets: [{   //数组格式：每个数组元素为一个数据系列
-                    label: "活跃用户",
+                    label: "累计收入",
                     data: xData, //数据系列的个数与labels参数里的元素个数相同
                     backgroundColor: '#96fcb7',  //也可以设为数组形式; 最后一个数为透明度(0-1)
                     borderColor:  'rgba(255,99,132,1)',
@@ -349,14 +347,13 @@
     function  renderTable(dataSet) {
         var columns = [
             { title: "安装日期" },
+            { title: "花费" },
             { title: "总安装量" },
             { title: "购买安装量" },
-            { title: "购买占比%" },
-            { title: "活跃日期" },
-            { title: "活跃用户数" },
-            { title: "活跃占比%" },
-            { title: "首日占比%" },
-            { title: "递进值" }
+            { title: "统计日期" },
+            { title: "购买安装收入" },
+            { title: "购买安装累计收入" },
+            { title: "购买累计收支比" }
         ];
         if ($.fn.DataTable.isDataTable("#metricTable")) {
             $('#metricTable').DataTable().clear().destroy();
