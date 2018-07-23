@@ -20,6 +20,7 @@ public class CountryReportMetrics {
     public double cpa;
     public double nowRevenue;//当日新安装 总用户的收益
     public double natureRevenue;//当日新安装 自然量用户的收益
+    public double purchaseRevenue;//当日新安装 购买安装用户的收益
     public double revenue;
     public double ecpm;
     public double incoming;

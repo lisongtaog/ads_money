@@ -218,8 +218,8 @@ public class CountryReport extends HttpServlet {
                     for (int i = 0; i < list.size(); i++) {
                         String countryCode = list.get(i).get("country_code");
                         double revenueNature = Utils.convertDouble(list.get(i).get("revenue_nature"), 0);//自然量收益
-                        double revenue_purchase = Utils.convertDouble(list.get(i).get("revenue_purchase"), 0); //当日购买用户总、收益
-                        //double revenue_now = Utils.convertDouble(list.get(i).get("revenue_total"), 0); //当日新安装用户总收益
+                        double revenuePurchase = Utils.convertDouble(list.get(i).get("revenue_purchase"), 0); //当日购买用户总、收益
+                        double revenueNow = Utils.convertDouble(list.get(i).get("revenue_total"), 0); //当日新安装用户总收益
                         long natureUser = Utils.convertLong(list.get(i).get("user_num_nature"), 0);//自然量用户数
                         CountryReportMetrics one = metricsMap.get(countryCode);
                         if (one == null) {
@@ -230,8 +230,9 @@ public class CountryReport extends HttpServlet {
                         one.countryCode = countryCode;
                         one.countryName = countryCode;
                         one.natureUser = natureUser;
-                        one.natureRevenue = revenueNature;
-                        one.nowRevenue = revenue_purchase;//当日 购买用户总收益
+                        one.natureRevenue = revenueNature;//自然量 用户收益
+                        one.purchaseRevenue = revenuePurchase;//购买安装用户收益
+                        one.nowRevenue = revenueNow;//当日 购买用户总收益
                     }
 
 
@@ -315,7 +316,7 @@ public class CountryReport extends HttpServlet {
                                     ret = o1.nowRevenue - o2.nowRevenue;
                                     break;
                                 case 11:
-                                    ret = o1.natureUser - o2.natureUser;
+                                    ret = o1.purchaseRevenue - o2.purchaseRevenue;
                                     break;
                                 case 12:
                                     ret = o1.ecpm - o2.ecpm;
@@ -370,6 +371,7 @@ public class CountryReport extends HttpServlet {
 
                         jsonObject.addProperty("nature_user", one.natureUser);//自然量用户数
                         jsonObject.addProperty("revenue_nature", Utils.trimDouble(one.natureRevenue));//自然量 用户收益
+                        jsonObject.addProperty("revenue_purchase", Utils.trimDouble(one.purchaseRevenue));//购买安装用户收益
                         jsonObject.addProperty("revenue_now", Utils.trimDouble(one.nowRevenue));//当日 购买用户总收益
 
 

@@ -154,7 +154,7 @@
                             <th>CPA</th>
                             <th>Revenue</th>
                             <th>NewRevenue</th>
-                            <th>NatureUser</th>
+                            <th>PurchaseRevenue</th>
                             <th>ECPM</th>
                             <th>Incoming</th>
                             <th>LTV</th>
@@ -263,7 +263,7 @@
             { data: 'cpa' },
             { data: 'revenue' },
             { data: 'revenue_now' },
-            { data: 'nature_user' },
+            { data: 'revenue_purchase' },
             { data: 'ecpm' },
             { data: 'incoming' },
             { data: 'estimated_revenue' },
