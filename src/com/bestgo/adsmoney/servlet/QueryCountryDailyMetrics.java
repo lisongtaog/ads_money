@@ -28,31 +28,8 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                 JsonArray array = new JsonArray();
 
                 try {
-                    String sql = "select app_id, country_code, sum(ad_revenue) as ad_revenue, sum(ad_impression) as ad_impression,sum(ad_new_revenue) as ad_new_revenue " +
-                            " from app_daily_metrics_history " +
-                            " where date = '" + date + "' and app_id = '" + app_id + "'  group by app_id, country_code";
-                    List<JSObject> list = DB.findListBySql(sql);
 
-                    for (int i = 0; i < list.size(); i++) {
-                        String appId = list.get(i).get("app_id");
-                        String countryCode = list.get(i).get("country_code");
-                        double revenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0));
-                        double nowRevenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_new_revenue"), 0));
-                        long impression = Utils.convertLong(list.get(i).get("ad_impression"), 0);
-                        ResponseItem one = metricsMap.get(getKey(appId, countryCode));
-                        if (one == null) {
-                            one = new ResponseItem();
-                            metricsMap.put(getKey(appId, countryCode), one);
-                            resultList.add(one);
-                        }
-                        one.appId = appId;
-                        one.countryCode = countryCode;
-                        one.impression = impression;
-                        one.revenue = revenue;
-                        one.nowRevenue = nowRevenue;//当日新安装用户收益
-                    }
-
-                    sql = "select app_id,country_code, sum(user_num_nature) as user_num_nature, " +//自然量 用户数
+                    String sql = "select app_id,country_code, sum(user_num_nature) as user_num_nature, " +//自然量 用户数
                             " sum(revenue_purchase) as user_num_purchase, " +//购买量 用户数
                             " sum(revenue_total) as user_num_total, " +//新安装 总用户数
                             " sum(revenue_nature) as revenue_nature, " +//自然量 收益
@@ -61,7 +38,7 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                             " from app_first_install_data " +
                             " where date between '" + date + "' and '" + date + "'"+
                             " and app_id=? group by app_id, country_code";
-                    list = DB.findListBySql(sql, app_id);
+                    List<JSObject> list = DB.findListBySql(sql, app_id);
                     for (int i = 0; i < list.size(); i++) {
                         String appId = list.get(i).get("app_id");
                         String countryCode = list.get(i).get("country_code");
@@ -82,6 +59,35 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         one.natureRevenue = revenueNature;//自然量 用户收益
                         one.purchaseRevenue = revenuePurchase;//购买安装用户收益
                         one.nowRevenue = revenueNow;//当日 购买用户总收益
+                    }
+
+                    sql = "select app_id, country_code, sum(ad_revenue) as ad_revenue, sum(ad_impression) as ad_impression,sum(ad_new_revenue) as ad_new_revenue " +
+                            " from app_daily_metrics_history " +
+                            " where date = '" + date + "' and app_id = '" + app_id + "'  group by app_id, country_code";
+                    list = DB.findListBySql(sql);
+
+                    for (int i = 0; i < list.size(); i++) {
+                        String appId = list.get(i).get("app_id");
+                        String countryCode = list.get(i).get("country_code");
+                        double revenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0));
+                        double nowRevenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_new_revenue"), 0));
+                        long impression = Utils.convertLong(list.get(i).get("ad_impression"), 0);
+                        ResponseItem one = metricsMap.get(getKey(appId, countryCode));
+                        if (one == null) {
+                            one = new ResponseItem();
+                            metricsMap.put(getKey(appId, countryCode), one);
+                            resultList.add(one);
+                        }
+                        one.appId = appId;
+                        one.countryCode = countryCode;
+                        one.impression = impression;
+                        one.revenue = revenue;
+                        one.nowRevenue = nowRevenue;//当日新安装用户收益；当日新安装用户收益 不从自然量app_first_install_data中获取，有可能存在无自然量的应用
+                        //one.purchasedUser = ;//购买量用户数
+                        //one.natureUser = ;//自然量用户数
+                        long totalUser = one.purchasedUser + one.natureUser;
+                        one.natureRevenue = totalUser > 0 ? nowRevenue * (one.natureUser/totalUser) : 0;//自然量 用户收益
+                        one.purchaseRevenue = totalUser > 0 ? nowRevenue * (one.purchasedUser/totalUser) : 0;//购买安装用户收益
                     }
 
 

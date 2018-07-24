@@ -230,11 +230,10 @@ public class CountryReport extends HttpServlet {
                         one.natureUser = natureUser;
                         one.natureRevenue = revenueNature;//自然量 用户收益
                         one.purchaseRevenue = revenuePurchase;//购买安装用户收益
-                        one.nowRevenue = revenueNow;//当日 购买用户总收益
+                        //one.nowRevenue = revenueNow;//当日 购买用户总收益
                     }
 
-
-                    /*//当日新安装用户广告收益数据SQL
+                    //当日新安装用户广告收益数据SQL
                     sql = "SELECT country_code,SUM(ad_revenue) AS revenue_now " +
                             "FROM app_ad_unit_metrics_history " +
                             "WHERE date between '" + startDate + "' and '" + endDate + "' ";
@@ -268,8 +267,13 @@ public class CountryReport extends HttpServlet {
                         }
                         one.countryCode = countryCode;
                         one.countryName = countryCode;
-                        one.nowRevenue = revenue_now;//当日
-                    }*/
+                        //one.purchasedUser = ;//购买量用户数
+                        //one.natureUser = ;//自然量用户数
+                        long totalUser = one.purchasedUser + one.natureUser;
+                        one.nowRevenue = revenue_now;//当日 购买用户总收益
+                        one.natureRevenue = totalUser > 0 ? revenue_now * (one.natureUser/totalUser) : 0;//自然量 用户收益
+                        one.purchaseRevenue = totalUser > 0 ? revenue_now * (one.purchasedUser/totalUser) : 0;//购买安装用户收益
+                    }
 
                     metricsMap.clear();
 
