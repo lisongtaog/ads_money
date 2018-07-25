@@ -46,6 +46,7 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         double revenuePurchase = Utils.convertDouble(list.get(i).get("revenue_purchase"), 0); //当日购买用户总、收益
                         double revenueNow = Utils.convertDouble(list.get(i).get("revenue_total"), 0); //当日新安装用户总收益
                         long natureUser = Utils.convertLong(list.get(i).get("user_num_nature"), 0);//自然量用户数
+                        long purchasedUser = Utils.convertLong(list.get(i).get("user_num_purchase"), 0);//购买量用户数
 
                         ResponseItem one = metricsMap.get(getKey(appId, countryCode));
                         if (one == null) {
@@ -56,6 +57,7 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         one.appId = appId;
                         one.countryCode = countryCode;
                         one.natureUser = natureUser;
+                        one.purchasedUser = purchasedUser;//购买量用户数
                         one.natureRevenue = revenueNature;//自然量 用户收益
                         one.purchaseRevenue = revenuePurchase;//购买安装用户收益
                         one.nowRevenue = revenueNow;//当日 购买用户总收益
@@ -86,8 +88,8 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         //one.purchasedUser = ;//购买量用户数
                         //one.natureUser = ;//自然量用户数
                         long totalUser = one.purchasedUser + one.natureUser;
-                        one.natureRevenue = totalUser > 0 ? nowRevenue * (one.natureUser/totalUser) : 0;//自然量 用户收益
-                        one.purchaseRevenue = totalUser > 0 ? nowRevenue * (one.purchasedUser/totalUser) : 0;//购买安装用户收益
+                        one.natureRevenue = totalUser > 0 ? nowRevenue * one.natureUser/totalUser : 0;//自然量 用户收益
+                        one.purchaseRevenue = totalUser > 0 ? nowRevenue * one.purchasedUser/totalUser : 0;//购买安装用户收益
                     }
 
 

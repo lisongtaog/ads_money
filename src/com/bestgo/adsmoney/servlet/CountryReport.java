@@ -230,52 +230,29 @@ public class CountryReport extends HttpServlet {
                         one.natureUser = natureUser;
                         one.natureRevenue = revenueNature;//自然量 用户收益
                         one.purchaseRevenue = revenuePurchase;//购买安装用户收益
-                        //one.nowRevenue = revenueNow;//当日 购买用户总收益
+                        one.nowRevenue = revenueNow;//当日 购买用户总收益
                     }
+                    metricsMap.clear();
 
-                    //当日新安装用户广告收益数据SQL
-                    sql = "SELECT country_code,SUM(ad_revenue) AS revenue_now " +
-                            "FROM app_ad_unit_metrics_history " +
-                            "WHERE date between '" + startDate + "' and '" + endDate + "' ";
-                    if (appIds.size() > 0) {
-                        String ss = "";
-                        for (int i = 0; i < appIds.size(); i++) {
-                            if (i < appIds.size() - 1) {
-                                ss += "'" + appIds.get(i) + "',";
-                            } else {
-                                ss += "'" + appIds.get(i) + "'";
+                    HashMap<String, String> countryMap = Utils.getCountryMap();
+                    String countryName = null;
+                    for (int i = index; i < resultList.size() && i < (index + size); i++) {
+                        CountryReportMetrics one = resultList.get(i);
+                        countryName = countryMap.get(one.countryCode);
+                        one.countryName = (countryName == null ? one.countryCode : countryName);
+                        if (one.estimatedRevenue == 0) {
+                            CountryARPU item = arpuHashMap.get(one.countryCode);
+                            if (item != null && item.activeUser > 0) {
+                                one.estimatedRevenue = one.totalInstalled * item.estimatedRevenue / item.activeUser;
                             }
                         }
-                        sql += " AND app_id in (" + ss + ") ";
-                        sql += " AND ad_unit_id IN (SELECT ad_unit_id from app_ad_unit_config WHERE flag = '1' AND app_id IN (" + ss + ")) ";
-                        //flag='1'标识为 新用户安装时 的广告单元ID
-                    }else{
-                        sql += " AND ad_unit_id IN (SELECT ad_unit_id from app_ad_unit_config WHERE flag = '1' ) ";
-                    }
-                    sql += " group by country_code";
-                    list = DB.findListBySql(sql);
-
-                    //当日新安装用户广告收益数据
-                    for (int i = 0; i < list.size(); i++) {
-                        String countryCode = list.get(i).get("country_code");
-                        double revenue_now = Utils.convertDouble(list.get(i).get("revenue_now"), 0);
-                        CountryReportMetrics one = metricsMap.get(countryCode);
-                        if (one == null) {
-                            one = new CountryReportMetrics();
-                            metricsMap.put(countryCode, one);
-                            resultList.add(one);
-                        }
-                        one.countryCode = countryCode;
-                        one.countryName = countryCode;
-                        //one.purchasedUser = ;//购买量用户数
-                        //one.natureUser = ;//自然量用户数
                         long totalUser = one.purchasedUser + one.natureUser;
-                        one.nowRevenue = revenue_now;//当日 购买用户总收益
-                        one.natureRevenue = totalUser > 0 ? revenue_now * (one.natureUser/totalUser) : 0;//自然量 用户收益
-                        one.purchaseRevenue = totalUser > 0 ? revenue_now * (one.purchasedUser/totalUser) : 0;//购买安装用户收益
+                        //System.out.println("总用户数"+totalUser);
+                        //one.nowRevenue = revenue_now;//当日 购买用户总收益
+                        one.natureRevenue = totalUser > 0 ? one.nowRevenue * one.natureUser/totalUser : 0;//自然量 用户收益
+                        one.purchaseRevenue = totalUser > 0 ? one.nowRevenue * one.purchasedUser/totalUser : 0;//购买安装用户收益
                     }
 
-                    metricsMap.clear();
 
                     int orderIndex = order;
                     resultList.sort(new Comparator<CountryReportMetrics>() {
@@ -340,20 +317,11 @@ public class CountryReport extends HttpServlet {
                         }
                     });
 
-                    HashMap<String, String> countryMap = Utils.getCountryMap();
-                    String countryName = null;
+
                     JsonArray array = new JsonArray();
                     for (int i = index; i < resultList.size() && i < (index + size); i++) {
                         JsonObject jsonObject = new JsonObject();
                         CountryReportMetrics one = resultList.get(i);
-                        countryName = countryMap.get(one.countryCode);
-                        one.countryName = (countryName == null ? one.countryCode : countryName);
-                        if (one.estimatedRevenue == 0) {
-                            CountryARPU item = arpuHashMap.get(one.countryCode);
-                            if (item != null && item.activeUser > 0) {
-                                one.estimatedRevenue = one.totalInstalled * item.estimatedRevenue / item.activeUser;
-                            }
-                        }
 
                         //jsonObject.addProperty("country_code", one.countryCode);
                         jsonObject.addProperty("country_name", one.countryName);
@@ -375,7 +343,6 @@ public class CountryReport extends HttpServlet {
                         jsonObject.addProperty("revenue_nature", Utils.trimDouble(one.natureRevenue));//自然量 用户收益
                         jsonObject.addProperty("revenue_purchase", Utils.trimDouble(one.purchaseRevenue));//购买安装用户收益
                         jsonObject.addProperty("revenue_now", Utils.trimDouble(one.nowRevenue));//当日 购买用户总收益
-
 
                         array.add(jsonObject);
                     }

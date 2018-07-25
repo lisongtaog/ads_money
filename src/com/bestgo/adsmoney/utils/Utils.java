@@ -72,6 +72,8 @@ public class Utils {
                 return (Long)value;
             } else if (value instanceof Integer) {
                 return (Integer)value;
+            } else if(value instanceof String){
+                Long.parseLong(value.toString());
             }
         } catch (Exception ex) {
         }
@@ -88,6 +90,8 @@ public class Utils {
                 return (Long)value;
             } else if (value instanceof Integer) {
                 return (Integer)value;
+            } else if(value instanceof String){
+                Double.parseDouble(value.toString());
             }
         } catch (Exception ex) {
         }
