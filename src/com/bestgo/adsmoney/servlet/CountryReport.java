@@ -219,6 +219,8 @@ public class CountryReport extends HttpServlet {
                         double revenuePurchase = Utils.convertDouble(list.get(i).get("revenue_purchase"), 0); //当日购买用户总、收益
                         double revenueNow = Utils.convertDouble(list.get(i).get("revenue_total"), 0); //当日新安装用户总收益
                         long natureUser = Utils.convertLong(list.get(i).get("user_num_nature"), 0);//自然量用户数
+                        long purchaseUser = Utils.convertLong(list.get(i).get("user_num_purchase"), 0);//购买量用户数
+                        long totalUser = Utils.convertLong(list.get(i).get("user_num_total"), 0);//当日新安装总用户数
                         CountryReportMetrics one = metricsMap.get(countryCode);
                         if (one == null) {
                             one = new CountryReportMetrics();
@@ -228,6 +230,8 @@ public class CountryReport extends HttpServlet {
                         one.countryCode = countryCode;
                         one.countryName = countryCode;
                         one.natureUser = natureUser;
+                        one.purchaseUser = purchaseUser;
+                        //one.totalUser = totalUser;//不能修改原来的逻辑值，新安装用户收益 仅使用 自然量、购买量比例运算
                         one.natureRevenue = revenueNature;//自然量 用户收益
                         one.purchaseRevenue = revenuePurchase;//购买安装用户收益
                         one.nowRevenue = revenueNow;//当日 购买用户总收益
@@ -246,11 +250,11 @@ public class CountryReport extends HttpServlet {
                                 one.estimatedRevenue = one.totalInstalled * item.estimatedRevenue / item.activeUser;
                             }
                         }
-                        long totalUser = one.purchasedUser + one.natureUser;
+                        long totalUser = one.purchaseUser + one.natureUser;
                         //System.out.println("总用户数"+totalUser);
                         //one.nowRevenue = revenue_now;//当日 购买用户总收益
                         one.natureRevenue = totalUser > 0 ? one.nowRevenue * one.natureUser/totalUser : 0;//自然量 用户收益
-                        one.purchaseRevenue = totalUser > 0 ? one.nowRevenue * one.purchasedUser/totalUser : 0;//购买安装用户收益
+                        one.purchaseRevenue = totalUser > 0 ? one.nowRevenue * one.purchaseUser/totalUser : 0;//购买安装用户收益
                     }
 
 

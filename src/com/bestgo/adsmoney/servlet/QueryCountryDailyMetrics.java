@@ -46,7 +46,7 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         double revenuePurchase = Utils.convertDouble(list.get(i).get("revenue_purchase"), 0); //当日购买用户总、收益
                         double revenueNow = Utils.convertDouble(list.get(i).get("revenue_total"), 0); //当日新安装用户总收益
                         long natureUser = Utils.convertLong(list.get(i).get("user_num_nature"), 0);//自然量用户数
-                        long purchasedUser = Utils.convertLong(list.get(i).get("user_num_purchase"), 0);//购买量用户数
+                        long purchaseUser = Utils.convertLong(list.get(i).get("user_num_purchase"), 0);//购买量用户数
 
                         ResponseItem one = metricsMap.get(getKey(appId, countryCode));
                         if (one == null) {
@@ -56,8 +56,8 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         }
                         one.appId = appId;
                         one.countryCode = countryCode;
-                        one.natureUser = natureUser;
-                        one.purchasedUser = purchasedUser;//购买量用户数
+                        one.natureUser = natureUser;//仅新安装用户时使用，与purchasedUser不同
+                        one.purchaseUser = purchaseUser;//购买量用户数 //仅新安装用户时使用，与purchasedUser不同
                         one.natureRevenue = revenueNature;//自然量 用户收益
                         one.purchaseRevenue = revenuePurchase;//购买安装用户收益
                         one.nowRevenue = revenueNow;//当日 购买用户总收益
@@ -84,12 +84,16 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         one.countryCode = countryCode;
                         one.impression = impression;
                         one.revenue = revenue;
-                        one.nowRevenue = nowRevenue;//当日新安装用户收益；当日新安装用户收益 不从自然量app_first_install_data中获取，有可能存在无自然量的应用
-                        //one.purchasedUser = ;//购买量用户数
+                        if(one.nowRevenue == 0){
+                            //当日新安装用户收益；当日新安装用户收益 从自然量app_first_install_data中获取，有可能存在无自然量的应用
+                            //如果为0，则从app_daily_metrics_history日表中获取
+                            one.nowRevenue = nowRevenue;
+                        }
+                        //one.purchaseUser = ;//购买量用户数
                         //one.natureUser = ;//自然量用户数
-                        long totalUser = one.purchasedUser + one.natureUser;
+                        long totalUser = one.purchaseUser + one.natureUser;
                         one.natureRevenue = totalUser > 0 ? nowRevenue * one.natureUser/totalUser : 0;//自然量 用户收益
-                        one.purchaseRevenue = totalUser > 0 ? nowRevenue * one.purchasedUser/totalUser : 0;//购买安装用户收益
+                        one.purchaseRevenue = totalUser > 0 ? nowRevenue * one.purchaseUser/totalUser : 0;//购买安装用户收益
                     }
 
 
@@ -199,7 +203,8 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
         public String countryCode;
         public double cost;
         public long purchasedUser;
-        public long natureUser;
+        public long purchaseUser;//仅新安装用户时使用，与purchasedUser不同
+        public long natureUser;//仅新安装用户时使用，与purchasedUser不同
         public long installed;
         public long uninstalled;
         public long todayUninstalled;

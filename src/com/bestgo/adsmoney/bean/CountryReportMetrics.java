@@ -10,11 +10,12 @@ public class CountryReportMetrics {
     public String countryName;
     public double cost;
     public long purchasedUser;
-    public long natureUser;
     public long totalInstalled;
     public long totalUninstalled;
     public long todayUninstalled;
     public float uninstallRate;
+    public long purchaseUser;//仅新安装用户时使用，与purchasedUser不同
+    public long natureUser;//仅新安装用户时使用，与purchasedUser不同
     public long totalUser;
     public long activeUser;
     public double cpa;
