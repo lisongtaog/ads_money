@@ -157,6 +157,7 @@ public class AppReport extends HttpServlet {
                             }
                             one.addProperty(f, v);
                         }
+                        adUnitMap.clear();adUnitMap = null; appData.clear();appData=null;
                         one.addProperty("ad_request", list.get(i).get("ad_request").toString());
                         one.addProperty("ad_filled", list.get(i).get("ad_filled").toString());
                         one.addProperty("ad_impression", list.get(i).get("ad_impression").toString());
