@@ -253,8 +253,12 @@ public class CountryReport extends HttpServlet {
                         long totalUser = one.purchaseUser + one.natureUser;
                         //System.out.println("总用户数"+totalUser);
                         //one.nowRevenue = revenue_now;//当日 购买用户总收益
-                        one.natureRevenue = totalUser > 0 ? one.nowRevenue * one.natureUser/totalUser : 0;//自然量 用户收益
-                        one.purchaseRevenue = totalUser > 0 ? one.nowRevenue * one.purchaseUser/totalUser : 0;//购买安装用户收益
+                        /*if(one.natureRevenue == 0){
+                            one.natureRevenue = totalUser > 0 ? one.nowRevenue * one.natureUser/totalUser : 0;//自然量 用户收益
+                        }
+                        if(one.purchaseRevenue == 0){
+                            one.purchaseRevenue = totalUser > 0 ? one.nowRevenue * one.purchaseUser/totalUser : 0;//购买安装用户收益
+                        }*/
                     }
 
 
