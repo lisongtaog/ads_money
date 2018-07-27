@@ -374,6 +374,7 @@
                     columns.unshift({data: 'app_name'});
                     break;
                 case "3":
+                    columns.unshift({data: 'ad_unit_name'});
                     columns.unshift({data: 'ad_unit_id'});
                     break;
                 case "4":
@@ -419,6 +420,9 @@
                     break;
                 case "ad_unit_id":
                     value = "AppUnitId";
+                    break;
+                case "ad_unit_name":
+                    value = "AppUnitName";
                     break;
                 case "country_name":
                     value = "Country";

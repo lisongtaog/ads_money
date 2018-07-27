@@ -1,6 +1,7 @@
 package com.bestgo.adsmoney.servlet;
 
 import com.bestgo.adsmoney.OperationResult;
+import com.bestgo.adsmoney.bean.AppData;
 import com.bestgo.adsmoney.utils.Utils;
 import com.bestgo.adsmoney.bean.AppAdUnitConfig;
 import com.bestgo.common.database.services.DB;
@@ -16,7 +17,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by jikai on 5/31/17.
@@ -247,5 +250,22 @@ public class AdUnitManagement extends HttpServlet {
         }
 
         return ret;
+    }
+
+    public static Map<String,String> fetchAllUnitName() {
+        Map<String,String> rtnMap = new HashMap<String,String>();
+        try {
+            String sql = "select DISTINCT ad_unit_id,ad_unit_name FROM app_ad_unit_config";
+            List<JSObject> result = DB.findListBySql(sql);
+            String adUnitId = null;
+            String adUnitName = null;
+            for (int i = 0; i < result.size(); i++) {
+                adUnitId = result.get(i).get("ad_unit_id");
+                adUnitName = result.get(i).get("ad_unit_name");
+                rtnMap.put(adUnitId,adUnitName);
+            }
+        } catch (Exception ex) {
+        }
+        return rtnMap;
     }
 }

@@ -119,6 +119,7 @@
                             <th>AppId</th>
                             <th>AppName</th>
                             <th>AdUnitId</th>
+                            <th>AdUnitName</th>
                             <th>Impression</th>
                             <th>Click</th>
                             <th>Revenue</th>
@@ -188,6 +189,7 @@
             { data: 'app_id' },
             { data: 'app_name' },
             { data: 'ad_unit_id' },
+            { data: 'ad_unit_name' },
             { data: 'ad_impression' },
             { data: 'ad_click' },
             { data: 'ad_revenue' },

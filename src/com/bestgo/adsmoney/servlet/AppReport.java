@@ -13,10 +13,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 @WebServlet(name = "AppReport", urlPatterns = {"/app_report/*"})
 public class AppReport extends HttpServlet {
@@ -31,6 +28,7 @@ public class AppReport extends HttpServlet {
                 String tableName = "app_daily_metrics_history";
 
                 List<AppData> appData = AppManagement.fetchAllAppData();
+                Map<String,String> adUnitMap = AdUnitManagement.fetchAllUnitName();
 
                 String startDate = request.getParameter("start_date");
                 String endDate = request.getParameter("end_date");
@@ -152,6 +150,10 @@ public class AppReport extends HttpServlet {
                                         break;
                                     }
                                 }
+                            }else if(f.equals("ad_unit_id")){
+                                //ad_unit_id ad_unit_name
+                                one.addProperty("ad_unit_id", v);
+                                one.addProperty("ad_unit_name", adUnitMap.get(v));
                             }
                             one.addProperty(f, v);
                         }

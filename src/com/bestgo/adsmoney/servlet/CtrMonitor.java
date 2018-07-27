@@ -26,9 +26,10 @@ public class CtrMonitor extends HttpServlet {
             if (path.startsWith("/query")) {
                 double target = Utils.parseDouble(request.getParameter("target"), 5);
 
-                String sql = "select app_ad_unit_metrics.app_id,app_data.app_name, app_ad_unit_metrics.ad_unit_id, \n" +
+                String sql = "select app_ad_unit_metrics.app_id,app_data.app_name, app_ad_unit_metrics.ad_unit_id , app_ad_unit_config.ad_unit_name, \n" +
                         "sum(ad_request) as ad_request, sum(ad_filled) as ad_filled, sum(ad_impression) as ad_impression, sum(ad_click) as ad_click, sum(ad_revenue) as ad_revenue\n" +
-                        "from app_ad_unit_metrics, app_data where app_ad_unit_metrics.app_id=app_data.app_id\n" +
+                        "from app_ad_unit_metrics , app_ad_unit_config , app_data where app_ad_unit_metrics.app_id=app_data.app_id \n" +
+                        " AND app_ad_unit_config.ad_unit_id = app_ad_unit_metrics.ad_unit_id\n" +
                         "group by app_ad_unit_metrics.app_id,app_data.app_name, app_ad_unit_metrics.ad_unit_id";
 
                 try {
@@ -62,6 +63,7 @@ public class CtrMonitor extends HttpServlet {
                         String appId = one.get("app_id");
                         String appName = one.get("app_name");
                         String appUnitId = one.get("ad_unit_id");
+                        String appUnitName = one.get("ad_unit_name");
                         long adRequest = Utils.convertLong(one.get("ad_request"), 0);
                         double click = Utils.convertDouble(one.get("ad_click"), 0);
                         double impression = Utils.convertDouble(one.get("ad_impression"), 0);
@@ -80,6 +82,7 @@ public class CtrMonitor extends HttpServlet {
                         object.addProperty("app_id", appId);
                         object.addProperty("app_name", appName);
                         object.addProperty("ad_unit_id", appUnitId);
+                        object.addProperty("ad_unit_name", appUnitName);
                         object.addProperty("ad_request", adRequest);
                         object.addProperty("ad_click", click);
                         object.addProperty("ad_impression", Utils.trimDouble(impression));
