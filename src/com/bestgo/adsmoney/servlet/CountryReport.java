@@ -236,12 +236,42 @@ public class CountryReport extends HttpServlet {
                         one.purchaseRevenue = revenuePurchase;//购买安装用户收益
                         one.nowRevenue = revenueNow;//当日 购买用户总收益
                     }
-                    metricsMap.clear();
 
-                    HashMap<String, String> countryMap = Utils.getCountryMap();
+                    //当日新安装用户广告收益数据SQL（解决老应用配置新的广告单元ID、未集成sdk如vpn，当日新安装收益）
+                    sql = "SELECT country_code,SUM(ad_revenue) AS revenue_now " +
+                            "FROM app_ad_unit_metrics_history " +
+                            "WHERE date between '" + startDate + "' and '" + endDate + "' ";
+                    if (appIds.size() > 0) {
+                        String ss = "";
+                        for (int i = 0; i < appIds.size(); i++) {
+                            if (i < appIds.size() - 1) {
+                                ss += "'" + appIds.get(i) + "',";
+                            } else {
+                                ss += "'" + appIds.get(i) + "'";
+                            }
+                        }
+                        sql += " AND app_id in (" + ss + ") ";
+                        sql += " AND ad_unit_id IN (SELECT ad_unit_id from app_ad_unit_config WHERE flag = '1' AND app_id IN (" + ss + ")) ";
+                        //flag='1'标识为 新用户安装时 的广告单元ID
+                    }else{
+                        sql += " AND ad_unit_id IN (SELECT ad_unit_id from app_ad_unit_config WHERE flag = '1' ) ";
+                    }
+                    sql += " group by country_code";
+                    list = DB.findListBySql(sql);
+
                     String countryName = null;
-                    for (int i = index; i < resultList.size() && i < (index + size); i++) {
-                        CountryReportMetrics one = resultList.get(i);
+                    HashMap<String, String> countryMap = Utils.getCountryMap();
+                    //当日新安装用户广告收益数据
+                    for (int i = 0; i < list.size(); i++) {
+                        String countryCode = list.get(i).get("country_code");
+                        double revenue_now = Utils.convertDouble(list.get(i).get("revenue_now"), 0);
+                        CountryReportMetrics one = metricsMap.get(countryCode);
+                        if (one == null) {
+                            one = new CountryReportMetrics();
+                            metricsMap.put(countryCode, one);
+                            resultList.add(one);
+                        }
+                        one.countryCode = countryCode;
                         countryName = countryMap.get(one.countryCode);
                         one.countryName = (countryName == null ? one.countryCode : countryName);
                         if (one.estimatedRevenue == 0) {
@@ -250,17 +280,13 @@ public class CountryReport extends HttpServlet {
                                 one.estimatedRevenue = one.totalInstalled * item.estimatedRevenue / item.activeUser;
                             }
                         }
-                        long totalUser = one.purchaseUser + one.natureUser;
-                        //System.out.println("总用户数"+totalUser);
-                        //one.nowRevenue = revenue_now;//当日 购买用户总收益
-                        /*if(one.natureRevenue == 0){
-                            one.natureRevenue = totalUser > 0 ? one.nowRevenue * one.natureUser/totalUser : 0;//自然量 用户收益
+
+                        if (one.nowRevenue == 0){//如果上一步中，新安装用户自然量、购买量统计中已经计算了收益，则在此处不再计算
+                            one.nowRevenue = revenue_now;
                         }
-                        if(one.purchaseRevenue == 0){
-                            one.purchaseRevenue = totalUser > 0 ? one.nowRevenue * one.purchaseUser/totalUser : 0;//购买安装用户收益
-                        }*/
                     }
 
+                    metricsMap.clear();
 
                     int orderIndex = order;
                     resultList.sort(new Comparator<CountryReportMetrics>() {

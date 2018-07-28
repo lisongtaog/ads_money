@@ -85,17 +85,10 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         one.impression = impression;
                         one.revenue = revenue;
                         if(one.nowRevenue == 0){
-                            //当日新安装用户收益；当日新安装用户收益 从自然量app_first_install_data中获取，有可能存在无自然量的应用
+                            //当日新安装用户收益；当日新安装用户收益 从自然量app_first_install_data中获取，有可能存在无自然量、或未集成sdk的应用，但配置了新的广告单元
                             //如果为0，则从app_daily_metrics_history日表中获取
                             one.nowRevenue = nowRevenue;
                         }
-                        /*
-                        //one.purchaseUser = ;//购买量用户数
-                        //one.natureUser = ;//自然量用户数
-                        long totalUser = one.purchaseUser + one.natureUser;
-                        one.natureRevenue = totalUser > 0 ? nowRevenue * one.natureUser/totalUser : 0;//自然量 用户收益
-                        one.purchaseRevenue = totalUser > 0 ? nowRevenue * one.purchaseUser/totalUser : 0;//购买安装用户收益
-                        */
                     }
 
 
