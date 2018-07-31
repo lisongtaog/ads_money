@@ -38,6 +38,8 @@ public class AppReport extends HttpServlet {
                 String filter = request.getParameter("filter");
                 String filterCountry = request.getParameter("filterCountry");
 
+                int order = Utils.parseInt(request.getParameter("order"), 0);
+
                 if (dimension == null || dimension.isEmpty()) {
                     dimension = "";
                 }
@@ -55,6 +57,7 @@ public class AppReport extends HttpServlet {
                         case "3":
                             tableName = "app_ad_unit_metrics_history";
                             fields.add("ad_unit_id");
+                            fields.add("ad_unit_name");
                             break;
                         case "4":
                             fields.add("country_code");
@@ -88,13 +91,11 @@ public class AppReport extends HttpServlet {
                     String ff = "";
                     if (fields.size() > 0) {
                         for (int i = 0; i < fields.size(); i++) {
-                            if (i < fields.size() - 1) {
-                                ff += fields.get(i) + ",";
-                            } else {
-                                ff += fields.get(i);
-                            }
+                            if("ad_unit_name".equals(fields.get(i))) continue;
+                            ff += fields.get(i) + ",";
                         }
-                        sql += ff + ", ";
+                        ff = ff.substring(0,ff.length()-1);
+                        sql += ff + ",";
                     }
                     sql += " sum(ad_request) as ad_request, sum(ad_filled) as ad_filled, sum(ad_impression) as ad_impression, sum(ad_click) as ad_click, sum(ad_revenue) as ad_revenue " +
                             "from " + tableName + " " +
@@ -127,8 +128,19 @@ public class AppReport extends HttpServlet {
 
                     List<JSObject> count = DB.findListBySql(sql);
 
-                    if (fields.size() > 0) {
-                        sql += " order by " + fields.get(0) + " desc";
+                    sql = "select * from (" + sql + " ) d  ";
+
+                    ArrayList<String> allFields = new ArrayList<>();//用于排序使用
+                    allFields.addAll(fields); fields.remove("ad_unit_name");
+                    allFields.addAll(Arrays.asList("ad_request","ad_filled","ad_impression","ad_click","ad_revenue","ecpm","ctr"));
+                    if (allFields.size() > 0) {
+                        boolean desc = order < 1000;
+                        if (order >= 1000) order = order - 1000;
+                        String field = allFields.get(order);
+                        if("ad_unit_name".equals(field)){
+                            field = "ad_unit_id";
+                        }
+                        sql += " order by " + field +  (desc ? " desc" : " asc");
                     }
                     sql += " limit " + index * size + "," + size;
                     List<JSObject> list = DB.findListBySql(sql);

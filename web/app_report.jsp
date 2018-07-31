@@ -391,6 +391,7 @@
         }
 
         $('#metricTable th').remove();
+        var defaultOrder = 0;
         for (var i = 0; i < columns.length; i++) {
             var value = "";
             switch (columns[i].data) {
@@ -408,6 +409,7 @@
                     break;
                 case "ad_revenue":
                     value = "Revenue";
+                    defaultOrder = i;
                     break;
                 case "ecpm":
                     value = "ECPM";
@@ -438,7 +440,8 @@
         }
 
         $('#metricTable').DataTable({
-            "ordering": false,
+            "ordering": true,
+            "order": [[ defaultOrder, "desc" ]],
             "processing": true,
             "serverSide": true,
             "searching": false,
@@ -453,6 +456,7 @@
                 postData.end_date = endDate;
                 postData.page_index = data.start / data.length;
                 postData.page_size = data.length;
+                postData.order = data.order[0].column + (data.order[0].dir == 'asc' ? 1000 : 0);
                 $.post("app_report/query", postData, function (data) {
                     if (data && data.ret == 1) {
                         var list = [];
@@ -482,7 +486,7 @@
                 }],
         });
 
-        $.post("/app_report/get", {
+        $.post("app_report/get", {
             filter: filter.join(","),
             filterCountry: filterCountry.join(","),
             start_date: startDate,
@@ -594,7 +598,7 @@
             }
         }, "json");
 
-        $.post("/app_report/getFirebase", {
+        $.post("app_report/getFirebase", {
             filter: filter.join(","),
             filterCountry: filterCountry.join(","),
             start_date: startDate,
