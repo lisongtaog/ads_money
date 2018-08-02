@@ -149,6 +149,11 @@
                     &nbsp;;&nbsp;&nbsp;首日占比 = 当日活跃用户数/安装日期活跃用户数 *100
                     <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                     递进值=当前日活跃用户数 - 上一日活跃用户数 （正数表示递增，负数表示递减）
+                    <p style="font-size: 18px;">
+                        <label>总安装量：</label><span class="bg-info" id="total_install">0</span>&nbsp;&nbsp;
+                        <label>购买安装量：</label><span class="bg-info" id="purchase_install">0</span>&nbsp;&nbsp;
+                        <label>购买占比：</label><span class="bg-info" id="purchase_per">0%</span>&nbsp;&nbsp;
+                    </p>
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body" style="overflow-x: hidden">
@@ -161,9 +166,12 @@
                             <th>购买占比%</th>
                             <th>活跃日期</th>
                             <th>活跃用户数</th>
-                            <th>活跃占比%</th>
-                            <th>首日占比%</th>
-                            <th>递进值</th>
+                            <th class="bg-primary">活跃占比%</th>
+                            <th class="bg-primary">首日活跃占比%</th>
+                            <th class="bg-primary">活跃递进值</th>
+                            <th class="bg-success">广告展示次数</th>
+                            <th class="bg-success">首日展示占比%</th>
+                            <th class="bg-success">展示递进值</th>
                         </tr>
                         </thead>
                     </table>
@@ -347,6 +355,13 @@
     }
 
     function  renderTable(dataSet) {
+        if(dataSet && dataSet.length > 0){
+            var first = dataSet[0];
+            $("#total_install").text(first[1]);
+            $("#purchase_install").text(first[2]);
+            $("#purchase_per").text(first[3]+"%");
+        }
+
         var columns = [
             { title: "安装日期" },
             { title: "总安装量" },
@@ -356,7 +371,10 @@
             { title: "活跃用户数" },
             { title: "活跃占比%" },
             { title: "首日占比%" },
-            { title: "递进值" }
+            { title: "活跃递进值" },
+            { title: "广告展示次数" },
+            { title: "首日展示占比%" },
+            { title: "展示递进值" }
         ];
         if ($.fn.DataTable.isDataTable("#metricTable")) {
             $('#metricTable').DataTable().clear().destroy();
@@ -367,6 +385,12 @@
             paging: false,
             ordering: false,
             columns: columns,
+            columnDefs:[
+                {
+                    targets: [1,2,3],
+                    visible: false
+                }
+            ],
             data:dataSet
         });
     }
