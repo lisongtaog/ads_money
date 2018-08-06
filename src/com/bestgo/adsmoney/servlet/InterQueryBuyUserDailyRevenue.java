@@ -17,7 +17,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 查询购买用户每天的累计收入 接口
+ * @author mengjun
+ * @date 2018/8/6 11:05
+ * @desc 查询购买用户每天的累计收入 接口
  */
 @WebServlet(name = "InterQueryBuyUserDailyRevenue", urlPatterns = "/query_buy_user_daily_revenue")
 public class InterQueryBuyUserDailyRevenue extends HttpServlet {
