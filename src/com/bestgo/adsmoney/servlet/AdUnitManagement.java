@@ -191,7 +191,7 @@ public class AdUnitManagement extends HttpServlet {
                 one = DB.simpleScan("app_ad_unit_config").select("id").where(DB.filter().whereEqualTo("ad_unit_id", adUnitConfig.adUnitId)).execute();
                 if (one.hasObjectData()) {
                     ret.result = true;
-                    ret.message = "修改成功";
+                    ret.message = "创建成功";
                     ret.data = new JsonObject();
                     ret.data.addProperty("id", (long)one.get("id"));
                     ret.data.addProperty("app_id", adUnitConfig.appId);

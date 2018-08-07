@@ -120,8 +120,7 @@
             </li>
             <%-- id为8-12  end--%>
 
-            <%-- id为13-16  start--%>
-
+            <%-- id为13-17  start--%>
             <li role="menu_li">
                 <a href="app_hourly_trend.jsp">
                     <i class="fa fa-quora"></i>
@@ -146,7 +145,13 @@
                     <span>App Active User Statistics</span>
                 </a>
             </li>
-            <%-- id为13-16  end--%>
+            <li role="menu_li">
+                <a href="app_version_number.jsp">
+                    <i class="fa fa-folder"></i>
+                    <span>App Version Number</span>
+                </a>
+            </li>
+            <%-- id为13-17  end--%>
 
         </ul>
     </section>
