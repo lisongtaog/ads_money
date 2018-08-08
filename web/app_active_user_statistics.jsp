@@ -269,20 +269,59 @@
 
     function queryData(date,filter,filterCountry) {
         reset();
-        $.post('query_app_active_user_statistics', {
-            date: date,
-            appId: filter,
-            countryCode: filterCountry
-        }, function (result) {
-            if (result && result.ret == 1) {
-                var dataSet = result;//表格数据
-                renderTable(dataSet);
-            } else {
-                alert(result.message);
+        var columns = [
+            { title: "活跃日期" },
+            { title: "活跃用户数" },
+            { title: "活跃占比%" },
+            { title: "首日活跃占比%" },
+            { title: "累计活跃占比%" },
+            { title: "人均累计广告展示数" },
+            { title: "当日收入" },
+            { title: "累计收入" },
+            { title: "LTV" },
+            { title: "回本率%" }
+        ];
+        if ($.fn.DataTable.isDataTable("#metricTable")) {
+            $('#metricTable').DataTable().clear().destroy();
+        }
+
+        $('#metricTable').DataTable({
+            searching: false,
+            paging: false,
+            processing: true,
+            ordering: false,
+            columns: columns,
+            columnDefs:[
+                /*{
+                 targets: [1,2,3],
+                 visible: false
+                 }*/
+            ],
+            "ajax": function (data, callback, settings) {
+                $.post('query_app_active_user_statistics', {
+                    date: date,
+                    appId: filter,
+                    countryCode: filterCountry
+                }, function (result) {
+                    if (result && result.ret == 1) {
+                        var dataSet = result;//表格数据
+                        renderTable(dataSet);//填充表头数据
+                        var data = dataSet.dataArray;
+                        callback(
+                            {
+                                "recordsTotal": data.length,
+                                "recordsFiltered": data.length,
+                                "data": data
+                            }
+                        );
+                    } else {
+                        alert(result.message);
+                    }
+                }, 'json');
             }
-        }, 'json');
+        });
     }
-    
+
     function reset() {
         $("#installDate").text("");
         $("#total_install").text(0);
@@ -311,36 +350,6 @@
             $("#first_revenue").text(summary.firstRevenue);
             $("#first_impression").text(summary.firstImpression);
         }
-
-        var columns = [
-            { title: "活跃日期" },
-            { title: "活跃用户数" },
-            { title: "活跃占比%" },
-            { title: "首日活跃占比%" },
-            { title: "累计活跃占比%" },
-            { title: "人均累计广告展示数" },
-            { title: "当日收入" },
-            { title: "累计收入" },
-            { title: "LTV" },
-            { title: "回本率%" }
-        ];
-        if ($.fn.DataTable.isDataTable("#metricTable")) {
-            $('#metricTable').DataTable().clear().destroy();
-        }
-
-        $('#metricTable').DataTable({
-            searching: false,
-            paging: false,
-            ordering: false,
-            columns: columns,
-            columnDefs:[
-                /*{
-                    targets: [1,2,3],
-                    visible: false
-                }*/
-            ],
-            data:dataSet.dataArray
-        });
     }
 
 </script>
