@@ -28,7 +28,6 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                 JsonArray array = new JsonArray();
 
                 try {
-
                     String sql = "select app_id,country_code, sum(user_num_nature) as user_num_nature, " +//自然量 用户数
                             " sum(revenue_purchase) as user_num_purchase, " +//购买量 用户数
                             " sum(revenue_total) as user_num_total, " +//新安装 总用户数
@@ -143,6 +142,54 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         one.purchasedUser = purchasedUser;
                     }
 
+                    //新用户展示和收入
+                    sql = "SELECT app_id,country_code,SUM(ad_impression) AS new_user_impression,SUM(ad_revenue) AS new_user_revenue \n" +
+                            "FROM app_ad_unit_metrics_history\n" +
+                            "WHERE date = '"+date+"' AND app_id = '"+app_id+"'\n" +
+                            "AND ad_unit_id in (SELECT ad_unit_id FROM app_ad_unit_config WHERE app_id = '"+app_id+"' AND flag = 1)\n" +
+                            "GROUP BY app_id,country_code";
+                    list = DB.findListBySql(sql);
+                    for (int i = 0; i < list.size(); i++) {
+                        String appId = list.get(i).get("app_id");
+                        String countryCode = list.get(i).get("country_code");
+                        double newUserImpression = Utils.convertDouble(list.get(i).get("new_user_impression"), 0);
+                        double newUserRevenue = Utils.convertLong(list.get(i).get("new_user_revenue"), 0);
+                        ResponseItem one = metricsMap.get(getKey(appId, countryCode));
+                        if (one == null) {
+                            one = new ResponseItem();
+                            metricsMap.put(getKey(appId, countryCode), one);
+                            resultList.add(one);
+                        }
+                        one.appId = appId;
+                        one.countryCode = countryCode;
+                        one.new_user_revenue = newUserRevenue;
+                        one.new_user_impression = newUserImpression;
+                    }
+
+                    //旧用户展示和收入
+                    sql = "SELECT app_id,country_code,SUM(ad_impression) AS old_user_impression,SUM(ad_revenue) AS old_user_revenue \n" +
+                            "FROM app_ad_unit_metrics_history\n" +
+                            "WHERE date = '"+date+"' AND app_id = '"+app_id+"'\n" +
+                            "AND ad_unit_id in (SELECT ad_unit_id FROM app_ad_unit_config WHERE app_id = '"+app_id+"' AND flag = 0)\n" +
+                            "GROUP BY app_id,country_code";
+                    list = DB.findListBySql(sql);
+                    for (int i = 0; i < list.size(); i++) {
+                        String appId = list.get(i).get("app_id");
+                        String countryCode = list.get(i).get("country_code");
+                        double oldUserImpression = Utils.convertDouble(list.get(i).get("old_user_impression"), 0);
+                        double oldUserRevenue = Utils.convertLong(list.get(i).get("old_user_revenue"), 0);
+                        ResponseItem one = metricsMap.get(getKey(appId, countryCode));
+                        if (one == null) {
+                            one = new ResponseItem();
+                            metricsMap.put(getKey(appId, countryCode), one);
+                            resultList.add(one);
+                        }
+                        one.appId = appId;
+                        one.countryCode = countryCode;
+                        one.old_user_revenue = oldUserRevenue;
+                        one.old_user_impression = oldUserImpression;
+                    }
+
                     JsonObject json = new JsonObject();
                     for (int i = 0; i < resultList.size(); i++) {
                         JsonObject jsonObject = new JsonObject();
@@ -162,6 +209,10 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         jsonObject.addProperty("nowRevenue", Utils.trimDouble(one.nowRevenue));//当日安装用户收益
                         jsonObject.addProperty("natureRevenue", Utils.trimDouble(one.natureRevenue));//自然量 用户收益
                         jsonObject.addProperty("purchaseRevenue", Utils.trimDouble(one.purchaseRevenue));//购买安装用户收益
+                        jsonObject.addProperty("new_user_impression",one.new_user_impression); //新用户展示
+                        jsonObject.addProperty("old_user_impression",one.old_user_impression); //旧用户展示
+                        jsonObject.addProperty("new_user_revenue",one.new_user_revenue); //新用户收入
+                        jsonObject.addProperty("old_user_revenue",one.old_user_revenue); //旧用户收入
 
                         double arpu = one.activeUser > 0 ? (float) (one.revenue / one.activeUser) : 0;
                         double arpu1 = one.totalUser > 0 ? (float) (one.revenue / one.totalUser) : 0;
@@ -212,6 +263,10 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
         public double estimatedRevenue14;
         public double uninstallRate;
         public long impression;
+        public double new_user_revenue;
+        public double new_user_impression;
+        public double old_user_revenue;
+        public double old_user_impression;
     }
 
     private double estimateRevenue(double installUser, double uninstallRate, double arpu, double arpu1) {
