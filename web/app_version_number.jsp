@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- Ionicons -->
     <link rel="stylesheet" href="http://money.uugame.info/admin_lte/bower_components/Ionicons/css/ionicons.min.css">
+    <script src="http://money.uugame.info/admin_lte/bower_components/moment/min/moment.min.js"></script>
     <!-- DataTables -->
     <link rel="stylesheet" href="http://money.uugame.info/admin_lte/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.4.1/css/buttons.dataTables.min.css">
@@ -177,7 +178,7 @@
             "label": "创建时间:",
             "name": "create_time",
             "type": "datetime",
-            "date_type": "yyyy-MM-dd HH:mm:ss"
+            "format": "YYYY-MM-DD HH:mm:ss"
         }, {
             "label": "版本号:",
             "name": "version_number",
