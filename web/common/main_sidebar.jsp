@@ -142,7 +142,7 @@
             <li role="menu_li">
                 <a href="app_active_user_statistics.jsp">
                     <i class="fa fa-folder"></i>
-                    <span>App Active User Statistics</span>
+                    <span>App User Analysis</span>
                 </a>
             </li>
             <li role="menu_li">

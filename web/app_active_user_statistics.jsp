@@ -9,7 +9,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>Ads Money | App Active User Statistics</title>
+    <title>Ads Money | App User Analysis</title>
     <link rel="shortcut icon" href="/images/favicon.ico">
 
     <!-- Tell the browser to be responsive to screen width -->
@@ -49,6 +49,18 @@
     <!-- Google Font -->
     <link rel="stylesheet"
           href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600,700,300italic,400italic,600italic">
+    <style>
+        table.summary tr td{
+            border-collapse: collapse;
+            /*border: 1px solid #aac5b7;*/
+        }
+        table.summary tr td:nth-child(1n){
+            text-align: right;
+        }
+        table.summary tr td:nth-child(2n){
+            padding: 5px;
+        }
+    </style>
 </head>
 <body class="hold-transition skin-blue sidebar-mini">
 <div class="wrapper">
@@ -70,11 +82,11 @@
         <!-- Content Header (Page header) -->
         <section class="content-header">
             <h1>
-                App Active User Statistics
+                App User Analysis
             </h1>
             <ol class="breadcrumb">
                 <li><a href="index.jsp"><i class="fa fa-dashboard"></i> Home</a></li>
-                <li class="active">App Active User Statistics</li>
+                <li class="active">App User Analysis</li>
             </ol>
         </section>
 
@@ -102,7 +114,6 @@
                             <div class="form-group">
                                 <label>Filter</label>
                                 <select  id="filter" class="form-control select2 select2-hidden-accessible" data-placeholder="Select app" style="width: 100%;" tabindex="-1" aria-hidden="true">
-                                    <option value="all">全部</option>
                                     <%
                                         for (int i = 0; i < appDatas.size(); i++) {
                                             AppData one = appDatas.get(i);
@@ -140,38 +151,53 @@
                 <!-- /.box-body -->
             </div>
             <!-- /.row -->
-            <div style="width:80%;height:70%" id="canvas_dev">
-            </div>
 
             <div class="box box-default">
                 <div class="box-header with-border">
-                   <span style="color: coral">公式：</span>购买占比=购买安装量/总安装量 *100 &nbsp;;&nbsp;&nbsp;活跃占比=活跃用户数/总安装量 *100
-                    &nbsp;;&nbsp;&nbsp;首日占比 = 当日活跃用户数/安装日期活跃用户数 *100
-                    <br/>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    递进值=当前日活跃用户数 - 上一日活跃用户数 （正数表示递增，负数表示递减）
-                    <p style="font-size: 18px;">
-                        <label>总安装量：</label><span class="bg-info" id="total_install">0</span>&nbsp;&nbsp;
-                        <label>购买安装量：</label><span class="bg-info" id="purchase_install">0</span>&nbsp;&nbsp;
-                        <label>购买占比：</label><span class="bg-info" id="purchase_per">0%</span>&nbsp;&nbsp;
+                    <p style="color: coral">公式：</p>
+                    <p>
+                        <span>活跃占比=活跃用户数/firebase安装量&nbsp;;&nbsp;&nbsp;</span>
+                        <span>首日活跃占比=当天活跃用户数/首日活跃用户数&nbsp;;&nbsp;&nbsp;</span>
+                        <span>累计活跃占比=自安装日至当日的活跃用户数总和/firebase安装量&nbsp;;&nbsp;&nbsp;</span>
+                        <span>人均广告展示次数=累计的总的广告展示次数/firebase安装量&nbsp;;&nbsp;&nbsp;</span>
                     </p>
+                    <p>
+                        <span title="根据广告展示次数比例估算">当日收入=当日老用户变现收益 * (选定安装日期那天安装的用户所看广告展示次数/所有老用户的广告展示次数)&nbsp;;&nbsp;&nbsp;</span>
+                        <span>累计收入= 自安装日至当日的收入总和&nbsp;;&nbsp;&nbsp;</span>
+                        <span>ltv = 累计收入/firebase安装量&nbsp;;&nbsp;&nbsp;</span>
+                        <span>回本率=ltv / cpa&nbsp;;&nbsp;&nbsp;</span>
+                    </p>
+                </div>
+                <div>
+                    <table class="summary">
+                        <tr>
+                            <td><label>安装日期：</label></td>           <td id="installDate"></td>
+                            <td><label>firebase安装量：</label></td>     <td id="total_install">0</td>
+                            <td><label>adplatform购买量：</label></td>   <td id="purchase_install">0</td>
+                            <%--<td><label>购买占比：</label></td>           <td id="purchase_per">0%</td>--%>
+                            <td><label>adplatform 花费：</label></td>    <td id="purchase_cost">0</td>
+                            <td><label>CPA：</label></td>                <td id="purchase_cpa">0</td>
+                            <td><label>app版本：</label></td>            <td id="app_version"></td>
+                            <td><label>首日收入：</label></td>           <td id="first_revenue">0</td>
+                            <td><label>首日广告展示次数：</label></td>       <td id="first_impression">0</td>
+                        </tr>
+                    </table>
                 </div>
                 <!-- /.box-header -->
                 <div class="box-body" style="overflow-x: hidden">
                     <table id="metricTable" class="table table-bordered table-hover" cellspacing="0" >
                         <thead>
                         <tr>
-                            <th>安装日期</th>
-                            <th>总安装量</th>
-                            <th>购买安装量</th>
-                            <th>购买占比%</th>
                             <th>活跃日期</th>
                             <th>活跃用户数</th>
-                            <th class="bg-primary">活跃占比%</th>
-                            <th class="bg-primary">首日活跃占比%</th>
-                            <th class="bg-primary">活跃递进值</th>
-                            <th class="bg-success">广告展示次数</th>
-                            <th class="bg-success">首日展示占比%</th>
-                            <th class="bg-success">展示递进值</th>
+                            <th>活跃占比%</th>
+                            <th>首日活跃占比%</th>
+                            <th>累计活跃占比%</th>
+                            <th>人均累计广告展示数</th>
+                            <th>当日收入</th>
+                            <th>累计收入</th>
+                            <th>LTV</th>
+                            <th>回本率%</th>
                         </tr>
                         </thead>
                     </table>
@@ -241,140 +267,62 @@
         queryData(date,filter,filterCountry);
     });
 
-//    queryData();
     function queryData(date,filter,filterCountry) {
-        $("#canvas_dev").empty();
-        $("#canvas_dev").append('<canvas id="canvas"></canvas>');
+        reset();
         $.post('query_app_active_user_statistics', {
             date: date,
             appId: filter,
             countryCode: filterCountry
         }, function (result) {
             if (result && result.ret == 1) {
-                var xData = result.data_array;//X轴数据展示
-                var yData = result.date_array;//Y轴日期展示
-                var dataSet = result.data_table;//表格数据
-                setData(yData,xData);
+                var dataSet = result;//表格数据
                 renderTable(dataSet);
             } else {
                 alert(result.message);
             }
         }, 'json');
     }
-    function setData(yData,xData) {
-        var ctx = document.getElementById("canvas");
-        var options = {
-            animation:{
-                duration:1000 ,//动画持续时长 ms
-                easing:'easeOutQuart', // easing function to use
-                onProgress: null, //动画过程中的回调函数
-                onComplete:null  //动画结束后回调函数
-            },
-            layout: {   //全局设置
-                padding: {    //图表边界距离
-                    left: 50,
-                    right: 0,
-                    top: 0,
-                    bottom: 0
-                }
-            },
-            legend: {  //数据图例
-                display: false,
-                labels: {
-                    fontColor: 'rgb(255, 99, 132)',
-                    boxWidth:40,
-                    fontSize:12,
-                    fontStyle:"normal",
-                    fontFamily:"Arial"
-                },
-                text:"legend name",
-                hidden: false //设置显示或隐藏
-            },
-            title:{
-                display:true,
-                position:"top",
-                fontSize:12,
-                fontFamily:"Arial",
-                fontColor:"#666",
-                fontStyle:"bold",
-                padding:10,
-                lineHeight:1.2,
-                text:"活跃用户图表"
-            },
-            //工具条
-            tooltip:{
-                enabled:false,
-                custom:null,
-                mode:"nearest",
-                intersect:true,
-                position:"average",
-                backgroundColor:"rgba(0,0,0,0.8)",
-                titleFontFamily:"Arial",
-                titleFontSize:12,
-                titleFontStyle:"bold",
-                titleFontColor:"#fff",
-                titleSpacing:2,
-                titleMarginBottom:6
-            },
-            //对点元素的设置
-            elements:{
-                radius:3,
-                pointStyle:"circle",
-                backgroundColor:"rgba(0,0,0,0.1)",
-                borderWidth:1,
-                borderColor:"rgba(0,0,0,0.1)",
-                hitRadius:1,
-                hoverRadius:4,
-                hoverBorderWidth:1
-            },
-            scales: {
-                xAxes: [{
-                    type: 'linear',  // "linear" "category" "logarithmic" "time"
-                    ticks: {
-                        min:0,    //坐标轴的最小范围
-                        // max:100   //坐标轴的最大范围
-                    }
-                }],
-            }
-        };
-        var myChart = new Chart(ctx, {
-            type: 'horizontalBar', // line:曲线 bar:垂直柱状 radar:雷达图 pie:饼图 doughnut：环图 polarArea:扇形图 scatter:散点 (默认的图类型)
-            data: {
-                labels : yData,
-                datasets: [{   //数组格式：每个数组元素为一个数据系列
-                    label: "活跃用户",
-                    data: xData, //数据系列的个数与labels参数里的元素个数相同
-                    backgroundColor: '#96fcb7',  //也可以设为数组形式; 最后一个数为透明度(0-1)
-                    borderColor:  'rgba(255,99,132,1)',
-                    borderWidth: 1,  //设置边界宽度
-                }
-                ]
-            },
-            options:options
-        });
+    
+    function reset() {
+        $("#installDate").text("");
+        $("#total_install").text(0);
+        $("#purchase_install").text(0);
+        //$("#purchase_per").text(0 +"%");
+        $("#purchase_cost").text(0);
+        $("#purchase_cpa").text(0);
+
+        $("#app_version").text("");
+        $("#first_revenue").text(0);
+        $("#first_impression").text(0);
+        $('#metricTable').DataTable().clear().destroy();
     }
 
     function  renderTable(dataSet) {
-        if(dataSet && dataSet.length > 0){
-            var first = dataSet[0];
-            $("#total_install").text(first[1]);
-            $("#purchase_install").text(first[2]);
-            $("#purchase_per").text(first[3]+"%");
+        if(dataSet){
+            var summary = dataSet.summary;//表头汇总数据
+            $("#installDate").text(summary.installDate );
+            $("#total_install").text(summary.totalInstall );
+            $("#purchase_install").text(summary.purchaseInstall );
+            //$("#purchase_per").text(summary.purchasePer +"%");
+            $("#purchase_cost").text(summary.purchaseCost);
+            $("#purchase_cpa").text(summary.purchaseCpa);
+
+            $("#app_version").text(summary.appVersion);
+            $("#first_revenue").text(summary.firstRevenue);
+            $("#first_impression").text(summary.firstImpression);
         }
 
         var columns = [
-            { title: "安装日期" },
-            { title: "总安装量" },
-            { title: "购买安装量" },
-            { title: "购买占比%" },
             { title: "活跃日期" },
             { title: "活跃用户数" },
             { title: "活跃占比%" },
-            { title: "首日占比%" },
-            { title: "活跃递进值" },
-            { title: "广告展示次数" },
-            { title: "首日展示占比%" },
-            { title: "展示递进值" }
+            { title: "首日活跃占比%" },
+            { title: "累计活跃占比%" },
+            { title: "人均累计广告展示数" },
+            { title: "当日收入" },
+            { title: "累计收入" },
+            { title: "LTV" },
+            { title: "回本率%" }
         ];
         if ($.fn.DataTable.isDataTable("#metricTable")) {
             $('#metricTable').DataTable().clear().destroy();
@@ -386,12 +334,12 @@
             ordering: false,
             columns: columns,
             columnDefs:[
-                {
+                /*{
                     targets: [1,2,3],
                     visible: false
-                }
+                }*/
             ],
-            data:dataSet
+            data:dataSet.dataArray
         });
     }
 
