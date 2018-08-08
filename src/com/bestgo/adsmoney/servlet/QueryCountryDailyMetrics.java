@@ -153,7 +153,7 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         String appId = list.get(i).get("app_id");
                         String countryCode = list.get(i).get("country_code");
                         double newUserImpression = Utils.convertDouble(list.get(i).get("new_user_impression"), 0);
-                        double newUserRevenue = Utils.convertLong(list.get(i).get("new_user_revenue"), 0);
+                        double newUserRevenue = Utils.convertDouble(list.get(i).get("new_user_revenue"), 0);
                         ResponseItem one = metricsMap.get(getKey(appId, countryCode));
                         if (one == null) {
                             one = new ResponseItem();
@@ -177,7 +177,7 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         String appId = list.get(i).get("app_id");
                         String countryCode = list.get(i).get("country_code");
                         double oldUserImpression = Utils.convertDouble(list.get(i).get("old_user_impression"), 0);
-                        double oldUserRevenue = Utils.convertLong(list.get(i).get("old_user_revenue"), 0);
+                        double oldUserRevenue = Utils.convertDouble(list.get(i).get("old_user_revenue"), 0);
                         ResponseItem one = metricsMap.get(getKey(appId, countryCode));
                         if (one == null) {
                             one = new ResponseItem();
