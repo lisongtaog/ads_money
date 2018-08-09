@@ -186,7 +186,7 @@
         }, {
             "label": "描述:",
             "name": "description",
-            "type": "text"
+            "type": "textarea"
         }
         ]
     } );

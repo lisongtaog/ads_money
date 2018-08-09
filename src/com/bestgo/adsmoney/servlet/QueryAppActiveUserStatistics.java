@@ -38,6 +38,11 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
 
         JsonObject rtnJson = new JsonObject();//待返回前端的数据
         try {
+            //app版本号查询
+            String appVersionSql =
+                    "SELECT DATE(create_time) AS publish_date,GROUP_CONCAT(version_number ORDER BY version_number SEPARATOR ' & ') AS app_version \n" +
+                    " FROM app_version_number WHERE app_id = '"+appId+"' \n" +
+                    " AND DATE(create_time) = (SELECT DATE(MAX(create_time)) from app_version_number WHERE DATE(create_time) <= '"+date+"') ";                    ;
 
             //购买安装的 花费、安装量
             String purchaseInstallSql = "SELECT SUM(spend) as purchase_cost,SUM(installed) as purchase_installed FROM app_ads_daily_metrics_history ";//购买安装量
@@ -59,12 +64,14 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                 revenueSql += " and country_code ='"+countryCode+"' ";
             }
 
+            JSObject versionObj = DB.findOneBySql(appVersionSql);//app版本信息
             JSObject obj = DB.findOneBySql(purchaseInstallSql);//购买安装量
             JSObject obj2 = DB.findOneBySql(allInstallSql);//总安装量
             JSObject revenueObj = DB.findOneBySql(revenueSql);//首日收益数据
 
             JsonObject summary = new JsonObject();//表头 通用汇总信息
             double allInstalled = 0,firstRevenue = 0,firstImpression = 0;
+            String appVersion = "";
             try {
                 double purchaseCost=0,purchaseInstalled=0;
                 if(obj.get("purchase_installed") != null && !"".equals(obj.get("purchase_installed"))){
@@ -84,6 +91,10 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                     firstImpression = new BigDecimal(revenueObj.get("ad_impression").toString()).doubleValue();
                 }
 
+                if(null != versionObj.get("app_version") && !"".equals(versionObj.get("app_version"))){
+                    appVersion = versionObj.get("app_version");
+                }
+
                 summary.addProperty("installDate",date);//安装日期
                 summary.addProperty("totalInstall",allInstalled);//总安装量
                 summary.addProperty("purchaseInstall",purchaseInstalled);//购买安装量
@@ -92,7 +103,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                 summary.addProperty("purchaseCpa",Utils.trimDouble(purchaseInstalled >0 ? (purchaseCost / purchaseInstalled): 0));//CPA
 
                 //summary.addProperty("appId","com.androapplite.antivirus.antivirusapplication");//应用appid
-                summary.addProperty("appVersion","待完善…");//应用版本号
+                summary.addProperty("appVersion",appVersion);//应用版本号
                 summary.addProperty("firstRevenue",firstRevenue);//首日收益
                 summary.addProperty("firstImpression",firstImpression);//首日展示次数
 
