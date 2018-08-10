@@ -137,7 +137,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
 
             //firebase 1、计算（某个应用在某个国家中,所有安装日期）的安装日期 的展示次数 【新用户】；ecpm计算使用
             //firebase 2、计算（某个应用在某个国家中,所有安装日期）的每个展示日期 展示次数 【老用户】；ecpm计算使用
-            String impressionsUnionSql = //区分新老用户的展示次数
+            /*String impressionsUnionSql = //区分新老用户的展示次数
                     "SELECT event_date,sum(impressions) AS impressions FROM app_ads_impressions_statistics \n" +
                     " WHERE ad_unit_id IN (SELECT ad_unit_id from app_ad_unit_config WHERE flag = '1' AND app_id='"+appId+"') \n"
                     + subCondition.toString() +
@@ -147,7 +147,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                     " WHERE ad_unit_id IN (SELECT ad_unit_id from app_ad_unit_config WHERE flag = '0' AND app_id='"+appId+"') \n"
                     + subCondition.toString() +
                     "\n AND event_date > '" + date + "' \n" + //老用户 不包含安装日期当天
-                    " GROUP BY event_date ORDER BY event_date ASC ";
+                    " GROUP BY event_date ORDER BY event_date ASC ";*/
 
             String adUnitCondition = " AND ad_unit_id IN (SELECT ad_unit_id from app_ad_unit_config WHERE flag = '0' AND app_id='"+appId+"') \n";
             //首日安装用户 在后续日期某一天的 展示次数（非新用户广告单元）
@@ -168,7 +168,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
             //变现数据，大于安装日期的 所有老用户的收益（广告单元flag为0）
             String eventRevenueSql = "SELECT date"+country_query+",ad_unit_id,SUM(ad_revenue) AS ad_revenue,SUM(ad_impression) AS ad_impression "
                     + "from app_ad_unit_metrics_history WHERE 1=1 "+ subCondition.toString() +
-                    " AND date > '"+date+"' \n"
+                    " AND date < DATE(NOW()) AND date > '"+date+"' \n"
                     + adUnitCondition +
                     "GROUP BY date" + subGroupBy + ",ad_unit_id \n" +
                     "ORDER BY date ASC";
@@ -207,11 +207,14 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
             }
             impressionAllEventList.clear();impressionAllEventList = null;
 
-            Double revenue,currentRevenue,num1,num2;
             RevenueData revenueData = new RevenueData();//首日的
             revenueData.nowRevenue = firstRevenue;
             revenueData.revenue = firstRevenue;
+            revenueData.impression = firstImpression;
             eventRevenueMap.put(date,revenueData);//设置当日安装的收益，直接取 变现数据值
+
+            Double currentRevenue,num1,num2;//currentRevenue：按照广告展示 比例计算的收益（currentRevenue = revenue * num1 /num2 ）
+            Double revenue;//变现的 收益数据
             for (int i = 0,len = eventRevenueList.size();i < len;i++) {
                 tmp = eventRevenueList.get(i);
                 if (tmp.hasObjectData()) {
@@ -235,7 +238,8 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                         revenueData = new RevenueData();
                     }
                     revenueData.nowRevenue += currentRevenue;//为 各个广告单元 在event_date的收益（收益为通过 广告比例换算的） 总和
-                    revenueData.revenue += revenue;//为 各个广告单元 在event_date的展示次数 总和
+                    revenueData.revenue += revenue;//为 各个广告单元 在event_date的展示收益 总和
+                    revenueData.impression += impr;//为 各个广告单元 在event_date的展示次数 总和
 
                     eventRevenueMap.put(eventDate,revenueData);//key为日期，
                 }
@@ -245,7 +249,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
 
             List<JSObject> activeList = DB.findListBySql(activeSql);//活跃用户
             List<JSObject> impressionsList = DB.findListBySql(impressionsSql);//展示次数（firebase不区分新老用户）
-            List<JSObject> impressionsUnionList = DB.findListBySql(impressionsUnionSql);//firebase展示次数（区分新老用户）
+            //List<JSObject> impressionsUnionList = DB.findListBySql(impressionsUnionSql);//firebase展示次数（区分新老用户）
 
 
             String activeUserFirstEventDate = date;
@@ -276,7 +280,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                 }
             }
             impressionsList.clear();impressionsList=null;
-
+            /*
             //广告单元展示次数：区分新老用户的 广告展示次数，首日为新安装用户广告单元展示次数，其他日期为所有老用户广告单元展示次数
             Map<String,Double> impressionUnionMap = new HashMap<String,Double>();
             for (int i = 0,len = impressionsUnionList.size();i < len;i++) {//区分新老用户的 广告展示次数
@@ -288,6 +292,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                 }
             }
             impressionsUnionList.clear();impressionsUnionList=null;
+            */
 
 
             Map<String,List> activeMap = new HashMap<String,List>();//活跃信息
@@ -320,7 +325,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
             JsonArray item = null;
             Double sumRevenue = 0D;//累计活跃用户 收入，即自安装日至当日的活跃用户数 收益总和
             Double nowImpression;//当日 首日安装的用户，在后面 某日老用户 广告展示次数
-            Double nowEcpm;//当日 ecpm
+            Double nowEcpm,ecpm;//firebase当日 ecpm，变现ecpm
             for (Iterator<String> ite = eventRevenueMap.keySet().iterator();ite.hasNext();) {
                 eventDate = ite.next();
                 item = new JsonArray();
@@ -341,19 +346,19 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
 
                 impressionList = impressionMap.get(eventDate);//展示次数
                 if (null != impressionList){
-                    //item.add(impressionList.get(0));//广告展示次数
-                    //item.add(impressionList.get(1));//累计展示次数
-                    //item.add(impressionList.get(2));//首日展示占比%
+                    item.add(impressionList.get(0));//广告展示次数 firebase
+                    //item.add(impressionList.get(1));//累计展示次数 firebase
+                    //item.add(impressionList.get(2));//首日展示占比% firebase
                     item.add(impressionList.get(3));//人均广告展示次数=累计的总的广告展示次数/firebase安装量
                 }else {
-                    //item.add("-");//广告展示次数
-                    //item.add("-");//累计展示次数
-                    //item.add("-");//首日展示占比%
-                    item.add("-");//人均广告展示次数
+                    item.add("-");//广告展示次数 firebase
+                    //item.add("-");//累计展示次数 firebase
+                    //item.add("-");//首日展示占比% firebase
+                    item.add("-");//人均广告展示次数 firebase
                 }
 
-                nowImpression = impressionUnionMap.get(eventDate);//新用户/老用户 firebase广告单元展示次数
-                nowImpression = null != nowImpression ? nowImpression : 0D;
+                //nowImpression = impressionUnionMap.get(eventDate);//新用户/老用户 firebase广告单元展示次数
+                //nowImpression = null != nowImpression ? nowImpression : 0D;//firebase
 
                 revenueData = eventRevenueMap.get(eventDate);//当日收入
                 if(null == revenueData){
@@ -363,10 +368,13 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                 nowRevenue = (null == nowRevenue) ? 0D : nowRevenue;
                 sumRevenue += nowRevenue;//累计收入
 
-                nowEcpm = nowImpression > 0 ? (revenueData.revenue / nowImpression * 1000) : 0;//当日ecpm = 当日总收益/firebase当日广告展示次数
+                //nowEcpm = nowImpression > 0 ? (revenueData.revenue / nowImpression * 1000) : 0;//当日ecpm = 当日总收益/firebase当日广告展示次数
+                ecpm = revenueData.impression > 0 ? (revenueData.revenue / revenueData.impression * 1000) : 0;//变现ecpm
 
+
+                item.add(Utils.trimDouble(ecpm));//adplatform当日ecpm = 当日变现收益 / 变现展示数
+                //item.add(Utils.trimDouble(nowEcpm));//firebase当日ecpm = 当日收益 / firebase展示数
                 item.add(Utils.trimDouble(nowRevenue));//当日收入
-                item.add(Utils.trimDouble(nowEcpm));//当日ecpm = 当日收益 / firebase展示数
                 item.add(Utils.trimDouble(sumRevenue));//累计收入
                 double ltv = Utils.trimDouble(allInstalled >0 ? (sumRevenue / allInstalled): 0);//ltv
                 item.add(ltv);//ltv
@@ -379,7 +387,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
             rtnJson.addProperty("ret", 1);
 
             eventRevenueMap.clear();eventRevenueMap=null;
-            impressionUnionMap.clear();impressionUnionMap=null;
+            //impressionUnionMap.clear();impressionUnionMap=null;
             activeMap.clear();activeMap=null;
 
         } catch (Exception ex) {
@@ -399,8 +407,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
      */
     class RevenueData{
         Double nowRevenue = 0D;//当日收益（按照 广告展示次数换算后）
-        Double revenue = 0D;//统计的 收益
-        Double ecpm = 0D;//新用户/老用户 当日ecpm;
-        // 新用户ecpm = 当日新用户收益/新广告单元展示次数firebase ；老用户ecpm = 所有老用户当日收益总和/所有老用户广告单元展示次数firebase
+        Double revenue = 0D;//统计的 收益（变现）
+        Double impression = 0D;//统计的 广告展示次数（变现）
     }
 }
