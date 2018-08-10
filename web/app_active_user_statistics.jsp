@@ -260,10 +260,12 @@
 <script>
     $("li[role='menu_li']:eq(16)").addClass("active");
     $('.select2').select2();
+    var range = 23 > new Date().getHours() ? 2 : 1 ;
+    moment().subtract(1, 'days').format('YYYY-MM-DD')
     $('#txtInstallDate').datepicker({
         format: 'yyyy-mm-dd',
         startDate:"2018-06-27",
-        endDate: new Date(),
+        endDate: moment().subtract(range, 'days').format('YYYY-MM-DD'),
         autoclose: true
     });
     $('#txtInstallDate').datepicker('setDate', moment().subtract(2, 'days').format('YYYY-MM-DD'));
