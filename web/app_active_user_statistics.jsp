@@ -179,7 +179,8 @@
                             <td><label>CPA：</label></td>                <td id="purchase_cpa">0</td>
                             <td><label>app版本：</label></td>            <td id="app_version"></td>
                             <td><label>首日收入：</label></td>           <td id="first_revenue">0</td>
-                            <td><label>首日广告展示次数：</label></td>       <td id="first_impression">0</td>
+                            <td><label>首日广告展示次数：</label></td>   <td id="first_impression">0</td>
+                            <td><label>首日ECPM：</label></td>           <td id="first_ecpm">0</td>
                         </tr>
                     </table>
                 </div>
@@ -195,6 +196,7 @@
                             <th>累计活跃占比%</th>
                             <th>人均累计广告展示数</th>
                             <th>当日收入</th>
+                            <th>当日ECPM</th>
                             <th>累计收入</th>
                             <th>LTV</th>
                             <th>回本率%</th>
@@ -277,6 +279,7 @@
             { title: "累计活跃占比%" },
             { title: "人均累计广告展示数" },
             { title: "当日收入" },
+            { title: "当日ECPM" },
             { title: "累计收入" },
             { title: "LTV" },
             { title: "回本率%" }
@@ -333,6 +336,7 @@
         $("#app_version").text("");
         $("#first_revenue").text(0);
         $("#first_impression").text(0);
+        $("#first_ecpm").text(0);
         $('#metricTable').DataTable().clear().destroy();
     }
 
@@ -349,6 +353,8 @@
             $("#app_version").text(summary.appVersion);
             $("#first_revenue").text(summary.firstRevenue);
             $("#first_impression").text(summary.firstImpression);
+            $("#first_ecpm").text(summary.firstEcpm);
+
         }
     }
 
