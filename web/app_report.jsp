@@ -386,6 +386,12 @@
             }
         }
 
+        var  dimStr = dimension.join(',').substring(0,5);
+        if("1,2,3" == dimStr && filter.length > 0 && (dimension[3]=="4" || filterCountry.length > 0)){
+            columns.splice(-1, 0, { data: 'tag_ecpm' });
+            console.info(columns);
+        }
+
         if ($.fn.DataTable.isDataTable("#metricTable")) {
             $('#metricTable').DataTable().clear().destroy();
         }
@@ -413,6 +419,9 @@
                     break;
                 case "ecpm":
                     value = "ECPM";
+                    break;
+                case "tag_ecpm":
+                    value = "TAG_ECPM";
                     break;
                 case "date":
                     value = "Date";

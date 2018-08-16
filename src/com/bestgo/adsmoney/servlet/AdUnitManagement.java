@@ -268,4 +268,21 @@ public class AdUnitManagement extends HttpServlet {
         }
         return rtnMap;
     }
+
+    public static Map<String,String> fetchAppIdByUnit() {
+        Map<String,String> rtnMap = new HashMap<String,String>();
+        try {
+            String sql = "select ad_unit_id,app_id FROM app_ad_unit_config";
+            List<JSObject> result = DB.findListBySql(sql);
+            String adUnitId = null;
+            String appId = null;
+            for (int i = 0; i < result.size(); i++) {
+                adUnitId = result.get(i).get("ad_unit_id");
+                appId = result.get(i).get("app_id");
+                rtnMap.put(adUnitId,appId);
+            }
+        } catch (Exception ex) {
+        }
+        return rtnMap;
+    }
 }

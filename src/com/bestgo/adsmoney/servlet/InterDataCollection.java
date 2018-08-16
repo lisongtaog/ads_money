@@ -1,5 +1,6 @@
 package com.bestgo.adsmoney.servlet;
 
+import com.bestgo.adsmoney.utils.Utils;
 import com.bestgo.common.database.MySqlHelper;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -57,20 +58,33 @@ public class InterDataCollection extends HttpServlet {
 
         try {
             List<AdUnitData> adUnitDataList = gson.fromJson(dataStr, type);
+            Map<String,String> adUnitAppMap = null;
+
             List<List<Object>> dataList = new ArrayList<List<Object>>();
             List<Object> data = null;
             String sql = "insert into app_ad_unit_target (app_id,ad_unit_id,country_code,tag_ecpm,uploadtime,updatetime) values(?,?,?,?,?,?)";
-            Date current = new Date();
-            for(AdUnitData item : adUnitDataList){
-                data = new ArrayList<Object>();
-                data.add(item.app_id);
-                data.add(item.ad_unit_id);
-                data.add(item.country_code);
-                data.add(item.tag_ecpm);
-                data.add(item.upload_time);
-                data.add(current);
+            if(adUnitDataList != null && adUnitDataList.size() > 0){
+                Date current = new Date();
+                String appId = null;
+                adUnitAppMap = AdUnitManagement.fetchAppIdByUnit();//ad_unit_id 与 app_id
+                for(AdUnitData item : adUnitDataList){
+                    data = new ArrayList<Object>();
+                    appId = item.app_id;
+                    if (Utils.isEmpty(appId)){
+                        appId = adUnitAppMap.get(item.ad_unit_id);
+                    }
+                    if(Utils.isEmpty(item.ad_unit_id) || Utils.isEmpty(appId)){
+                        continue;
+                    }
+                    data.add(appId);
+                    data.add(item.ad_unit_id);
+                    data.add(item.country_code);
+                    data.add(item.tag_ecpm);
+                    data.add(item.upload_time);
+                    data.add(current);
 
-                dataList.add(data);
+                    dataList.add(data);
+                }
             }
 
             if(dataList.size() > 0){
