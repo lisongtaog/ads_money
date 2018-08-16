@@ -94,9 +94,8 @@ public class AppReport extends HttpServlet {
                     isShowTagEcpm = true; //否展示 target ecpm 列
                     tableName = "app_ad_unit_metrics_history u \n";
                     //要有逗号，拼接
-                    tagEcpmSql = ",\n(SELECT GROUP_CONCAT(tag_ecpm) from app_ad_unit_target \n" +
-                            "where app_id = u.app_id and ad_unit_id = u.ad_unit_id and country_code = u.country_code\n" +
-                            "and DATE(uploadtime) = u.date group by DATE(uploadtime) ORDER BY uploadtime DESC\n" +
+                    tagEcpmSql = ",\n(SELECT GROUP_CONCAT(tag_ecpm ORDER BY uploadtime DESC) from app_ad_unit_target \n" +
+                            "where app_id = u.app_id and ad_unit_id = u.ad_unit_id and country_code = u.country_code and DATE(uploadtime) = u.date\n" +
                             ") AS tag_ecpm_current,\n" +
                             "(SELECT tag_ecpm from app_ad_unit_target WHERE id =\n" +
                             "(SELECT MAX(id) FROM app_ad_unit_target where app_id = u.app_id and ad_unit_id = u.ad_unit_id and country_code = u.country_code AND DATE(uploadtime) < u.date )\n" +
