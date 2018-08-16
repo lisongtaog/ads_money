@@ -388,8 +388,7 @@
 
         var  dimStr = dimension.join(',').substring(0,5);
         if("1,2,3" == dimStr && filter.length > 0 && (dimension[3]=="4" || filterCountry.length > 0)){
-            columns.splice(-1, 0, { data: 'tag_ecpm' });
-            console.info(columns);
+            columns.splice(-1, 0, { data: 'tag_ecpm',"orderable":false });
         }
 
         if ($.fn.DataTable.isDataTable("#metricTable")) {
