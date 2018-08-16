@@ -362,8 +362,8 @@
             { data: 'ad_impression' },
             { data: 'ad_click' },
             { data: 'ad_revenue' },
-            { data: 'ecpm' },
-            { data: 'ctr' },
+            { data: 'ecpm',"orderable":false },
+            { data: 'ctr',"orderable":false },
         ];
         for (var i = dimension.length - 1; i >= 0; i--) {
             switch (dimension[i]) {
