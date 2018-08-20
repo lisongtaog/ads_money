@@ -1,5 +1,6 @@
 package com.bestgo.adsmoney.servlet;
 
+import com.bestgo.adsmoney.utils.NumberUtil;
 import com.bestgo.adsmoney.utils.Utils;
 import com.bestgo.adsmoney.bean.AppData;
 import com.bestgo.common.database.services.DB;
@@ -117,27 +118,27 @@ public class AppReport extends HttpServlet {
                             + tagEcpmSql +
                             "from " + tableName + " " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
+                    String appIdsStr = "";
                     if (appIds.size() > 0) {
-                        String ss = "";
                         for (int i = 0; i < appIds.size(); i++) {
                             if (i < appIds.size() - 1) {
-                                ss += "'" + appIds.get(i) + "',";
+                                appIdsStr += "'" + appIds.get(i) + "',";
                             } else {
-                                ss += "'" + appIds.get(i) + "'";
+                                appIdsStr += "'" + appIds.get(i) + "'";
                             }
                         }
-                        sql += " and app_id in (" + ss + ")";
+                        sql += " and app_id in (" + appIdsStr + ")";
                     }
+                    String countryCodesStr = "";
                     if (countryCodes.size() > 0) {
-                        String ss = "";
                         for (int i = 0; i < countryCodes.size(); i++) {
                             if (i < countryCodes.size() - 1) {
-                                ss += "'" + countryCodes.get(i) + "',";
+                                countryCodesStr += "'" + countryCodes.get(i) + "',";
                             } else {
-                                ss += "'" + countryCodes.get(i) + "'";
+                                countryCodesStr += "'" + countryCodes.get(i) + "'";
                             }
                         }
-                        sql += " and country_code in (" + ss + ")";
+                        sql += " and country_code in (" + countryCodesStr + ")";
                     }
                     if (!ff.isEmpty()) {
                         sql += " group by " + ff;
@@ -166,14 +167,21 @@ public class AppReport extends HttpServlet {
                     }
                     sql += " limit " + index * size + "," + size;
                     List<JSObject> list = DB.findListBySql(sql);
-
+                    Map<String,ShowNum> showNumMap = null;
+                    if (!fields.contains("ad_unit_id")) { //只有在没有AdUnit的时候才展示
+                        showNumMap = fetchShowNumMap(startDate,endDate,appIdsStr,countryCodesStr,fields);
+                    }
                     Object tagEcpm = null;
                     JsonArray array = new JsonArray();
+                    String countryCode = null;
+                    String appId = null;
+                    String eventDate = null;
                     for (int i = 0; i < list.size(); i++) {
+                        JSObject js = list.get(i);
                         JsonObject one = new JsonObject();
                         for (int ii = 0; ii < fields.size(); ii++) {
                             String f = fields.get(ii);
-                            String v = list.get(i).get(f).toString();
+                            String v = js.get(f).toString();
                             if (f.equals("country_code")) {
                                 HashMap<String, String> countryMap = Utils.getCountryMap();
                                 String countryName = countryMap.get(v);
@@ -192,18 +200,41 @@ public class AppReport extends HttpServlet {
                             }
                             one.addProperty(f, v);
                         }
-                        one.addProperty("ad_request", list.get(i).get("ad_request").toString());
-                        one.addProperty("ad_filled", list.get(i).get("ad_filled").toString());
-                        one.addProperty("ad_impression", list.get(i).get("ad_impression").toString());
-                        one.addProperty("ad_click", list.get(i).get("ad_click").toString());
-                        one.addProperty("ad_revenue", Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0)));
-                        int impression = Utils.parseInt(list.get(i).get("ad_impression").toString(), 0);
-                        double revenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0));
-                        long click = Utils.convertLong(list.get(i).get("ad_click"), 0);
+                        if (showNumMap != null) {
+                            countryCode = js.get("country_code");
+                            if (countryCode == null) countryCode = "";
+                            appId = js.get("app_id");
+                            if (appId == null) appId = "";
+                            eventDate = js.get("date").toString();
+                            ShowNum showNum = showNumMap.get(eventDate + appId + countryCode);
+                            if (showNum == null) {
+                                one.addProperty("total_num", 0);
+                                one.addProperty("total_num_noready",0);
+                                one.addProperty("total_num_ready",0);
+                            }else {
+                                one.addProperty("total_num", showNum.totalNum);
+                                one.addProperty("total_num_noready",showNum.totalNumNoReady);
+                                one.addProperty("total_num_ready",showNum.totalNumReady);
+                            }
+                        }else {
+                            one.addProperty("total_num", 0);
+                            one.addProperty("total_num_noready",0);
+                            one.addProperty("total_num_ready",0);
+                        }
+
+
+                        one.addProperty("ad_request", js.get("ad_request").toString());
+                        one.addProperty("ad_filled", js.get("ad_filled").toString());
+                        one.addProperty("ad_impression", js.get("ad_impression").toString());
+                        one.addProperty("ad_click", js.get("ad_click").toString());
+                        one.addProperty("ad_revenue", Utils.trimDouble(Utils.convertDouble(js.get("ad_revenue"), 0)));
+                        int impression = Utils.parseInt(js.get("ad_impression").toString(), 0);
+                        double revenue = Utils.trimDouble(Utils.convertDouble(js.get("ad_revenue"), 0));
+                        long click = Utils.convertLong(js.get("ad_click"), 0);
 
                         one.addProperty("ecpm", impression > 0 ? Utils.trimDouble(revenue / impression * 1000) : 0);
                         if(isShowTagEcpm){
-                            tagEcpm = list.get(i).get("tag_ecpm");//变现后台 配置的目标ECPM（展示满足ecpm条件的广告）
+                            tagEcpm = js.get("tag_ecpm");//变现后台 配置的目标ECPM（展示满足ecpm条件的广告）
                             one.addProperty("tag_ecpm", null != tagEcpm ? tagEcpm.toString() : "");
                         }
                         one.addProperty("ctr", impression > 0 ? Utils.trimDouble(click * 1.0 / impression * 100) : 0);
@@ -375,5 +406,61 @@ public class AppReport extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         doPost(request, response);
+    }
+
+    private Map<String,ShowNum> fetchShowNumMap(String startDate,String endDate,String appIds,String countryCodes,ArrayList<String> fields){
+        Map<String,ShowNum> map = new HashMap<>();
+        String eventDate = "";
+        String appId = "";
+        String countryCode = "";
+        ShowNum showNum = null;
+        String selectFiled = " aas.event_date";
+        boolean existAppIds = false;
+        boolean existCountryCodes = false;
+        if (appIds != null && !appIds.isEmpty()) existAppIds = true;
+        if (countryCodes != null && !countryCodes.isEmpty()) existCountryCodes = true;
+        if (fields != null) {
+            if (!fields.contains("date")) return map;
+            if (fields.contains("app_id") || existAppIds) {
+                selectFiled += ",aas.app_id";
+            }
+            if ((fields.contains("country_code") || existCountryCodes)) {
+                selectFiled += ",aas.country_code";
+            }
+        }
+        String sql = "SELECT " + selectFiled + ",\n" +
+                "SUM(aas.num) AS total_num,SUM(aas.num_ready) AS total_num_ready,\n" +
+                "SUM(aas.num_notready) AS total_notready\n" +
+                "FROM app_ads_adchance_statistics aas\n" +
+                "WHERE aas.event_date between '" + startDate + "' AND '"+endDate + "'\n" +
+                (existAppIds ? "AND aas.app_id IN (" + appIds + ")\n" : "") +
+                (existCountryCodes ? "AND aas.country_code IN (" + countryCodes + ")\n" : "")
+                + " GROUP BY " + selectFiled;
+        try {
+            List<JSObject> list = DB.findListBySql(sql);
+            for (int i = 0,len = list.size();i < len;i++) {
+                JSObject one = list.get(i);
+                if (one.hasObjectData()) {
+                    eventDate = one.get("event_date").toString();
+                    appId = one.get("app_id");
+                    if (appId == null) appId = "";
+                    countryCode = one.get("country_code");
+                    if (countryCode == null) countryCode = "";
+                    showNum = new ShowNum();
+                    showNum.totalNum = NumberUtil.convertDouble(one.get("total_num"),0);
+                    showNum.totalNumNoReady = NumberUtil.convertDouble(one.get("total_notready"),0);
+                    showNum.totalNumReady = NumberUtil.convertDouble(one.get("total_num_ready"),0);
+                    map.put(eventDate + appId + countryCode,showNum);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+    private class ShowNum{
+        public double totalNum;
+        public double totalNumReady;
+        public double totalNumNoReady;
     }
 }

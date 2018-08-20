@@ -365,6 +365,7 @@
             { data: 'ecpm',"orderable":false },
             { data: 'ctr',"orderable":false },
         ];
+        var isShowNum = true; //是否显示展示机会，调用显示（只有不勾选adUnit的时候才显示）
         for (var i = dimension.length - 1; i >= 0; i--) {
             switch (dimension[i]) {
                 case "1":
@@ -376,6 +377,7 @@
                 case "3":
                     columns.unshift({data: 'ad_unit_name'});
                     columns.unshift({data: 'ad_unit_id'});
+                    isShowNum = false; //是否显示展示机会，调用显示（只有不勾选adUnit的时候才显示）
                     break;
                 case "4":
                     columns.unshift({data: 'country_name'});
@@ -389,6 +391,12 @@
         var  dimStr = dimension.join(',').substring(0,5);
         if("1,2,3" == dimStr && filter.length > 0 && (dimension[3]=="4" || filterCountry.length > 0)){
             columns.splice(-1, 0, { data: 'tag_ecpm',"orderable":false });
+        }
+
+        if(isShowNum){ //是否显示展示机会，调用显示（只有不勾选adUnit的时候才显示）
+            columns.push({ data: 'total_num',"orderable":false });
+            columns.push({ data: 'total_num_ready',"orderable":false });
+            columns.push({ data: 'total_num_noready',"orderable":false });
         }
 
         if ($.fn.DataTable.isDataTable("#metricTable")) {
@@ -442,6 +450,15 @@
                     break;
                 case "ctr":
                     value = "CTR";
+                    break;
+                case "total_num":
+                    value = "Chance_Total";
+                    break;
+                case "total_num_ready":
+                    value = "Chance_Ready";
+                    break;
+                case "total_num_noready":
+                    value = "Chance_NoReady";
                     break;
             }
             $('#metricTable thead tr').append($('<th>' + value + '</th>'));
