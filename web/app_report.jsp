@@ -461,7 +461,7 @@
                     value = "ReadyAdChance";
                     break;
                 case "total_num_ready_div_total_num":
-                    value = "ReadyAdChance/\nTotalAdChance";
+                    value = "ReadyAdChance/<br/>TotalAdChance";
                     break;
                 case "new_total_num":
                     value = "NewTotalAdChance";
@@ -470,7 +470,7 @@
                     value = "NewReadyAdChance";
                     break;
                 case "new_total_num_ready_div_new_total_num":
-                    value = "NewReadyAdChance/\nNewTotalAdChance";
+                    value = "NewReadyAdChance/<br/>NewTotalAdChance";
                     break;
             }
             $('#metricTable thead tr').append($('<th>' + value + '</th>'));
