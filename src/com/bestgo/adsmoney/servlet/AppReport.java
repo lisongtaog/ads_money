@@ -176,6 +176,8 @@ public class AppReport extends HttpServlet {
                     String countryCode = null;
                     String appId = null;
                     String eventDate = null;
+                    ShowNum showNum = null;
+                    HashMap<String, String> countryMap = Utils.getCountryMap();
                     for (int i = 0; i < list.size(); i++) {
                         JSObject js = list.get(i);
                         JsonObject one = new JsonObject();
@@ -183,7 +185,6 @@ public class AppReport extends HttpServlet {
                             String f = fields.get(ii);
                             String v = js.get(f).toString();
                             if (f.equals("country_code")) {
-                                HashMap<String, String> countryMap = Utils.getCountryMap();
                                 String countryName = countryMap.get(v);
                                 one.addProperty("country_name", countryName == null ? v : countryName);
                             } else if (f.equals("app_id")) {
@@ -206,20 +207,21 @@ public class AppReport extends HttpServlet {
                             appId = js.get("app_id");
                             if (appId == null) appId = "";
                             eventDate = js.get("date").toString();
-                            ShowNum showNum = showNumMap.get(eventDate + appId + countryCode);
+                            showNum = showNumMap.get(eventDate + appId + countryCode);
                             if (showNum == null) {
                                 one.addProperty("total_num", 0);
-                                one.addProperty("total_num_noready",0);
                                 one.addProperty("total_num_ready",0);
+                                one.addProperty("total_num_ready_div_total_num",0);
                             }else {
                                 one.addProperty("total_num", showNum.totalNum);
-                                one.addProperty("total_num_noready",showNum.totalNumNoReady);
                                 one.addProperty("total_num_ready",showNum.totalNumReady);
+                                one.addProperty("total_num_ready_div_total_num",showNum.totalNumReadyDivTotalNum);
                             }
-                        }else {
+
+                        } else {
                             one.addProperty("total_num", 0);
-                            one.addProperty("total_num_noready",0);
                             one.addProperty("total_num_ready",0);
+                            one.addProperty("total_num_ready_div_total_num",0);
                         }
 
 
@@ -408,6 +410,15 @@ public class AppReport extends HttpServlet {
         doPost(request, response);
     }
 
+    /**
+     *
+     * @param startDate
+     * @param endDate
+     * @param appIds
+     * @param countryCodes
+     * @param fields
+     * @return
+     */
     private Map<String,ShowNum> fetchShowNumMap(String startDate,String endDate,String appIds,String countryCodes,ArrayList<String> fields){
         Map<String,ShowNum> map = new HashMap<>();
         String eventDate = "";
@@ -421,16 +432,15 @@ public class AppReport extends HttpServlet {
         if (countryCodes != null && !countryCodes.isEmpty()) existCountryCodes = true;
         if (fields != null) {
             if (!fields.contains("date")) return map;
-            if (fields.contains("app_id") || existAppIds) {
+            if (fields.contains("app_id")) {
                 selectFiled += ",aas.app_id";
             }
-            if ((fields.contains("country_code") || existCountryCodes)) {
+            if (fields.contains("country_code")) {
                 selectFiled += ",aas.country_code";
             }
         }
         String sql = "SELECT " + selectFiled + ",\n" +
-                "SUM(aas.num) AS total_num,SUM(aas.num_ready) AS total_num_ready,\n" +
-                "SUM(aas.num_notready) AS total_notready\n" +
+                "SUM(aas.num) AS total_num,SUM(aas.num_ready) AS total_num_ready\n" +
                 "FROM app_ads_adchance_statistics aas\n" +
                 "WHERE aas.event_date between '" + startDate + "' AND '"+endDate + "'\n" +
                 (existAppIds ? "AND aas.app_id IN (" + appIds + ")\n" : "") +
@@ -448,8 +458,9 @@ public class AppReport extends HttpServlet {
                     if (countryCode == null) countryCode = "";
                     showNum = new ShowNum();
                     showNum.totalNum = NumberUtil.convertDouble(one.get("total_num"),0);
-                    showNum.totalNumNoReady = NumberUtil.convertDouble(one.get("total_notready"),0);
                     showNum.totalNumReady = NumberUtil.convertDouble(one.get("total_num_ready"),0);
+                    showNum.totalNumReadyDivTotalNum = showNum.totalNum > 0 ? NumberUtil.trimDouble(showNum.totalNumReady / showNum.totalNum,4) : 0;
+                    //不管应用和国家哪个是空串，都只看selectField
                     map.put(eventDate + appId + countryCode,showNum);
                 }
             }
@@ -461,6 +472,6 @@ public class AppReport extends HttpServlet {
     private class ShowNum{
         public double totalNum;
         public double totalNumReady;
-        public double totalNumNoReady;
+        public double totalNumReadyDivTotalNum;
     }
 }
