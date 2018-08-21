@@ -397,6 +397,9 @@
             columns.push({ data: 'total_num',"orderable":false });
             columns.push({ data: 'total_num_ready',"orderable":false });
             columns.push({ data: 'total_num_ready_div_total_num',"orderable":false });
+            columns.push({ data: 'new_total_num',"orderable":false });
+            columns.push({ data: 'new_total_num_ready',"orderable":false });
+            columns.push({ data: 'new_total_num_ready_div_new_total_num',"orderable":false });
         }
 
         if ($.fn.DataTable.isDataTable("#metricTable")) {
@@ -458,7 +461,16 @@
                     value = "ReadyAdChance";
                     break;
                 case "total_num_ready_div_total_num":
-                    value = "ReadyAdChance/TotalAdChance";
+                    value = "ReadyAdChance/\nTotalAdChance";
+                    break;
+                case "new_total_num":
+                    value = "NewTotalAdChance";
+                    break;
+                case "new_total_num_ready":
+                    value = "NewReadyAdChance";
+                    break;
+                case "new_total_num_ready_div_new_total_num":
+                    value = "NewReadyAdChance/\nNewTotalAdChance";
                     break;
             }
             $('#metricTable thead tr').append($('<th>' + value + '</th>'));
