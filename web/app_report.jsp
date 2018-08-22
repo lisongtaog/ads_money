@@ -396,7 +396,10 @@
         if(isShowNum){ //是否显示展示机会，调用显示（只有不勾选adUnit的时候才显示）
             columns.push({ data: 'total_num',"orderable":false });
             columns.push({ data: 'total_num_ready',"orderable":false });
-            columns.push({ data: 'total_num_noready',"orderable":false });
+            columns.push({ data: 'total_num_ready_div_total_num',"orderable":false });
+            columns.push({ data: 'new_total_num',"orderable":false });
+            columns.push({ data: 'new_total_num_ready',"orderable":false });
+            columns.push({ data: 'new_total_num_ready_div_new_total_num',"orderable":false });
         }
 
         if ($.fn.DataTable.isDataTable("#metricTable")) {
@@ -452,13 +455,22 @@
                     value = "CTR";
                     break;
                 case "total_num":
-                    value = "Chance_Total";
+                    value = "TotalAdChance";
                     break;
                 case "total_num_ready":
-                    value = "Chance_Ready";
+                    value = "ReadyAdChance";
                     break;
-                case "total_num_noready":
-                    value = "Chance_NoReady";
+                case "total_num_ready_div_total_num":
+                    value = "TotalReadyRate";
+                    break;
+                case "new_total_num":
+                    value = "NewTotalAdChance";
+                    break;
+                case "new_total_num_ready":
+                    value = "NewReadyAdChance";
+                    break;
+                case "new_total_num_ready_div_new_total_num":
+                    value = "NewReadyRate";
                     break;
             }
             $('#metricTable thead tr').append($('<th>' + value + '</th>'));

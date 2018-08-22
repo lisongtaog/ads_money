@@ -176,6 +176,8 @@ public class AppReport extends HttpServlet {
                     String countryCode = null;
                     String appId = null;
                     String eventDate = null;
+                    ShowNum showNum = null;
+                    HashMap<String, String> countryMap = Utils.getCountryMap();
                     for (int i = 0; i < list.size(); i++) {
                         JSObject js = list.get(i);
                         JsonObject one = new JsonObject();
@@ -183,7 +185,6 @@ public class AppReport extends HttpServlet {
                             String f = fields.get(ii);
                             String v = js.get(f).toString();
                             if (f.equals("country_code")) {
-                                HashMap<String, String> countryMap = Utils.getCountryMap();
                                 String countryName = countryMap.get(v);
                                 one.addProperty("country_name", countryName == null ? v : countryName);
                             } else if (f.equals("app_id")) {
@@ -206,20 +207,29 @@ public class AppReport extends HttpServlet {
                             appId = js.get("app_id");
                             if (appId == null) appId = "";
                             eventDate = js.get("date").toString();
-                            ShowNum showNum = showNumMap.get(eventDate + appId + countryCode);
+                            showNum = showNumMap.get(eventDate + appId + countryCode);
                             if (showNum == null) {
                                 one.addProperty("total_num", 0);
-                                one.addProperty("total_num_noready",0);
                                 one.addProperty("total_num_ready",0);
+                                one.addProperty("total_num_ready_div_total_num",0);
+                                one.addProperty("new_total_num", 0);
+                                one.addProperty("new_total_num_ready",0);
+                                one.addProperty("new_total_num_ready_div_new_total_num",0);
                             }else {
                                 one.addProperty("total_num", showNum.totalNum);
-                                one.addProperty("total_num_noready",showNum.totalNumNoReady);
                                 one.addProperty("total_num_ready",showNum.totalNumReady);
+                                one.addProperty("total_num_ready_div_total_num",showNum.totalNumReadyDivTotalNum);
+                                one.addProperty("new_total_num", showNum.newTotalNum);
+                                one.addProperty("new_total_num_ready",showNum.newTotalNumReady);
+                                one.addProperty("new_total_num_ready_div_new_total_num",showNum.newTotalNumReadyDivNewTotalNum);
                             }
-                        }else {
+                        } else {
                             one.addProperty("total_num", 0);
-                            one.addProperty("total_num_noready",0);
                             one.addProperty("total_num_ready",0);
+                            one.addProperty("total_num_ready_div_total_num",0);
+                            one.addProperty("new_total_num", 0);
+                            one.addProperty("new_total_num_ready",0);
+                            one.addProperty("new_total_num_ready_div_new_total_num",0);
                         }
 
 
@@ -233,7 +243,7 @@ public class AppReport extends HttpServlet {
                         long click = Utils.convertLong(js.get("ad_click"), 0);
 
                         one.addProperty("ecpm", impression > 0 ? Utils.trimDouble(revenue / impression * 1000) : 0);
-                        if(isShowTagEcpm){
+                        if (isShowTagEcpm) {
                             tagEcpm = js.get("tag_ecpm");//变现后台 配置的目标ECPM（展示满足ecpm条件的广告）
                             one.addProperty("tag_ecpm", null != tagEcpm ? tagEcpm.toString() : "");
                         }
@@ -408,12 +418,22 @@ public class AppReport extends HttpServlet {
         doPost(request, response);
     }
 
+    /**
+     * 获取广告展示机会数的Map
+     * key = date + (appId) + (countryCode)
+     * appId和countryCode根据情况可能为空
+     * @param startDate
+     * @param endDate
+     * @param appIds
+     * @param countryCodes
+     * @param fields
+     * @return
+     */
     private Map<String,ShowNum> fetchShowNumMap(String startDate,String endDate,String appIds,String countryCodes,ArrayList<String> fields){
         Map<String,ShowNum> map = new HashMap<>();
         String eventDate = "";
         String appId = "";
         String countryCode = "";
-        ShowNum showNum = null;
         String selectFiled = " aas.event_date";
         boolean existAppIds = false;
         boolean existCountryCodes = false;
@@ -421,23 +441,26 @@ public class AppReport extends HttpServlet {
         if (countryCodes != null && !countryCodes.isEmpty()) existCountryCodes = true;
         if (fields != null) {
             if (!fields.contains("date")) return map;
-            if (fields.contains("app_id") || existAppIds) {
+            if (fields.contains("app_id")) {
                 selectFiled += ",aas.app_id";
             }
-            if ((fields.contains("country_code") || existCountryCodes)) {
+            if (fields.contains("country_code")) {
                 selectFiled += ",aas.country_code";
             }
         }
         String sql = "SELECT " + selectFiled + ",\n" +
                 "SUM(aas.num) AS total_num,SUM(aas.num_ready) AS total_num_ready,\n" +
-                "SUM(aas.num_notready) AS total_notready\n" +
+                "SUM(CASE WHEN aas.installed_date = aas.event_date THEN num ELSE 0 END) AS new_num,\n"+
+                "SUM(CASE WHEN aas.installed_date = aas.event_date THEN num_ready ELSE 0 END) AS new_ready\n" +
                 "FROM app_ads_adchance_statistics aas\n" +
                 "WHERE aas.event_date between '" + startDate + "' AND '"+endDate + "'\n" +
                 (existAppIds ? "AND aas.app_id IN (" + appIds + ")\n" : "") +
                 (existCountryCodes ? "AND aas.country_code IN (" + countryCodes + ")\n" : "")
                 + " GROUP BY " + selectFiled;
+        List<JSObject> list = null;
+        ShowNum showNum = null;
         try {
-            List<JSObject> list = DB.findListBySql(sql);
+            list = DB.findListBySql(sql);
             for (int i = 0,len = list.size();i < len;i++) {
                 JSObject one = list.get(i);
                 if (one.hasObjectData()) {
@@ -448,8 +471,12 @@ public class AppReport extends HttpServlet {
                     if (countryCode == null) countryCode = "";
                     showNum = new ShowNum();
                     showNum.totalNum = NumberUtil.convertDouble(one.get("total_num"),0);
-                    showNum.totalNumNoReady = NumberUtil.convertDouble(one.get("total_notready"),0);
                     showNum.totalNumReady = NumberUtil.convertDouble(one.get("total_num_ready"),0);
+                    showNum.totalNumReadyDivTotalNum = showNum.totalNum > 0 ? NumberUtil.trimDouble(showNum.totalNumReady / showNum.totalNum,4) : 0;
+                    showNum.newTotalNum = NumberUtil.convertDouble(one.get("new_num"),0);
+                    showNum.newTotalNumReady = NumberUtil.convertDouble(one.get("new_ready"),0);
+                    showNum.newTotalNumReadyDivNewTotalNum = showNum.newTotalNum > 0 ? NumberUtil.trimDouble(showNum.newTotalNumReady / showNum.newTotalNum,4) : 0;
+                    //不管应用和国家哪个是空串，都只看selectField
                     map.put(eventDate + appId + countryCode,showNum);
                 }
             }
@@ -461,6 +488,9 @@ public class AppReport extends HttpServlet {
     private class ShowNum{
         public double totalNum;
         public double totalNumReady;
-        public double totalNumNoReady;
+        public double totalNumReadyDivTotalNum;
+        public double newTotalNum;
+        public double newTotalNumReady;
+        public double newTotalNumReadyDivNewTotalNum;
     }
 }
