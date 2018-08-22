@@ -28,9 +28,11 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                 JsonArray array = new JsonArray();
 
                 try {
-                    String sql = "select app_id,country_code, sum(user_num_nature) as user_num_nature, " +//自然量 用户数
-                            " sum(revenue_purchase) as user_num_purchase, " +//购买量 用户数
-                            " sum(revenue_total) as user_num_total, " +//新安装 总用户数
+                    String sql = "select app_id,country_code, " +
+                            " sum(user_num_nature) as user_num_nature, " +//自然量 用户数
+                            " sum(user_num_purchase) as user_num_purchase, " +//购买量 用户数
+                            " sum(user_num_total) as user_num_total, " +//新安装 总用户数
+                            " sum(user_num_sample) as user_num_sample, " +//新安装 sample样本用户数
                             " sum(revenue_nature) as revenue_nature, " +//自然量 收益
                             " sum(revenue_purchase) as revenue_purchase, " +//购买量 收益
                             " sum(revenue_total) as revenue_total " +//新安装 总收益
@@ -46,6 +48,7 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         double revenueNow = Utils.convertDouble(list.get(i).get("revenue_total"), 0); //当日新安装用户总收益
                         long natureUser = Utils.convertLong(list.get(i).get("user_num_nature"), 0);//自然量用户数
                         long purchaseUser = Utils.convertLong(list.get(i).get("user_num_purchase"), 0);//购买量用户数
+                        long sampleUser = Utils.convertLong(list.get(i).get("user_num_sample"), 0);//sample样本用户数
 
                         ResponseItem one = metricsMap.get(getKey(appId, countryCode));
                         if (one == null) {
@@ -57,6 +60,7 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         one.countryCode = countryCode;
                         one.natureUser = natureUser;//仅新安装用户时使用，与purchasedUser不同
                         one.purchaseUser = purchaseUser;//购买量用户数 //仅新安装用户时使用，与purchasedUser不同
+                        one.sampleUser = sampleUser; //sample样本用户数
                         one.natureRevenue = revenueNature;//自然量 用户收益
                         one.purchaseRevenue = revenuePurchase;//购买安装用户收益
                         one.nowRevenue = revenueNow;//当日 购买用户总收益
@@ -70,8 +74,8 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                     for (int i = 0; i < list.size(); i++) {
                         String appId = list.get(i).get("app_id");
                         String countryCode = list.get(i).get("country_code");
-                        double revenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0));
-                        double nowRevenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_new_revenue"), 0));
+                        double revenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0));//当日总收益：包含当日新安装用户和老用户
+                        double nowRevenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_new_revenue"), 0));//当日新安装用户收益
                         long impression = Utils.convertLong(list.get(i).get("ad_impression"), 0);
                         ResponseItem one = metricsMap.get(getKey(appId, countryCode));
                         if (one == null) {
@@ -206,12 +210,16 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
                         jsonObject.addProperty("active_user", one.activeUser);
                         jsonObject.addProperty("impression", one.impression);
                         jsonObject.addProperty("revenue", Utils.trimDouble(one.revenue));
+
+                        jsonObject.addProperty("newuser_sample", Utils.trimDouble(one.sampleUser));//sample样本用户数
+                        jsonObject.addProperty("newuser_total", Utils.trimDouble(one.natureUser + one.purchaseUser));//当日新安装总用户数
+
                         jsonObject.addProperty("nowRevenue", Utils.trimDouble(one.nowRevenue));//当日安装用户收益
                         jsonObject.addProperty("natureRevenue", Utils.trimDouble(one.natureRevenue));//自然量 用户收益
                         jsonObject.addProperty("purchaseRevenue", Utils.trimDouble(one.purchaseRevenue));//购买安装用户收益
-                        jsonObject.addProperty("new_user_impression",one.new_user_impression); //新用户展示
+                        jsonObject.addProperty("new_user_impression",one.new_user_impression); //新用户展示(sample样本)
                         jsonObject.addProperty("old_user_impression",one.old_user_impression); //旧用户展示
-                        jsonObject.addProperty("new_user_revenue",one.new_user_revenue); //新用户收入
+                        jsonObject.addProperty("new_user_revenue",one.new_user_revenue); //新用户收入(sample样本)
                         jsonObject.addProperty("old_user_revenue",one.old_user_revenue); //旧用户收入
 
                         double arpu = one.activeUser > 0 ? (float) (one.revenue / one.activeUser) : 0;
@@ -251,6 +259,8 @@ public class QueryCountryDailyMetrics extends HttpServlet {//admanager投放系�
         public long purchasedUser;
         public long purchaseUser;//仅新安装用户时使用，与purchasedUser不同
         public long natureUser;//仅新安装用户时使用，与purchasedUser不同
+        public long sampleUser;//仅新安装用户时使用，与purchasedUser不同；样本用户数
+
         public long installed;
         public long uninstalled;
         public long todayUninstalled;
