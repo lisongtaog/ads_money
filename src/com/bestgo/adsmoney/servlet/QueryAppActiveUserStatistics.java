@@ -211,7 +211,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
             //所有安装用户(安装日期后30天内) 在后续日期某一天的 展示次数（非新用户广告单元）
             String imressionAllEvent = "SELECT event_date"+country_query+",ad_unit_id,SUM(impressions) AS impressions " +
                     "FROM app_ads_impressions_statistics WHERE 1=1 " + subCondition.toString() +
-                    "AND event_date > installed_date AND event_date > '"+date+"' \n"
+                    "AND event_date >= installed_date AND event_date > '"+date+"' \n" //含 展示日期当天的，与收益（当天的）匹配
                     + adUnitCondition +
                     "GROUP BY event_date" + subGroupBy + ",ad_unit_id \n" +
                     "ORDER BY event_date ASC";
@@ -219,7 +219,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
             //变现数据，大于安装日期的 所有老用户的收益（广告单元flag为0）
             String eventRevenueSql = "SELECT date"+country_query+",ad_unit_id,SUM(ad_revenue) AS ad_revenue,SUM(ad_impression) AS ad_impression "
                     + "from app_ad_unit_metrics_history WHERE 1=1 "+ subCondition.toString() +
-                    " AND date < DATE(NOW()) AND date > '"+date+"' \n"
+                    " AND date < DATE(NOW()) AND date > '"+date+"' \n"//含 展示日期当天的 90%老广告单元，与收益（当天的）匹配
                     + adUnitCondition +
                     "GROUP BY date" + subGroupBy + ",ad_unit_id \n" +
                     "ORDER BY date ASC";
