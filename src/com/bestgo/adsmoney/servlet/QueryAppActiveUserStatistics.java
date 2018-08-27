@@ -120,8 +120,8 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                 firstImpression = sampleInstallNum > 0 ? sampleImpression * totalNewInstallNum / sampleInstallNum : 0 ;
                 firstImpression = Utils.trimDouble(firstImpression);
                 //当日ecpm 取：抽样用户ecpm
-                firstEcpm = sampleImpression > 0 ? sampleRenenue / sampleImpression * 1000 : 0;
-                firstEcpm = Utils.trimDouble(firstEcpm);
+                //firstEcpm = sampleImpression > 0 ? sampleRenenue / sampleImpression * 1000 : 0;
+                //firstEcpm = Utils.trimDouble(firstEcpm);
 
                 //首日所有用户的收益
                 if(null != revenueObj.get("ad_revenue") && !"".equals(revenueObj.get("ad_revenue"))){
@@ -132,6 +132,8 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                     firstTotalImpression = new BigDecimal(revenueObj.get("ad_impression").toString()).doubleValue();
                 }
                 avgECPM = firstTotalImpression > 0 ? firstTotalRevenue / firstTotalImpression * 1000 : 0;
+                //当日ecpm 取：平均ECPM
+                firstEcpm = Utils.trimDouble(avgECPM);
                 //首日收入方案1：firstRevenue = totalNewInstallNum * sampleAvgImpression * avgECPM / 1000 ; //或
                 //firstRevenue = sampleInstallNum > 0 ? totalNewInstallNum * avgECPM * sampleImpression / (1000 * sampleInstallNum) : 0 ;
                 //首日收入方案2：抽样用户收入 +  首日非抽样新用户数 * 抽样用户平均展示 * 平均ECPM /1000
@@ -418,7 +420,12 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                 sumRevenue += nowRevenue;//累计收入
 
                 //nowEcpm = nowImpression > 0 ? (revenueData.revenue / nowImpression * 1000) : 0;//当日ecpm = 当日总收益/firebase当日广告展示次数
-                ecpm = revenueData.impression > 0 ? (revenueData.revenue / revenueData.impression * 1000) : 0;//变现ecpm
+                //ecpm = revenueData.impression > 0 ? (revenueData.revenue / revenueData.impression * 1000) : 0;//变现ecpm
+                if(date.equals(eventDate)){//首日 ECPM取平均ecpm
+                    ecpm = firstEcpm ;
+                }else {
+                    ecpm = revenueData.impression > 0 ? (revenueData.revenue / revenueData.impression * 1000) : 0;//变现ecpm
+                }
 
 
                 item.add(Utils.trimDouble(ecpm));//adplatform当日ecpm = 当日变现收益 / 变现展示数
