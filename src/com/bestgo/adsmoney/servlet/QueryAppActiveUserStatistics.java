@@ -43,33 +43,51 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
             //购买安装的 花费、安装量
             String purchaseInstallSql = "SELECT SUM(spend) as purchase_cost,SUM(installed) as purchase_installed FROM app_ads_daily_metrics_history ";//购买安装量
             String allInstallSql = "SELECT SUM(installed) AS all_installed FROM app_firebase_daily_metrics_history ";//总安装量
-            String revenueSql = "SELECT sum(ad_revenue) as ad_revenue, sum(ad_impression) as ad_impression from app_ad_unit_metrics_history "
+
+            //首日 所有用户(含首日抽样用户、首日安装非抽样用户、老用户在当日的展示)收益、展示
+            String revenueSql = "SELECT sum(ad_revenue) as ad_revenue, sum(ad_impression) as ad_impression from app_ad_unit_metrics_history \n";
+            //首日 抽样用户收益、展示
+            String sampleRevenueSql = "SELECT sum(ad_revenue) as sample_revenue, sum(ad_impression) as sample_impression from app_ad_unit_metrics_history \n"
                     + " WHERE ad_unit_id IN (SELECT ad_unit_id from app_ad_unit_config WHERE flag = '1' AND app_id='"+appId+"') \n" ;
+            //抽样用户数量 样本sql
+            String sampleUserSql = "SELECT SUM(user_num_total) AS new_install_num,SUM(user_num_sample) AS sample_num FROM app_first_install_data \n";
 
             purchaseInstallSql += " where date ='"+date+"' ";
             allInstallSql += " where date ='"+date+"' ";
-            revenueSql += " AND date ='"+date+"' ";
+            revenueSql += " where date ='"+date+"' ";
+            sampleRevenueSql += " AND date ='"+date+"' ";
+            sampleUserSql += " where date ='"+date+"' ";
             if(!"all".equals(appId) && !appId.isEmpty()){
                 purchaseInstallSql += " and app_id ='"+appId+"' ";
                 allInstallSql += " and app_id ='"+appId+"' ";
                 revenueSql += " and app_id ='"+appId+"' ";
+                sampleRevenueSql += " and app_id ='"+appId+"' ";
+                sampleUserSql += " and app_id ='"+appId+"' ";
             }
             if(!"all".equals(countryCode) && !countryCode.isEmpty()){
                 purchaseInstallSql += " and country_code ='"+countryCode+"' ";
                 allInstallSql += " and country_code ='"+countryCode+"' ";
                 revenueSql += " and country_code ='"+countryCode+"' ";
+                sampleRevenueSql += " and country_code ='"+countryCode+"' ";
+                sampleUserSql += " and country_code ='"+countryCode+"' ";
             }
 
             JSObject versionObj = DB.findOneBySql(appVersionSql);//app版本信息
             JSObject obj = DB.findOneBySql(purchaseInstallSql);//购买安装量
             JSObject obj2 = DB.findOneBySql(allInstallSql);//总安装量
-            JSObject revenueObj = DB.findOneBySql(revenueSql);//首日收益数据
+            JSObject revenueObj = DB.findOneBySql(revenueSql);//首日所有用户收益数据
+            JSObject sampleRevenueObj = DB.findOneBySql(sampleRevenueSql);//首日抽样用户收益数据
+            JSObject sampleUserObj = DB.findOneBySql(sampleUserSql);//首日新用户 样本数据
 
             JsonObject summary = new JsonObject();//表头 通用汇总信息
             double allInstalled = 0,firstRevenue = 0,firstImpression = 0,firstEcpm = 0;
             String appVersion = "";
             try {
                 double purchaseCost=0,purchaseInstalled=0;
+                double totalNewInstallNum=0,sampleInstallNum=0;//首日新安装总用户数；首日新安装抽样用户数
+                double sampleRenenue=0,sampleImpression = 0,sampleAvgImpression;//抽样用户：收益、 展示数、抽样用户平均展示
+                double firstTotalRevenue=0,firstTotalImpression=0;//所有用户在首日的 收益、展示
+                double avgECPM = 0;//平均ECPM = 所有用户收益/所有用户展示 * 1000
                 if(obj.get("purchase_installed") != null && !"".equals(obj.get("purchase_installed"))){
                     //purchaseInstalled = Utils.parseInt(obj.get("purchase_installed"),0);
                     purchaseCost = Utils.trimDouble(new BigDecimal(obj.get("purchase_cost").toString()).doubleValue());
@@ -79,15 +97,48 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                     //allInstalled = Utils.parseInt(obj.get("all_installed"),0);
                     allInstalled = new BigDecimal(obj2.get("all_installed").toString()).doubleValue();
                 }
+                //首日新安装总用户数
+                if(null != sampleUserObj.get("new_install_num") && !"".equals(sampleUserObj.get("new_install_num"))){
+                    totalNewInstallNum = Utils.trimDouble(new BigDecimal(sampleUserObj.get("new_install_num").toString()).doubleValue());
+                }
+                //首日新安装抽样用户数
+                if(null != sampleUserObj.get("sample_num") && !"".equals(sampleUserObj.get("sample_num"))){
+                    sampleInstallNum = Utils.trimDouble(new BigDecimal(sampleUserObj.get("sample_num").toString()).doubleValue());
+                }
+                //抽样用户收益
+                if(null != sampleRevenueObj.get("sample_revenue") && !"".equals(sampleRevenueObj.get("sample_revenue"))){
+                    sampleRenenue = Utils.trimDouble(new BigDecimal(sampleRevenueObj.get("sample_revenue").toString()).doubleValue());
+                }
+                //抽样用户展示
+                if(null != sampleRevenueObj.get("sample_impression") && !"".equals(sampleRevenueObj.get("sample_impression"))){
+                    sampleImpression = new BigDecimal(sampleRevenueObj.get("sample_impression").toString()).doubleValue();
+                }
+                //抽样用户 平均展示
+                sampleAvgImpression = sampleInstallNum > 0 ? sampleImpression / sampleInstallNum : 0 ;
 
+                //根据抽样用户 估算：首日所有新用户 广告展示数（抽样展示 * 总新安装用户 / 抽样用户数）
+                firstImpression = sampleInstallNum > 0 ? sampleImpression * totalNewInstallNum / sampleInstallNum : 0 ;
+                firstImpression = Utils.trimDouble(firstImpression);
+                //当日ecpm 取：抽样用户ecpm
+                //firstEcpm = sampleImpression > 0 ? sampleRenenue / sampleImpression * 1000 : 0;
+                //firstEcpm = Utils.trimDouble(firstEcpm);
+
+                //首日所有用户的收益
                 if(null != revenueObj.get("ad_revenue") && !"".equals(revenueObj.get("ad_revenue"))){
-                    firstRevenue = Utils.trimDouble(new BigDecimal(revenueObj.get("ad_revenue").toString()).doubleValue());
+                    firstTotalRevenue = Utils.trimDouble(new BigDecimal(revenueObj.get("ad_revenue").toString()).doubleValue());
                 }
+                //首日所有用户的展示
                 if(null != revenueObj.get("ad_impression") && !"".equals(revenueObj.get("ad_impression"))){
-                    firstImpression = new BigDecimal(revenueObj.get("ad_impression").toString()).doubleValue();
-                    firstEcpm = firstImpression > 0 ? firstRevenue / firstImpression * 1000 : 0;
-                    firstEcpm = Utils.trimDouble(firstEcpm);
+                    firstTotalImpression = new BigDecimal(revenueObj.get("ad_impression").toString()).doubleValue();
                 }
+                avgECPM = firstTotalImpression > 0 ? firstTotalRevenue / firstTotalImpression * 1000 : 0;
+                //当日ecpm 取：平均ECPM
+                firstEcpm = Utils.trimDouble(avgECPM);
+                //首日收入方案1：firstRevenue = totalNewInstallNum * sampleAvgImpression * avgECPM / 1000 ; //或
+                //firstRevenue = sampleInstallNum > 0 ? totalNewInstallNum * avgECPM * sampleImpression / (1000 * sampleInstallNum) : 0 ;
+                //首日收入方案2：抽样用户收入 +  首日非抽样新用户数 * 抽样用户平均展示 * 平均ECPM /1000
+                firstRevenue = sampleRenenue + (totalNewInstallNum - sampleInstallNum) * sampleAvgImpression * avgECPM / 1000 ;
+                firstRevenue = Utils.trimDouble(firstRevenue);
 
                 if(null != versionObj.get("app_version") && !"".equals(versionObj.get("app_version"))){
                     appVersion = versionObj.get("app_version");
@@ -160,7 +211,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
             //所有安装用户(安装日期后30天内) 在后续日期某一天的 展示次数（非新用户广告单元）
             String imressionAllEvent = "SELECT event_date"+country_query+",ad_unit_id,SUM(impressions) AS impressions " +
                     "FROM app_ads_impressions_statistics WHERE 1=1 " + subCondition.toString() +
-                    "AND event_date > installed_date AND event_date > '"+date+"' \n"
+                    "AND event_date >= installed_date AND event_date > '"+date+"' \n" //含 展示日期当天的，与收益（当天的）匹配
                     + adUnitCondition +
                     "GROUP BY event_date" + subGroupBy + ",ad_unit_id \n" +
                     "ORDER BY event_date ASC";
@@ -168,7 +219,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
             //变现数据，大于安装日期的 所有老用户的收益（广告单元flag为0）
             String eventRevenueSql = "SELECT date"+country_query+",ad_unit_id,SUM(ad_revenue) AS ad_revenue,SUM(ad_impression) AS ad_impression "
                     + "from app_ad_unit_metrics_history WHERE 1=1 "+ subCondition.toString() +
-                    " AND date < DATE(NOW()) AND date > '"+date+"' \n"
+                    " AND date < DATE(NOW()) AND date > '"+date+"' \n"//含 展示日期当天的 90%老广告单元，与收益（当天的）匹配
                     + adUnitCondition +
                     "GROUP BY date" + subGroupBy + ",ad_unit_id \n" +
                     "ORDER BY date ASC";
@@ -177,9 +228,9 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
             Map<String,Double> impressionAllEventMap = new HashMap<String,Double>();//所有用户的 广告展示次数
             Map<String,RevenueData> eventRevenueMap = new LinkedHashMap<String,RevenueData>();//收益-列表(用于存取当日收入)
 
-            List<JSObject> impressionEventList = DB.findListBySql(imressionEvent);
-            List<JSObject> impressionAllEventList = DB.findListBySql(imressionAllEvent);
-            List<JSObject> eventRevenueList = DB.findListBySql(eventRevenueSql);
+            List<JSObject> impressionEventList = DB.findListBySql(imressionEvent);//首日安装用户 在后续日期某一天的 展示次数（非新用户广告单元）
+            List<JSObject> impressionAllEventList = DB.findListBySql(imressionAllEvent);//所有安装用户(安装日期后30天内) 在后续日期某一天的 展示次数（非新用户广告单元）
+            List<JSObject> eventRevenueList = DB.findListBySql(eventRevenueSql);//变现数据，大于安装日期的 所有老用户的收益（广告单元flag为0）
 
             String eventDate = null,adUnitId=null,key = null;
             JSObject tmp = null;double impr = 0D;
@@ -369,7 +420,12 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                 sumRevenue += nowRevenue;//累计收入
 
                 //nowEcpm = nowImpression > 0 ? (revenueData.revenue / nowImpression * 1000) : 0;//当日ecpm = 当日总收益/firebase当日广告展示次数
-                ecpm = revenueData.impression > 0 ? (revenueData.revenue / revenueData.impression * 1000) : 0;//变现ecpm
+                //ecpm = revenueData.impression > 0 ? (revenueData.revenue / revenueData.impression * 1000) : 0;//变现ecpm
+                if(date.equals(eventDate)){//首日 ECPM取平均ecpm
+                    ecpm = firstEcpm ;
+                }else {
+                    ecpm = revenueData.impression > 0 ? (revenueData.revenue / revenueData.impression * 1000) : 0;//变现ecpm
+                }
 
 
                 item.add(Utils.trimDouble(ecpm));//adplatform当日ecpm = 当日变现收益 / 变现展示数
