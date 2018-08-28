@@ -168,7 +168,7 @@ public class AppReport extends HttpServlet {
                     sql += " limit " + index * size + "," + size;
                     List<JSObject> list = DB.findListBySql(sql);
                     Map<String,ShowNum> showNumMap = null;
-                    if (!fields.contains("ad_unit_id")) { //只有在没有AdUnit的时候才展示
+                    if (!fields.contains("ad_unit_id") && fields.contains("date")) { //只有在没有AdUnit并且有date字段的时候才展示
                         showNumMap = fetchShowNumMap(startDate,endDate,appIdsStr,countryCodesStr,fields);
                     }
                     Object tagEcpm = null;
