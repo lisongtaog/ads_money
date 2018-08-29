@@ -26,6 +26,7 @@ public class AppTrend extends HttpServlet {
         JsonObject json = new JsonObject();
 
         if (path != null) {
+            //get对应的是折线图，query对应的是table
             if (path.startsWith("/query") || path.equals("/get")) {
                 HashMap<Date, AppMonitorMetrics> metricsMap = new HashMap<>();
                 ArrayList<AppMonitorMetrics> tmpDataList = new ArrayList<>();
@@ -76,6 +77,7 @@ public class AppTrend extends HttpServlet {
                 }
 
                 try {
+                    //app_daily_metrics_history表得到安装日期应用国家维度的总收入，总展示
                     String sql = "select date, sum(ad_revenue) as ad_revenue, sum(ad_impression) as ad_impression " +
                             "from app_daily_metrics_history " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
@@ -121,6 +123,7 @@ public class AppTrend extends HttpServlet {
                         one.ecpm = impression > 0 ? revenue / impression : 0;
                     }
 
+                    //app_firebase_daily_metrics_history得到安装日期应用国家维度的总安装、总卸载、总用户数、总活跃用户数
                     sql = "select date, sum(installed) as total_installed, sum(uninstalled) as total_uninstalled, sum(today_uninstalled) as today_uninstalled, sum(total_user) as total_user, sum(active_user) as active_user " +
                             "from app_firebase_daily_metrics_history " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
@@ -172,6 +175,7 @@ public class AppTrend extends HttpServlet {
                         one.uninstallRate = one.totalInstalled > 0 ? (one.todayUninstalled * 1.0f / one.totalInstalled) : 0;
                     }
 
+                    //app_user_life_time_history表，得到安装日期应用国家维度的预估收入
                     sql = "select install_date, sum(estimated_revenue) as estimated_revenue " +
                             "from app_user_life_time_history " +
                             "where install_date between '" + startDate + "' and '" + endDate + "' ";
@@ -211,7 +215,7 @@ public class AppTrend extends HttpServlet {
                         one.date = date;
                         one.estimatedRevenue = estimatedRevenue;
                     }
-
+                    //app_ads_daily_metrics_history表，得到安装日期应用国家维度的总花费、总购买用户数
                     sql = "select date, sum(spend) as cost, sum(installed) as purchasedUser " +
                             "from app_ads_daily_metrics_history " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
@@ -447,6 +451,13 @@ public class AppTrend extends HttpServlet {
         doPost(request, response);
     }
 
+    /**
+     * 获取最近的ARPU
+     * @param date
+     * @param appIds
+     * @param countryCodes
+     * @return
+     */
     private double fetchNearbyARPU(String date, ArrayList<String> appIds, ArrayList<String> countryCodes) {
         try {
             String sqlPart = "";
@@ -473,12 +484,14 @@ public class AppTrend extends HttpServlet {
                 sqlPart += " and country_code in (" + ss + ")";
             }
 
+            //在app_user_life_time_history表中找到它的最近日期
             String sql = "select max(install_date) as target_date from app_user_life_time_history where install_date<? " + sqlPart;
             JSObject one = DB.findOneBySql(sql, date);
             if (one.hasObjectData()) {
                 Date targetDate = one.get("target_date");
 
                 long activeCount = 0;
+                //在app_user_life_time_history表中根据安装日期+最近日期，找到应用国家维度的总活跃数
                 sql = "select sum(active_count) as active_count " +
                         "from app_user_life_time_history " +
                         "where install_date=? and active_date=? " + sqlPart;
@@ -486,12 +499,14 @@ public class AppTrend extends HttpServlet {
                 if (one.hasObjectData()) {
                     activeCount = Utils.convertLong(one.get("active_count"), 0);
                 }
+                //在app_user_life_time_history表中根据安装日期，找到应用国家维度的总预估收入
                 sql = "select sum(estimated_revenue) as estimated_revenue " +
                         "from app_user_life_time_history " +
                         "where install_date=? " + sqlPart;
                 one = DB.findOneBySql(sql, targetDate);
                 if (one.hasObjectData()) {
                     double estimatedRevenue = Utils.convertDouble(one.get("estimated_revenue"), 0);
+                    //arpu=预估收入/活跃数
                     return estimatedRevenue / activeCount;
                 }
             }
