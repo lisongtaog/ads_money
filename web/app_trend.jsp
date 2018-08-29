@@ -159,7 +159,7 @@
             </div>
             <!-- /.row -->
 
-            <div class="row">
+            <%--<div class="row">
                 <div class="col-md-12">
                     <div class="box">
                         <div class="box-header with-border">
@@ -196,7 +196,7 @@
                     <!-- /.box -->
                 </div>
                 <!-- /.col -->
-            </div>
+            </div>--%>
 
             <div class="box box-default">
                 <div class="box-header with-border">
@@ -223,6 +223,7 @@
                             <th>ARPUTrend</th>
                             <th>CPA</th>
                             <th>ECPM</th>
+                            <th>CPA/ECPM</th>
                             <th>Incoming</th>
                             <th>LTV</th>
                         </tr>
@@ -316,6 +317,7 @@
             { data: 'arpu_trend' },
             { data: 'cpa' },
             { data: 'ecpm' },
+            { data: 'cpa_div_ecpm' },
             { data: 'incoming' },
             { data: 'estimated_revenue' },
         ];
@@ -368,7 +370,7 @@
             }],
         });
 
-        $.post("/app_trend/get", {
+/*        $.post("/app_trend/get", {
             filter: filter.join(","),
             filterCountry: filterCountry.join(","),
             period: period,
@@ -474,7 +476,7 @@
                 }
             } else {
             }
-        }, "json");
+        }, "json");*/
     }
 </script>
 </body>
