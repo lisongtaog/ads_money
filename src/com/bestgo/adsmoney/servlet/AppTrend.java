@@ -1,5 +1,6 @@
 package com.bestgo.adsmoney.servlet;
 
+import com.bestgo.adsmoney.utils.NumberUtil;
 import com.bestgo.adsmoney.utils.Utils;
 import com.bestgo.adsmoney.bean.AppMonitorMetrics;
 import com.bestgo.common.database.services.DB;
@@ -401,34 +402,40 @@ public class AppTrend extends HttpServlet {
                         index = 0;
                         size = resultList.size();
                     }
+                    double cpaDivEcpm = 0.0;
+                    AppMonitorMetrics appMonitorMetrics = null;
                     for (int i = index * size; i < resultList.size() && i < (index * size + size); i++) {
+                        appMonitorMetrics = resultList.get(i);
                         JsonObject jsonObject = new JsonObject();
                         if (path.equals("/get")) {
-                            jsonObject.addProperty("date", resultList.get(i).date.getTime());
+                            jsonObject.addProperty("date", appMonitorMetrics.date.getTime());
                         } else {
-                            jsonObject.addProperty("date", resultList.get(i).date.toString());
+                            jsonObject.addProperty("date", appMonitorMetrics.date.toString());
                         }
-                        jsonObject.addProperty("cost", Utils.trimDouble(resultList.get(i).cost));
-                        jsonObject.addProperty("purchased_user", resultList.get(i).purchasedUser);
-                        jsonObject.addProperty("recommend_impression", resultList.get(i).recommendImpression);
-                        jsonObject.addProperty("recommend_click", resultList.get(i).recommendClick);
-                        jsonObject.addProperty("recommend_installed", resultList.get(i).recommendInstalled);
-                        jsonObject.addProperty("total_installed", resultList.get(i).totalInstalled);
-                        jsonObject.addProperty("total_user", resultList.get(i).totalUser);
-                        jsonObject.addProperty("total_user_trend", resultList.get(i).totalUserTrend);
-                        jsonObject.addProperty("active_user", resultList.get(i).activeUser);
-                        jsonObject.addProperty("active_user_trend", resultList.get(i).activeUserTrend);
-                        jsonObject.addProperty("revenue", Utils.trimDouble(resultList.get(i).revenue));
-                        jsonObject.addProperty("revenue_trend", resultList.get(i).revenueTrend);
-                        jsonObject.addProperty("arpu", Utils.trimDouble(resultList.get(i).arpu * 10000));
-                        jsonObject.addProperty("arpu_trend", resultList.get(i).arpuTrend);
+                        jsonObject.addProperty("cost", NumberUtil.trimDouble(appMonitorMetrics.cost,3));
+                        jsonObject.addProperty("purchased_user", appMonitorMetrics.purchasedUser);
+                        jsonObject.addProperty("recommend_impression", appMonitorMetrics.recommendImpression);
+                        jsonObject.addProperty("recommend_click", appMonitorMetrics.recommendClick);
+                        jsonObject.addProperty("recommend_installed", appMonitorMetrics.recommendInstalled);
+                        jsonObject.addProperty("total_installed",appMonitorMetrics.totalInstalled);
+                        jsonObject.addProperty("total_user", appMonitorMetrics.totalUser);
+                        jsonObject.addProperty("total_user_trend", appMonitorMetrics.totalUserTrend);
+                        jsonObject.addProperty("active_user", appMonitorMetrics.activeUser);
+                        jsonObject.addProperty("active_user_trend", appMonitorMetrics.activeUserTrend);
+                        jsonObject.addProperty("revenue", NumberUtil.trimDouble(appMonitorMetrics.revenue,3));
+                        jsonObject.addProperty("revenue_trend", appMonitorMetrics.revenueTrend);
+                        jsonObject.addProperty("arpu", NumberUtil.trimDouble(appMonitorMetrics.arpu * 10000,3));
+                        jsonObject.addProperty("arpu_trend", appMonitorMetrics.arpuTrend);
 
-                        jsonObject.addProperty("total_uninstalled", resultList.get(i).totalUninstalled);
-                        jsonObject.addProperty("uninstalled_rate", resultList.get(i).uninstallRate);
-                        jsonObject.addProperty("cpa", Utils.trimDouble(resultList.get(i).cpa));
-                        jsonObject.addProperty("ecpm", Utils.trimDouble(resultList.get(i).ecpm * 1000));
-                        jsonObject.addProperty("incoming", Utils.trimDouble(resultList.get(i).incoming));
-                        jsonObject.addProperty("estimated_revenue", Utils.trimDouble(resultList.get(i).estimatedRevenue));
+                        jsonObject.addProperty("total_uninstalled", appMonitorMetrics.totalUninstalled);
+                        jsonObject.addProperty("uninstalled_rate", NumberUtil.trimDouble(appMonitorMetrics.uninstallRate,3));
+                        jsonObject.addProperty("cpa", NumberUtil.trimDouble(appMonitorMetrics.cpa,3));
+                        //ecpm = 总收入/总展示*1000，所以这里要乘以1000
+                        jsonObject.addProperty("ecpm", NumberUtil.trimDouble(appMonitorMetrics.ecpm * 1000,3));
+                        cpaDivEcpm = appMonitorMetrics.ecpm > 0 ? appMonitorMetrics.cpa / appMonitorMetrics.ecpm / 1000 : 0;
+                        jsonObject.addProperty("cpa_div_ecpm", NumberUtil.trimDouble(cpaDivEcpm,3));
+                        jsonObject.addProperty("incoming", NumberUtil.trimDouble(appMonitorMetrics.incoming,3));
+                        jsonObject.addProperty("estimated_revenue", NumberUtil.trimDouble(appMonitorMetrics.estimatedRevenue,3));
 
                         array.add(jsonObject);
                     }
