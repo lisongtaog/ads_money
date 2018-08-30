@@ -76,8 +76,9 @@ public class AppTrend2 extends HttpServlet {
                     if (countryCode.isEmpty()) continue;
                     countryCodes.add(countryCode);
                 }
-                String appIdPart = "";
+                String appIdPart = null;
                 if (appIds.size() > 0) {
+                    appIdPart = " AND app_id in (";
                     for (int i = 0; i < appIds.size(); i++) {
                         if (i < appIds.size() - 1) {
                             appIdPart += "'" + appIds.get(i) + "',";
@@ -85,9 +86,11 @@ public class AppTrend2 extends HttpServlet {
                             appIdPart += "'" + appIds.get(i) + "'";
                         }
                     }
+                    appIdPart += ") ";
                 }
-                String countryCodePart = "";
+                String countryCodePart = null;
                 if (countryCodes.size() > 0) {
+                    countryCodePart = " AND country_code in (";
                     for (int i = 0; i < countryCodes.size(); i++) {
                         if (i < countryCodes.size() - 1) {
                             countryCodePart += "'" + countryCodes.get(i) + "',";
@@ -95,6 +98,7 @@ public class AppTrend2 extends HttpServlet {
                             countryCodePart += "'" + countryCodes.get(i) + "'";
                         }
                     }
+                    countryCodePart += ") ";
                 }
 
                 try {
@@ -102,16 +106,14 @@ public class AppTrend2 extends HttpServlet {
                     AppMonitorMetrics one = null;
 
                     //app_daily_metrics_history表得到安装日期应用国家维度的总收入，总展示
-                    String sql = "select date, sum(ad_revenue) as ad_revenue, sum(ad_impression) as ad_impression " +
-                            "from app_daily_metrics_history " +
-                            "where date between '" + startDate + "' and '" + endDate + "' ";
-                    if (appIds.size() > 0) {
-                        sql += " and app_id in (" + appIdPart + ")";
-                    }
-                    if (countryCodes.size() > 0) {
-                        sql += " and country_code in (" + countryCodePart + ")";
-                    }
-                    sql += " group by date order by date desc";
+                    String sql = "select date, sum(ad_revenue) as ad_revenue, \n" +
+                            "sum(ad_impression) as ad_impression\n" +
+                            "from app_daily_metrics_history\n" +
+                            "where date between '" + startDate + "' and '" + endDate + "' \n" +
+                            (appIds.size() > 0 ?  appIdPart : "") +
+                            (countryCodes.size() > 0 ?  countryCodePart : "") +
+                            "GROUP BY date\n" ;
+//                            "ORDER BY date DESC";
 
                     List<JSObject> list = DB.findListBySql(sql);
 
@@ -132,16 +134,16 @@ public class AppTrend2 extends HttpServlet {
                     }
 
                     //app_firebase_daily_metrics_history得到安装日期应用国家维度的总安装、总卸载、总用户数、总活跃用户数
-                    sql = "select date, sum(installed) as total_installed, sum(uninstalled) as total_uninstalled, sum(today_uninstalled) as today_uninstalled, sum(total_user) as total_user, sum(active_user) as active_user " +
-                            "from app_firebase_daily_metrics_history " +
-                            "where date between '" + startDate + "' and '" + endDate + "' ";
-                    if (appIds.size() > 0) {
-                        sql += " and app_id in (" + appIdPart + ")";
-                    }
-                    if (countryCodes.size() > 0) {
-                        sql += " and country_code in (" + countryCodePart + ")";
-                    }
-                    sql += " group by date order by date desc";
+                    sql = "SELECT date, sum(installed) as total_installed, \n" +
+                            "sum(uninstalled) as total_uninstalled, \n" +
+                            "sum(today_uninstalled) as today_uninstalled, \n" +
+                            "sum(total_user) as total_user, \n" +
+                            "sum(active_user) as active_user\n" +
+                            "FROM app_firebase_daily_metrics_history\n" +
+                            "WHERE date between '" + startDate + "' and '" + endDate + "'\n" +
+                            (appIds.size() > 0 ?  appIdPart : "") +
+                            (countryCodes.size() > 0 ?  countryCodePart : "") +
+                            "GROUP BY date";
                     list = DB.findListBySql(sql);
 
                     for (int i = 0; i < list.size(); i++) {
@@ -171,10 +173,10 @@ public class AppTrend2 extends HttpServlet {
                     sql = "SELECT installed_date,SUM(impressions) AS sum_impressions \n" +
                             "FROM app_ads_impressions_statistics\n" +
                             "WHERE installed_date BETWEEN '" + startDate + "' AND '" + endDate + "' " +
-                            (appIds.size() > 0 ? " and app_id in (" + appIdPart + ")" : "") +
-                            (countryCodes.size() > 0 ? " and country_code in (" + countryCodePart + ")" : "") +
                             "AND event_date BETWEEN installed_date AND '" + endDate + "'\n" +
-                            "GROUP BY installed_date ORDER BY installed_date DESC";
+                            (appIds.size() > 0 ?  appIdPart : "") +
+                            (countryCodes.size() > 0 ?  countryCodePart : "") +
+                            "GROUP BY installed_date";
                     list = DB.findListBySql(sql);
 
                     for (int i = 0; i < list.size(); i++) {
@@ -192,16 +194,12 @@ public class AppTrend2 extends HttpServlet {
                     }
 
                     //app_user_life_time_history表，得到安装日期应用国家维度的预估收入
-                    sql = "select install_date, sum(estimated_revenue) as estimated_revenue " +
-                            "from app_user_life_time_history " +
-                            "where install_date between '" + startDate + "' and '" + endDate + "' ";
-                    if (appIds.size() > 0) {
-                        sql += " and app_id in (" + appIdPart + ")";
-                    }
-                    if (countryCodes.size() > 0) {
-                        sql += " and country_code in (" + countryCodePart + ")";
-                    }
-                    sql += " group by install_date order by install_date desc";
+                    sql = "select install_date, sum(estimated_revenue) as estimated_revenue\n" +
+                            "from app_user_life_time_history\n" +
+                            "where install_date between '" + startDate + "' and '" + endDate + "' \n" +
+                            (appIds.size() > 0 ?  appIdPart : "") +
+                            (countryCodes.size() > 0 ?  countryCodePart : "") +
+                            "GROUP BY install_date";
                     list = DB.findListBySql(sql);
                     for (int i = 0; i < list.size(); i++) {
                         Date date = list.get(i).get("install_date");
@@ -216,16 +214,12 @@ public class AppTrend2 extends HttpServlet {
                         one.estimatedRevenue = estimatedRevenue;
                     }
                     //app_ads_daily_metrics_history表，得到安装日期应用国家维度的总花费、总购买用户数
-                    sql = "select date, sum(spend) as cost, sum(installed) as purchasedUser " +
-                            "from app_ads_daily_metrics_history " +
-                            "where date between '" + startDate + "' and '" + endDate + "' ";
-                    if (appIds.size() > 0) {
-                        sql += " and app_id in (" + appIdPart + ")";
-                    }
-                    if (countryCodes.size() > 0) {
-                        sql += " and country_code in (" + countryCodePart + ")";
-                    }
-                    sql += " group by date order by date desc";
+                    sql = "select date, sum(spend) as cost, sum(installed) as purchasedUser\n" +
+                            "from app_ads_daily_metrics_history\n" +
+                            "where date between '" + startDate + "' and '" + endDate + "' \n" +
+                            (appIds.size() > 0 ?  appIdPart : "") +
+                            (countryCodes.size() > 0 ?  countryCodePart : "") +
+                            "GROUP BY date";
                     list = DB.findListBySql(sql);
 
                     for (int i = 0; i < list.size(); i++) {
