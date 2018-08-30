@@ -78,24 +78,24 @@ public class AppTrend extends HttpServlet {
                 }
                 String appIdPart = null;
                 if (appIds.size() > 0) {
-                    appIdPart = " AND app_id in (";
-                    for (int i = 0; i < appIds.size(); i++) {
-                        if (i < appIds.size() - 1) {
-                            appIdPart += "'" + appIds.get(i) + "',";
+                    appIdPart = " AND (";
+                    for (int i = 0,len = appIds.size(); i < len; i++) {
+                        if (i < len - 1) {
+                            appIdPart += " app_id = '" + appIds.get(i) + "' OR ";
                         } else {
-                            appIdPart += "'" + appIds.get(i) + "'";
+                            appIdPart += " app_id = '" + appIds.get(i) + "' ";
                         }
                     }
                     appIdPart += ") ";
                 }
                 String countryCodePart = null;
                 if (countryCodes.size() > 0) {
-                    countryCodePart = " AND country_code in (";
-                    for (int i = 0; i < countryCodes.size(); i++) {
-                        if (i < countryCodes.size() - 1) {
-                            countryCodePart += "'" + countryCodes.get(i) + "',";
+                    countryCodePart = " AND (";
+                    for (int i = 0,len = countryCodes.size(); i < len; i++) {
+                        if (i < len - 1) {
+                            countryCodePart += " country_code = '" + countryCodes.get(i) + "' OR ";
                         } else {
-                            countryCodePart += "'" + countryCodes.get(i) + "'";
+                            countryCodePart += " country_code = '" + countryCodes.get(i) + "' ";
                         }
                     }
                     countryCodePart += ") ";
@@ -172,9 +172,9 @@ public class AppTrend extends HttpServlet {
                     sql = "SELECT installed_date,SUM(impressions) AS sum_impressions \n" +
                             "FROM app_ads_impressions_statistics\n" +
                             "WHERE installed_date BETWEEN '" + startDate + "' AND '" + endDate + "' " +
-                            "AND event_date BETWEEN installed_date AND '" + endDate + "'\n" +
                             (appIds.size() > 0 ?  appIdPart : "") +
                             (countryCodes.size() > 0 ?  countryCodePart : "") +
+                            "AND event_date BETWEEN installed_date AND '" + endDate + "'\n" +
                             "GROUP BY installed_date";
                     list = DB.findListBySql(sql);
 
