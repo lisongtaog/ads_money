@@ -159,7 +159,7 @@
             </div>
             <!-- /.row -->
 
-            <div class="row">
+            <%--<div class="row">
                 <div class="col-md-12">
                     <div class="box">
                         <div class="box-header with-border">
@@ -196,7 +196,7 @@
                     <!-- /.box -->
                 </div>
                 <!-- /.col -->
-            </div>
+            </div>--%>
 
             <div class="box box-default">
                 <div class="box-header with-border">
@@ -223,6 +223,8 @@
                             <th>ARPUTrend</th>
                             <th>CPA</th>
                             <th>ECPM</th>
+                            <th>CPA/ECPM</th>
+                            <th>AvgSumImpression</th>
                             <th>Incoming</th>
                             <th>LTV</th>
                         </tr>
@@ -289,7 +291,7 @@
         queryData();
     });
 
-    queryData();
+//    queryData();
 
     var revenueChart;
 
@@ -316,6 +318,8 @@
             { data: 'arpu_trend' },
             { data: 'cpa' },
             { data: 'ecpm' },
+            { data: 'cpa_div_ecpm' },
+            { data: 'avg_sum_impression' },
             { data: 'incoming' },
             { data: 'estimated_revenue' },
         ];
@@ -339,7 +343,7 @@
                 postData.period = period;
                 postData.page_index = data.start / data.length;
                 postData.page_size = data.length;
-                $.post("app_trend/query", postData, function (data) {
+                $.post("app_trend2/query", postData, function (data) {
                     if (data && data.ret == 1) {
                         var list = [];
                         for (var i = 0; i < data.data.length; i++) {
@@ -368,7 +372,7 @@
             }],
         });
 
-        $.post("/app_trend/get", {
+/*        $.post("/app_trend/get", {
             filter: filter.join(","),
             filterCountry: filterCountry.join(","),
             period: period,
@@ -474,7 +478,7 @@
                 }
             } else {
             }
-        }, "json");
+        }, "json");*/
     }
 </script>
 </body>

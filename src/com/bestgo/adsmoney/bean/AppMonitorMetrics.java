@@ -29,6 +29,6 @@ public class AppMonitorMetrics {
     public long recommendImpression;
     public long recommendClick;
     public long recommendInstalled;
-    public double avgSumImpression; //平均累计展示数
+    public double avgSumImpression;
     public double cpaDivEcpm;
 }
