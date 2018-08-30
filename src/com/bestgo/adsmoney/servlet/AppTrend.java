@@ -76,8 +76,9 @@ public class AppTrend extends HttpServlet {
                     if (countryCode.isEmpty()) continue;
                     countryCodes.add(countryCode);
                 }
-                String appIdPart = "";
+                String appIdPart = null;
                 if (appIds.size() > 0) {
+                    appIdPart = " AND app_id in (";
                     for (int i = 0; i < appIds.size(); i++) {
                         if (i < appIds.size() - 1) {
                             appIdPart += "'" + appIds.get(i) + "',";
@@ -85,9 +86,11 @@ public class AppTrend extends HttpServlet {
                             appIdPart += "'" + appIds.get(i) + "'";
                         }
                     }
+                    appIdPart += ") ";
                 }
-                String countryCodePart = "";
+                String countryCodePart = null;
                 if (countryCodes.size() > 0) {
+                    countryCodePart = " AND country_code in (";
                     for (int i = 0; i < countryCodes.size(); i++) {
                         if (i < countryCodes.size() - 1) {
                             countryCodePart += "'" + countryCodes.get(i) + "',";
@@ -95,20 +98,21 @@ public class AppTrend extends HttpServlet {
                             countryCodePart += "'" + countryCodes.get(i) + "'";
                         }
                     }
+                    countryCodePart += ") ";
                 }
 
                 try {
+                    JSObject js = null;
+                    AppMonitorMetrics one = null;
+
                     //app_daily_metrics_history表得到安装日期应用国家维度的总收入，总展示
-                    String sql = "select date, sum(ad_revenue) as ad_revenue, sum(ad_impression) as ad_impression " +
-                            "from app_daily_metrics_history " +
-                            "where date between '" + startDate + "' and '" + endDate + "' ";
-                    if (appIds.size() > 0) {
-                        sql += " and app_id in (" + appIdPart + ")";
-                    }
-                    if (countryCodes.size() > 0) {
-                        sql += " and country_code in (" + countryCodePart + ")";
-                    }
-                    sql += " group by date order by date desc";
+                    String sql = "select date, sum(ad_revenue) as ad_revenue, \n" +
+                            "sum(ad_impression) as ad_impression\n" +
+                            "from app_daily_metrics_history\n" +
+                            "where date between '" + startDate + "' and '" + endDate + "' \n" +
+                            (appIds.size() > 0 ?  appIdPart : "") +
+                            (countryCodes.size() > 0 ?  countryCodePart : "") +
+                            "GROUP BY date\n" ;
 
                     List<JSObject> list = DB.findListBySql(sql);
 
@@ -116,7 +120,7 @@ public class AppTrend extends HttpServlet {
                         Date date = list.get(i).get("date");
                         double revenue = Utils.trimDouble(Utils.convertDouble(list.get(i).get("ad_revenue"), 0));
                         long impression = Utils.convertLong(list.get(i).get("ad_impression"), 0);
-                        AppMonitorMetrics one = metricsMap.get(date);
+                        one = metricsMap.get(date);
                         if (one == null) {
                             one = new AppMonitorMetrics();
                             metricsMap.put(date, one);
@@ -129,16 +133,16 @@ public class AppTrend extends HttpServlet {
                     }
 
                     //app_firebase_daily_metrics_history得到安装日期应用国家维度的总安装、总卸载、总用户数、总活跃用户数
-                    sql = "select date, sum(installed) as total_installed, sum(uninstalled) as total_uninstalled, sum(today_uninstalled) as today_uninstalled, sum(total_user) as total_user, sum(active_user) as active_user " +
-                            "from app_firebase_daily_metrics_history " +
-                            "where date between '" + startDate + "' and '" + endDate + "' ";
-                    if (appIds.size() > 0) {
-                        sql += " and app_id in (" + appIdPart + ")";
-                    }
-                    if (countryCodes.size() > 0) {
-                        sql += " and country_code in (" + countryCodePart + ")";
-                    }
-                    sql += " group by date order by date desc";
+                    sql = "SELECT date, sum(installed) as total_installed, \n" +
+                            "sum(uninstalled) as total_uninstalled, \n" +
+                            "sum(today_uninstalled) as today_uninstalled, \n" +
+                            "sum(total_user) as total_user, \n" +
+                            "sum(active_user) as active_user\n" +
+                            "FROM app_firebase_daily_metrics_history\n" +
+                            "WHERE date between '" + startDate + "' and '" + endDate + "'\n" +
+                            (appIds.size() > 0 ?  appIdPart : "") +
+                            (countryCodes.size() > 0 ?  countryCodePart : "") +
+                            "GROUP BY date";
                     list = DB.findListBySql(sql);
 
                     for (int i = 0; i < list.size(); i++) {
@@ -148,7 +152,7 @@ public class AppTrend extends HttpServlet {
                         long todayUninstalled = Utils.convertLong(list.get(i).get("today_uninstalled"), 0);
                         long totalUser = Utils.convertLong(list.get(i).get("total_user"), 0);
                         long activeUser = Utils.convertLong(list.get(i).get("active_user"), 0);
-                        AppMonitorMetrics one = metricsMap.get(date);
+                        one = metricsMap.get(date);
                         if (one == null) {
                             one = new AppMonitorMetrics();
                             metricsMap.put(date, one);
@@ -164,22 +168,42 @@ public class AppTrend extends HttpServlet {
                         one.uninstallRate = one.totalInstalled > 0 ? (one.todayUninstalled * 1.0f / one.totalInstalled) : 0;
                     }
 
+                    //app_ads_impressions_statistics表，得到安装日期下每展示日期下应用国家维度的累计总展示
+                    sql = "SELECT installed_date,SUM(impressions) AS sum_impressions \n" +
+                            "FROM app_ads_impressions_statistics\n" +
+                            "WHERE installed_date BETWEEN '" + startDate + "' AND '" + endDate + "' " +
+                            "AND event_date BETWEEN installed_date AND '" + endDate + "'\n" +
+                            (appIds.size() > 0 ?  appIdPart : "") +
+                            (countryCodes.size() > 0 ?  countryCodePart : "") +
+                            "GROUP BY installed_date";
+                    list = DB.findListBySql(sql);
+
+                    for (int i = 0; i < list.size(); i++) {
+                        js = list.get(i);
+                        Date date = js.get("installed_date");
+                        double sumImpressions = Utils.trimDouble(Utils.convertDouble(js.get("sum_impressions"), 0));
+                        one = metricsMap.get(date);
+                        if (one == null) {
+                            one = new AppMonitorMetrics();
+                            metricsMap.put(date, one);
+                            tmpDataList.add(one);
+                        }
+                        one.date = date;
+                        one.avgSumImpression = one.totalInstalled > 0 ? sumImpressions / one.totalInstalled : 0;
+                    }
+
                     //app_user_life_time_history表，得到安装日期应用国家维度的预估收入
-                    sql = "select install_date, sum(estimated_revenue) as estimated_revenue " +
-                            "from app_user_life_time_history " +
-                            "where install_date between '" + startDate + "' and '" + endDate + "' ";
-                    if (appIds.size() > 0) {
-                        sql += " and app_id in (" + appIdPart + ")";
-                    }
-                    if (countryCodes.size() > 0) {
-                        sql += " and country_code in (" + countryCodePart + ")";
-                    }
-                    sql += " group by install_date order by install_date desc";
+                    sql = "select install_date, sum(estimated_revenue) as estimated_revenue\n" +
+                            "from app_user_life_time_history\n" +
+                            "where install_date between '" + startDate + "' and '" + endDate + "' \n" +
+                            (appIds.size() > 0 ?  appIdPart : "") +
+                            (countryCodes.size() > 0 ?  countryCodePart : "") +
+                            "GROUP BY install_date";
                     list = DB.findListBySql(sql);
                     for (int i = 0; i < list.size(); i++) {
                         Date date = list.get(i).get("install_date");
                         double estimatedRevenue = Utils.convertDouble(list.get(i).get("estimated_revenue"), 0);
-                        AppMonitorMetrics one = metricsMap.get(date);
+                        one = metricsMap.get(date);
                         if (one == null) {
                             one = new AppMonitorMetrics();
                             metricsMap.put(date, one);
@@ -189,23 +213,19 @@ public class AppTrend extends HttpServlet {
                         one.estimatedRevenue = estimatedRevenue;
                     }
                     //app_ads_daily_metrics_history表，得到安装日期应用国家维度的总花费、总购买用户数
-                    sql = "select date, sum(spend) as cost, sum(installed) as purchasedUser " +
-                            "from app_ads_daily_metrics_history " +
-                            "where date between '" + startDate + "' and '" + endDate + "' ";
-                    if (appIds.size() > 0) {
-                        sql += " and app_id in (" + appIdPart + ")";
-                    }
-                    if (countryCodes.size() > 0) {
-                        sql += " and country_code in (" + countryCodePart + ")";
-                    }
-                    sql += " group by date order by date desc";
+                    sql = "select date, sum(spend) as cost, sum(installed) as purchasedUser\n" +
+                            "from app_ads_daily_metrics_history\n" +
+                            "where date between '" + startDate + "' and '" + endDate + "' \n" +
+                            (appIds.size() > 0 ?  appIdPart : "") +
+                            (countryCodes.size() > 0 ?  countryCodePart : "") +
+                            "GROUP BY date";
                     list = DB.findListBySql(sql);
 
                     for (int i = 0; i < list.size(); i++) {
                         Date date = list.get(i).get("date");
                         double cost = Utils.convertDouble(list.get(i).get("cost"), 0);
                         long purchasedUser = Utils.convertLong(list.get(i).get("purchasedUser"), 0);
-                        AppMonitorMetrics one = metricsMap.get(date);
+                        one = metricsMap.get(date);
                         if (one == null) {
                             one = new AppMonitorMetrics();
                             metricsMap.put(date, one);
@@ -216,6 +236,7 @@ public class AppTrend extends HttpServlet {
                         one.purchasedUser = purchasedUser;
                         one.cpa = one.purchasedUser > 0 ? one.cost / one.purchasedUser : 0;
                         one.incoming = one.revenue - one.cost;
+                        one.cpaDivEcpm = one.ecpm > 0 ? one.cpa / one.ecpm : 0;
                     }
 
                     /*sql = "select date, action, sum(value) as value " +
@@ -290,7 +311,7 @@ public class AppTrend extends HttpServlet {
                             remainder = 30;
                             break;
                     }
-                    AppMonitorMetrics one = new AppMonitorMetrics();
+                    one = new AppMonitorMetrics();
                     double lastARPU = -1;
                     int lastMonth = -1;
                     for (int i = 0; i < tmpDataList.size(); i++) {
@@ -321,10 +342,12 @@ public class AppTrend extends HttpServlet {
                         one.activeUser += tmpDataList.get(i).activeUser;
                         one.revenue += tmpDataList.get(i).revenue;
                         one.impression += tmpDataList.get(i).impression;
+                        one.avgSumImpression += tmpDataList.get(i).avgSumImpression;
                         one.cpa = one.purchasedUser > 0 ? one.cost / one.purchasedUser : 0;
                         one.arpu = one.activeUser > 0 ? (float)(one.revenue / one.activeUser) : 0;
                         one.uninstallRate = one.totalInstalled > 0 ? (one.todayUninstalled * 1.0f / one.totalInstalled) : 0;
                         one.ecpm = one.impression > 0 ? one.revenue / one.impression : 0;
+                        one.cpaDivEcpm = one.ecpm > 0 ? one.cpa / one.ecpm : 0;
                         one.incoming = one.revenue - one.cost;
                         one.estimatedRevenue += tmpDataList.get(i).estimatedRevenue;
                         if (one.estimatedRevenue == 0) {
@@ -358,7 +381,6 @@ public class AppTrend extends HttpServlet {
                         index = 0;
                         size = resultList.size();
                     }
-                    double cpaDivEcpm = 0.0;
                     AppMonitorMetrics appMonitorMetrics = null;
                     for (int i = index * size; i < resultList.size() && i < (index * size + size); i++) {
                         appMonitorMetrics = resultList.get(i);
@@ -388,8 +410,9 @@ public class AppTrend extends HttpServlet {
                         jsonObject.addProperty("cpa", NumberUtil.trimDouble(appMonitorMetrics.cpa,3));
                         //ecpm = 总收入/总展示*1000，所以这里要乘以1000
                         jsonObject.addProperty("ecpm", NumberUtil.trimDouble(appMonitorMetrics.ecpm * 1000,3));
-                        cpaDivEcpm = appMonitorMetrics.ecpm > 0 ? appMonitorMetrics.cpa / appMonitorMetrics.ecpm / 1000 : 0;
-                        jsonObject.addProperty("cpa_div_ecpm", NumberUtil.trimDouble(cpaDivEcpm,3));
+                        //这里要除以1000
+                        jsonObject.addProperty("cpa_div_ecpm", NumberUtil.trimDouble(appMonitorMetrics.cpaDivEcpm / 1000,3));
+                        jsonObject.addProperty("avg_sum_impression", NumberUtil.trimDouble(appMonitorMetrics.avgSumImpression,3));
                         jsonObject.addProperty("incoming", NumberUtil.trimDouble(appMonitorMetrics.incoming,3));
                         jsonObject.addProperty("estimated_revenue", NumberUtil.trimDouble(appMonitorMetrics.estimatedRevenue,3));
 

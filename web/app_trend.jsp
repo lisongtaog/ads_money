@@ -224,6 +224,7 @@
                             <th>CPA</th>
                             <th>ECPM</th>
                             <th>CPA/ECPM</th>
+                            <th>AvgSumImpression</th>
                             <th>Incoming</th>
                             <th>LTV</th>
                         </tr>
@@ -290,7 +291,7 @@
         queryData();
     });
 
-    queryData();
+//    queryData();
 
     var revenueChart;
 
@@ -318,6 +319,7 @@
             { data: 'cpa' },
             { data: 'ecpm' },
             { data: 'cpa_div_ecpm' },
+            { data: 'avg_sum_impression' },
             { data: 'incoming' },
             { data: 'estimated_revenue' },
         ];
