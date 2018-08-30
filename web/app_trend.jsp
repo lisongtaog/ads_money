@@ -368,7 +368,7 @@
             }],
         });
 
-        $.post("/app_trend/get", {
+        $.post("app_trend/get", {
             filter: filter.join(","),
             filterCountry: filterCountry.join(","),
             period: period,
