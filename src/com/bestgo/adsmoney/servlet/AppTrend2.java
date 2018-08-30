@@ -113,7 +113,6 @@ public class AppTrend2 extends HttpServlet {
                             (appIds.size() > 0 ?  appIdPart : "") +
                             (countryCodes.size() > 0 ?  countryCodePart : "") +
                             "GROUP BY date\n" ;
-//                            "ORDER BY date DESC";
 
                     List<JSObject> list = DB.findListBySql(sql);
 
@@ -237,6 +236,7 @@ public class AppTrend2 extends HttpServlet {
                         one.purchasedUser = purchasedUser;
                         one.cpa = one.purchasedUser > 0 ? one.cost / one.purchasedUser : 0;
                         one.incoming = one.revenue - one.cost;
+                        one.cpaDivEcpm = one.ecpm > 0 ? one.cpa / one.ecpm : 0;
                     }
 
                     /*sql = "select date, action, sum(value) as value " +
@@ -347,6 +347,7 @@ public class AppTrend2 extends HttpServlet {
                         one.arpu = one.activeUser > 0 ? (float)(one.revenue / one.activeUser) : 0;
                         one.uninstallRate = one.totalInstalled > 0 ? (one.todayUninstalled * 1.0f / one.totalInstalled) : 0;
                         one.ecpm = one.impression > 0 ? one.revenue / one.impression : 0;
+                        one.cpaDivEcpm = one.ecpm > 0 ? one.cpa / one.ecpm : 0;
                         one.incoming = one.revenue - one.cost;
                         one.estimatedRevenue += tmpDataList.get(i).estimatedRevenue;
                         if (one.estimatedRevenue == 0) {
@@ -380,7 +381,6 @@ public class AppTrend2 extends HttpServlet {
                         index = 0;
                         size = resultList.size();
                     }
-                    double cpaDivEcpm = 0.0;
                     AppMonitorMetrics appMonitorMetrics = null;
                     for (int i = index * size; i < resultList.size() && i < (index * size + size); i++) {
                         appMonitorMetrics = resultList.get(i);
@@ -410,8 +410,8 @@ public class AppTrend2 extends HttpServlet {
                         jsonObject.addProperty("cpa", NumberUtil.trimDouble(appMonitorMetrics.cpa,3));
                         //ecpm = 总收入/总展示*1000，所以这里要乘以1000
                         jsonObject.addProperty("ecpm", NumberUtil.trimDouble(appMonitorMetrics.ecpm * 1000,3));
-                        cpaDivEcpm = appMonitorMetrics.ecpm > 0 ? appMonitorMetrics.cpa / appMonitorMetrics.ecpm / 1000 : 0;
-                        jsonObject.addProperty("cpa_div_ecpm", NumberUtil.trimDouble(cpaDivEcpm,3));
+                        //这里要除以1000
+                        jsonObject.addProperty("cpa_div_ecpm", NumberUtil.trimDouble(appMonitorMetrics.cpaDivEcpm / 1000,3));
                         jsonObject.addProperty("avg_sum_impression", NumberUtil.trimDouble(appMonitorMetrics.avgSumImpression,3));
                         jsonObject.addProperty("incoming", NumberUtil.trimDouble(appMonitorMetrics.incoming,3));
                         jsonObject.addProperty("estimated_revenue", NumberUtil.trimDouble(appMonitorMetrics.estimatedRevenue,3));
