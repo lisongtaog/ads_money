@@ -76,6 +76,26 @@ public class AppTrend extends HttpServlet {
                     if (countryCode.isEmpty()) continue;
                     countryCodes.add(countryCode);
                 }
+                String appIdPart = "";
+                if (appIds.size() > 0) {
+                    for (int i = 0; i < appIds.size(); i++) {
+                        if (i < appIds.size() - 1) {
+                            appIdPart += "'" + appIds.get(i) + "',";
+                        } else {
+                            appIdPart += "'" + appIds.get(i) + "'";
+                        }
+                    }
+                }
+                String countryCodePart = "";
+                if (countryCodes.size() > 0) {
+                    for (int i = 0; i < countryCodes.size(); i++) {
+                        if (i < countryCodes.size() - 1) {
+                            countryCodePart += "'" + countryCodes.get(i) + "',";
+                        } else {
+                            countryCodePart += "'" + countryCodes.get(i) + "'";
+                        }
+                    }
+                }
 
                 try {
                     //app_daily_metrics_history表得到安装日期应用国家维度的总收入，总展示
@@ -83,26 +103,10 @@ public class AppTrend extends HttpServlet {
                             "from app_daily_metrics_history " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
                     if (appIds.size() > 0) {
-                        String ss = "";
-                        for (int i = 0; i < appIds.size(); i++) {
-                            if (i < appIds.size() - 1) {
-                                ss += "'" + appIds.get(i) + "',";
-                            } else {
-                                ss += "'" + appIds.get(i) + "'";
-                            }
-                        }
-                        sql += " and app_id in (" + ss + ")";
+                        sql += " and app_id in (" + appIdPart + ")";
                     }
                     if (countryCodes.size() > 0) {
-                        String ss = "";
-                        for (int i = 0; i < countryCodes.size(); i++) {
-                            if (i < countryCodes.size() - 1) {
-                                ss += "'" + countryCodes.get(i) + "',";
-                            } else {
-                                ss += "'" + countryCodes.get(i) + "'";
-                            }
-                        }
-                        sql += " and country_code in (" + ss + ")";
+                        sql += " and country_code in (" + countryCodePart + ")";
                     }
                     sql += " group by date order by date desc";
 
@@ -129,26 +133,10 @@ public class AppTrend extends HttpServlet {
                             "from app_firebase_daily_metrics_history " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
                     if (appIds.size() > 0) {
-                        String ss = "";
-                        for (int i = 0; i < appIds.size(); i++) {
-                            if (i < appIds.size() - 1) {
-                                ss += "'" + appIds.get(i) + "',";
-                            } else {
-                                ss += "'" + appIds.get(i) + "'";
-                            }
-                        }
-                        sql += " and app_id in (" + ss + ")";
+                        sql += " and app_id in (" + appIdPart + ")";
                     }
                     if (countryCodes.size() > 0) {
-                        String ss = "";
-                        for (int i = 0; i < countryCodes.size(); i++) {
-                            if (i < countryCodes.size() - 1) {
-                                ss += "'" + countryCodes.get(i) + "',";
-                            } else {
-                                ss += "'" + countryCodes.get(i) + "'";
-                            }
-                        }
-                        sql += " and country_code in (" + ss + ")";
+                        sql += " and country_code in (" + countryCodePart + ")";
                     }
                     sql += " group by date order by date desc";
                     list = DB.findListBySql(sql);
@@ -181,26 +169,10 @@ public class AppTrend extends HttpServlet {
                             "from app_user_life_time_history " +
                             "where install_date between '" + startDate + "' and '" + endDate + "' ";
                     if (appIds.size() > 0) {
-                        String ss = "";
-                        for (int i = 0; i < appIds.size(); i++) {
-                            if (i < appIds.size() - 1) {
-                                ss += "'" + appIds.get(i) + "',";
-                            } else {
-                                ss += "'" + appIds.get(i) + "'";
-                            }
-                        }
-                        sql += " and app_id in (" + ss + ")";
+                        sql += " and app_id in (" + appIdPart + ")";
                     }
                     if (countryCodes.size() > 0) {
-                        String ss = "";
-                        for (int i = 0; i < countryCodes.size(); i++) {
-                            if (i < countryCodes.size() - 1) {
-                                ss += "'" + countryCodes.get(i) + "',";
-                            } else {
-                                ss += "'" + countryCodes.get(i) + "'";
-                            }
-                        }
-                        sql += " and country_code in (" + ss + ")";
+                        sql += " and country_code in (" + countryCodePart + ")";
                     }
                     sql += " group by install_date order by install_date desc";
                     list = DB.findListBySql(sql);
@@ -221,26 +193,10 @@ public class AppTrend extends HttpServlet {
                             "from app_ads_daily_metrics_history " +
                             "where date between '" + startDate + "' and '" + endDate + "' ";
                     if (appIds.size() > 0) {
-                        String ss = "";
-                        for (int i = 0; i < appIds.size(); i++) {
-                            if (i < appIds.size() - 1) {
-                                ss += "'" + appIds.get(i) + "',";
-                            } else {
-                                ss += "'" + appIds.get(i) + "'";
-                            }
-                        }
-                        sql += " and app_id in (" + ss + ")";
+                        sql += " and app_id in (" + appIdPart + ")";
                     }
                     if (countryCodes.size() > 0) {
-                        String ss = "";
-                        for (int i = 0; i < countryCodes.size(); i++) {
-                            if (i < countryCodes.size() - 1) {
-                                ss += "'" + countryCodes.get(i) + "',";
-                            } else {
-                                ss += "'" + countryCodes.get(i) + "'";
-                            }
-                        }
-                        sql += " and country_code in (" + ss + ")";
+                        sql += " and country_code in (" + countryCodePart + ")";
                     }
                     sql += " group by date order by date desc";
                     list = DB.findListBySql(sql);
