@@ -14,4 +14,6 @@ app_ads_daily_metrics_history表，得到安装日期应用国家维度的总花
 
 app_version_number得到app版本信息
 
+web_app_ads_sum_impression 安装日期+应用+国家维度的累计展示表
+
 
