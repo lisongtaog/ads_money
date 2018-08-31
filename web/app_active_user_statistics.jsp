@@ -106,7 +106,7 @@
                                     </div>
                                     <input type="text" class="form-control pull-right" id="txtInstallDate">
                                 </div>
-                                <span style="color: red">只能查询6.27日到前天的数据；当晚23点后可查询昨天的数据</span>
+                                <span style="color: #0d7cff">只能查询6.27日到前天的数据；当晚23点后可查询昨天的数据</span>
                             </div>
                         </div>
 
@@ -154,7 +154,7 @@
 
             <div class="box box-default">
                 <div class="box-header with-border">
-                    <p style="color: coral">公式：</p>
+                    <p style="color: #1055ff">公式：</p>
                     <p>
                         <span>活跃占比=活跃用户数/firebase安装量&nbsp;;&nbsp;&nbsp;</span>
                         <span>首日活跃占比=当天活跃用户数/首日活跃用户数&nbsp;;&nbsp;&nbsp;</span>

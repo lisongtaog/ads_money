@@ -4,7 +4,6 @@ import com.bestgo.adsmoney.utils.NumberUtil;
 import com.bestgo.adsmoney.utils.Utils;
 import com.bestgo.common.database.services.DB;
 import com.bestgo.common.database.utils.JSObject;
-import com.google.api.client.json.Json;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
@@ -15,13 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
  * @author mengjun
  * @date 2018/7/5 14:25
- * @description 应用活跃用户统计
+ * @desc 应用活跃用户统计
  */
 @WebServlet(name = "QueryAppActiveUserStatistics", urlPatterns = {"/query_app_active_user_statistics"})
 public class QueryAppActiveUserStatistics extends HttpServlet {
@@ -34,7 +32,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
 
         JsonObject rtnJson = new JsonObject();//待返回前端的数据
         try {
-            //app版本号查询
+            //app最近那天的版本号查询，结果用&拼接
             String appVersionSql =
                     "SELECT DATE(create_time) AS publish_date,GROUP_CONCAT(version_number ORDER BY version_number SEPARATOR ' & ') AS app_version \n" +
                     " FROM app_version_number WHERE app_id = '"+appId+"' \n" +
