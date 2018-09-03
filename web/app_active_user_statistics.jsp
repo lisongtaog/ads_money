@@ -157,7 +157,6 @@
                     <p style="color: #1055ff">公式：</p>
                     <p>
                         <span>活跃占比=活跃用户数/firebase安装量&nbsp;;&nbsp;&nbsp;</span>
-                        <span>首日活跃占比=当天活跃用户数/首日活跃用户数&nbsp;;&nbsp;&nbsp;</span>
                         <span>累计活跃占比=自安装日至当日的活跃用户数总和/firebase安装量&nbsp;;&nbsp;&nbsp;</span>
                         <span>当日广告展示数=firebase统计的自安装日起，每个活跃日期的广告展示次数&nbsp;;&nbsp;&nbsp;</span>
                         <span>人均广告展示次数=累计的总的广告展示次数/firebase安装量&nbsp;;&nbsp;&nbsp;</span>
@@ -166,7 +165,7 @@
                     <p>
                         <%-- adplatform变现ecpm 即money后台拉取的广告单元变现数据 的平均ecpm--%>
                         <span>当日ECPM = 当日变现收益 / 当日广告单元展示次数 * 1000&nbsp;;&nbsp;&nbsp;</span>
-                        <span title="根据广告展示次数比例估算">当日收入=当日老用户变现收益 * (选定安装日期那天安装的用户所看广告展示次数/所有老用户的广告展示次数)&nbsp;;&nbsp;&nbsp;</span>
+                        <span>当日收入= SUM(展示日期广告单元的收入 * （安装日期的用户在展示日期的广告单元的展示数/展示日期总的展示数))&nbsp;;&nbsp;&nbsp;</span>
                         <span>累计收入= 自安装日至当日的收入总和&nbsp;;&nbsp;&nbsp;</span>
                         <span>ltv = 累计收入/firebase安装量&nbsp;;&nbsp;&nbsp;</span>
                         <span>回本率=ltv / cpa&nbsp;;&nbsp;&nbsp;</span>
@@ -175,16 +174,16 @@
                 <div>
                     <table class="summary">
                         <tr>
-                            <td><label>安装日期：</label></td>           <td id="installDate"></td>
-                            <td><label>firebase安装量：</label></td>     <td id="total_install">0</td>
-                            <td><label>adPlatform购买量：</label></td>   <td id="purchase_install">0</td>
+                            <td><label>InstallDate：</label></td>           <td id="installDate"></td>
+                            <td><label>Install：</label></td>     <td id="total_install">0</td>
+                            <td><label>PurchaseUser：</label></td>   <td id="purchase_install">0</td>
                             <%--<td><label>购买占比：</label></td>           <td id="purchase_per">0%</td>--%>
-                            <td><label>adPlatform 花费：</label></td>    <td id="purchase_cost">0</td>
+                            <td><label>Cost：</label></td>    <td id="purchase_cost">0</td>
                             <td><label>CPA：</label></td>                <td id="purchase_cpa">0</td>
                             <td><label>app版本：</label></td>            <td id="app_version"></td>
-                            <td><label>adPlatform首日收入：</label></td>           <td id="first_revenue">0</td>
-                            <td><label>adPlatform首日广告展示次数：</label></td>   <td id="first_impression">0</td>
-                            <td><label>adPlatform首日ECPM：</label></td>           <td id="first_ecpm">0</td>
+                            <%--<td><label>adPlatform首日收入：</label></td>           <td id="first_revenue">0</td>--%>
+                            <%--<td><label>adPlatform首日广告展示次数：</label></td>   <td id="first_impression">0</td>--%>
+                            <%--<td><label>adPlatform首日ECPM：</label></td>           <td id="first_ecpm">0</td>--%>
                         </tr>
                     </table>
                 </div>
