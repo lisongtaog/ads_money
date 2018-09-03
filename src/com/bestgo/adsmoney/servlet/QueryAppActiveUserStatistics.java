@@ -79,6 +79,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
 
             JsonObject summary = new JsonObject();//表头 通用汇总信息
             double allInstalled = 0;
+            double cpa = 0;
             String appVersion = "";
             try {
                 double purchaseCost=0,purchaseInstalled=0;
@@ -88,7 +89,7 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
 //                double avgECPM = 0;//平均ECPM = 所有用户收益/所有用户展示 * 1000
                 if(obj.get("purchase_installed") != null && !"".equals(obj.get("purchase_installed"))){
                     //purchaseInstalled = Utils.parseInt(obj.get("purchase_installed"),0);
-                    purchaseCost = Utils.trimDouble(new BigDecimal(obj.get("purchase_cost").toString()).doubleValue());
+                    purchaseCost = NumberUtil.trimDouble(new BigDecimal(obj.get("purchase_cost").toString()).doubleValue(),2);
                     purchaseInstalled = new BigDecimal(obj.get("purchase_installed").toString()).doubleValue();
                 }
                 if(obj2.get("all_installed") != null && !"".equals(obj2.get("all_installed"))){
@@ -147,7 +148,8 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                 summary.addProperty("purchaseInstall",purchaseInstalled);//购买安装量
                 summary.addProperty("purchaseCost",purchaseCost);//购买花费cost
                 //summary.addProperty("purchasePer",Utils.trimDouble(allInstalled >0 ? 100*(purchaseInstalled / allInstalled): 0));//购买安装占比
-                summary.addProperty("purchaseCpa",Utils.trimDouble(purchaseInstalled >0 ? (purchaseCost / purchaseInstalled): 0));//CPA
+                cpa = purchaseInstalled >0 ? (purchaseCost / purchaseInstalled): 0;
+                summary.addProperty("purchaseCpa",Utils.trimDouble(cpa));
 
                 //summary.addProperty("appId","com.androapplite.antivirus.antivirusapplication");//应用appid
                 summary.addProperty("appVersion",appVersion);//应用版本号
@@ -414,12 +416,15 @@ public class QueryAppActiveUserStatistics extends HttpServlet {
                 ecpm = revenueData.impression > 0 ? (revenueData.revenue / revenueData.impression * 1000) : 0;//变现ecpm
 
                 item.add(Utils.trimDouble(ecpm));//adplatform当日ecpm = 当日变现收益 / 变现展示数
+                if (date.equals(eventDate)) {
+                    summary.addProperty("cpaDivEcpm",NumberUtil.trimDouble(ecpm > 0 ? cpa / ecpm : 0,3));
+                }
                 //item.add(Utils.trimDouble(nowEcpm));//firebase当日ecpm = 当日收益 / firebase展示数
                 item.add(Utils.trimDouble(nowRevenue));//当日收入
                 item.add(Utils.trimDouble(sumRevenue));//累计收入
                 double ltv = Utils.trimDouble(allInstalled >0 ? (sumRevenue / allInstalled): 0);//ltv
                 item.add(ltv);//ltv
-                double cpa = summary.get("purchaseCpa").getAsDouble();//cpa
+                cpa = summary.get("purchaseCpa").getAsDouble();//cpa
                 item.add(Utils.trimDouble(cpa > 0 ? 100*(ltv / cpa) : 100));//回本率(ltv / cpa)
 
                 dataArray.add(item);

@@ -165,7 +165,7 @@
                     <p>
                         <%-- adplatform变现ecpm 即money后台拉取的广告单元变现数据 的平均ecpm--%>
                         <span>当日ECPM = 当日变现收益 / 当日广告单元展示次数 * 1000&nbsp;;&nbsp;&nbsp;</span>
-                        <span>当日收入= SUM(展示日期广告单元的收入 * （安装日期的用户在展示日期的广告单元的展示数/展示日期总的展示数))&nbsp;;&nbsp;&nbsp;</span>
+                        <span>当日收入 = SUM(展示日期广告单元收入*(安装日期用户在展示日期广告单元展示数/展示日期总展示数))&nbsp;;&nbsp;&nbsp;</span>
                         <span>累计收入= 自安装日至当日的收入总和&nbsp;;&nbsp;&nbsp;</span>
                         <span>ltv = 累计收入/firebase安装量&nbsp;;&nbsp;&nbsp;</span>
                         <span>回本率=ltv / cpa&nbsp;;&nbsp;&nbsp;</span>
@@ -180,10 +180,8 @@
                             <%--<td><label>购买占比：</label></td>           <td id="purchase_per">0%</td>--%>
                             <td><label>Cost：</label></td>    <td id="purchase_cost">0</td>
                             <td><label>CPA：</label></td>                <td id="purchase_cpa">0</td>
-                            <td><label>app版本：</label></td>            <td id="app_version"></td>
-                            <%--<td><label>adPlatform首日收入：</label></td>           <td id="first_revenue">0</td>--%>
-                            <%--<td><label>adPlatform首日广告展示次数：</label></td>   <td id="first_impression">0</td>--%>
-                            <%--<td><label>adPlatform首日ECPM：</label></td>           <td id="first_ecpm">0</td>--%>
+                            <td><label>app版本：</label></td>            <td id="app_version">[]</td>
+                            <td><label>CPA/ECPM：</label></td>           <td id="cpaDivEcpm">0</td>
                         </tr>
                     </table>
                 </div>
@@ -200,10 +198,9 @@
                             <th>当日广告展示数</th>
                             <th>人均累计<br/>广告展示数</th>
                             <th title="adPlatform">当日ECPM</th><%--adPlatform当日ECPM--%>
-                            <%--<th class="bg-info">当日ECPM</th>--%>
                             <th class="bg-info">当日收入</th>
                             <th class="bg-info">累计收入</th>
-                            <th class="bg-info">LTV</th>
+                            <th class="bg-info" style="width: 80px;">LTV</th>
                             <th class="bg-info">回本率%</th>
                         </tr>
                         </thead>
@@ -343,9 +340,7 @@
         $("#purchase_cpa").text(0);
 
         $("#app_version").text("");
-        $("#first_revenue").text(0);
-        $("#first_impression").text(0);
-        $("#first_ecpm").text(0);
+        $("#cpaDivEcpm").text(0);
         $('#metricTable').DataTable().clear().destroy();
     }
 
@@ -360,9 +355,7 @@
             $("#purchase_cpa").text(summary.purchaseCpa);
 
             $("#app_version").text(summary.appVersion);
-            $("#first_revenue").text(summary.firstRevenue);
-            $("#first_impression").text(summary.firstImpression);
-            $("#first_ecpm").text(summary.firstEcpm);
+            $("#cpaDivEcpm").text(summary.cpaDivEcpm);
 
         }
     }
