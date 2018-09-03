@@ -174,14 +174,22 @@
                 <div>
                     <table class="summary">
                         <tr>
-                            <td><label>InstallDate：</label></td>           <td id="installDate"></td>
-                            <td><label>Install：</label></td>     <td id="total_install">0</td>
-                            <td><label>PurchaseUser：</label></td>   <td id="purchase_install">0</td>
-                            <%--<td><label>购买占比：</label></td>           <td id="purchase_per">0%</td>--%>
-                            <td><label>Cost：</label></td>    <td id="purchase_cost">0</td>
-                            <td><label>CPA：</label></td>                <td id="purchase_cpa">0</td>
-                            <td><label>app版本：</label></td>            <td id="app_version">[]</td>
-                            <td><label>CPA/ECPM：</label></td>           <td id="cpaDivEcpm">0</td>
+                            <%--<td><label>InstallDate：</label></td>           <td id="installDate"></td>--%>
+                            <%--<td><label>Install：</label></td>     <td id="total_install">0</td>--%>
+                            <%--<td><label>PurchaseUser：</label></td>   <td id="purchase_install">0</td>--%>
+                            <%--&lt;%&ndash;<td><label>购买占比：</label></td>           <td id="purchase_per">0%</td>&ndash;%&gt;--%>
+                            <%--<td><label>Cost：</label></td>    <td id="purchase_cost">0</td>--%>
+                            <%--<td><label>CPA：</label></td>                <td id="purchase_cpa">0</td>--%>
+                            <%--<td><label>app版本：</label></td>            <td id="app_version">[]</td>--%>
+                            <%--<td><label>CPA/ECPM：</label></td>           <td id="cpaDivEcpm">0</td>--%>
+                                <td>InstallDate：</td>           <td id="installDate"></td>
+                                <td>Install：</td>     <td id="total_install">0</td>
+                                <td>PurchaseUser：</td>   <td id="purchase_install">0</td>
+                                <%--<td><label>购买占比：</label></td>           <td id="purchase_per">0%</td>--%>
+                                <td>Cost：</td>    <td id="purchase_cost">0</td>
+                                <td>CPA：</td>                <td id="purchase_cpa">0</td>
+                                <td>app版本：</td>            <td id="app_version">[]</td>
+                                <td>CPA/ECPM：</td>           <td id="cpaDivEcpm">0</td>
                         </tr>
                     </table>
                 </div>
@@ -339,7 +347,7 @@
         $("#purchase_cost").text(0);
         $("#purchase_cpa").text(0);
 
-        $("#app_version").text("");
+        $("#app_version").text("[]");
         $("#cpaDivEcpm").text(0);
         $('#metricTable').DataTable().clear().destroy();
     }
@@ -354,7 +362,7 @@
             $("#purchase_cost").text(summary.purchaseCost);
             $("#purchase_cpa").text(summary.purchaseCpa);
 
-            $("#app_version").text(summary.appVersion);
+            $("#app_version").text("[" + summary.appVersion +"]");
             $("#cpaDivEcpm").text(summary.cpaDivEcpm);
 
         }
