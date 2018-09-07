@@ -94,7 +94,7 @@ public class AppReport extends HttpServlet {
                         && (fields.contains("country_code") || countryCodes.size() > 0)){
                     isShowTagEcpm = true; //否展示 target ecpm 列
                     tableName = "app_ad_unit_metrics_history u \n";
-                    //要有逗号，拼接
+                    //targetEcpm要有逗号拼接,顺序是从最近时间开始
                     tagEcpmSql = ",\n(SELECT GROUP_CONCAT(tag_ecpm ORDER BY uploadtime DESC) from app_ad_unit_target \n" +
                             "where app_id = u.app_id and ad_unit_id = u.ad_unit_id and country_code = u.country_code and DATE(uploadtime) = u.date\n" +
                             ") AS tag_ecpm_current,\n" +
@@ -485,6 +485,10 @@ public class AppReport extends HttpServlet {
         }
         return map;
     }
+
+    /**
+     * 展示机会的类
+     */
     private class ShowNum{
         public double totalNum;
         public double totalNumReady;

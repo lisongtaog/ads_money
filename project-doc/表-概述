@@ -1,19 +1,23 @@
 ###可能不准，随时修正
 
-app_daily_metrics_history表，得到安装日期应用国家维度的总收入，总展示
+    app_daily_metrics_history表，得到安装日期应用国家维度的总收入，总展示
 
-app_ads_impressions_statistics表，得到安装日期下每展示日期下应用国家维度的总展示
-
-app_firebase_daily_metrics_history表，得到安装日期应用国家维度的总安装、总卸载、总用户数、总活跃用户数
-
-app_user_life_time_history表，得到安装日期应用国家维度的预估收入
+    app_user_life_time_history表，得到安装日期应用国家维度的预估收入
 在app_user_life_time_history表中根据安装日期+最近日期，找到应用国家维度的总活跃数
 最近的每用户平均收入ARPU=预估收入/活跃数
 
-app_ads_daily_metrics_history表，得到安装日期应用国家维度的总花费、总购买用户数（sum(installed)），然后可得到CPA = 总花费/总购买用户数
+    app_ads_daily_metrics_history表，得到安装日期应用国家维度的总花费、总购买用户数（sum(installed)），然后可得到CPA = 总花费/总购买用户数
 
-app_version_number得到app版本信息
+    app_version_number得到app版本信息
 
-web_app_ads_sum_impression 安装日期+应用+国家维度的累计展示表
+    web_app_ads_sum_impression 安装日期+应用+国家维度的累计展示表
 
+    根据app_ad_unit_config的ad_unit_id/admob_account封装查询报告,
+得到的数据存入app_ad_unit_metrics_history表，字段包括date、ad_network、ad_unit_id、country_code、ad_request、ad_filled、ad_impression、ad_click、ad_revenue，
+在app_ad_unit_metrics_history表中根据安装日期+应用+国家+广告单元维度的ad_revenue和ad_impression得到app_ads_impressions_statistics表的ecpm = 1000 * revenue /impression
+app_ads_impressions_statistics表通过firebase获取得到安装日期下+每展示日期下+应用+国家+广告单元维度的总展示，然后ecpm * impressions / 1000 = revenue
+
+app_firebase_daily_metrics_history表通过firebase得到安装日期应用国家维度的总安装、总卸载、总用户数、总活跃用户数
+
+app_ad_unit_target表是通过
 

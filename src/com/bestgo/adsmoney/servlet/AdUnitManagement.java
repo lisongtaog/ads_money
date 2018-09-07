@@ -23,6 +23,7 @@ import java.util.Map;
 
 /**
  * Created by jikai on 5/31/17.
+ * 广告单元管理
  */
 @WebServlet(name = "AdUnitManagement", urlPatterns = {"/ad_unit_management/*"})
 public class AdUnitManagement extends HttpServlet {
@@ -113,11 +114,17 @@ public class AdUnitManagement extends HttpServlet {
         doPost(request, response);
     }
 
+    /**
+     * 在Search输入框，搜索时
+     * @param word
+     * @return
+     */
     public static List<JSObject> fetchData(String word) {
         List<JSObject> list = new ArrayList<>();
         try {
             String sql = "select app_ad_unit_config.id, app_ad_unit_config.app_id, app_ad_unit_config.ad_network, app_ad_unit_config.ad_unit_type, " +
-                    "app_ad_unit_config.ad_unit_id, app_ad_unit_config.flag, app_ad_unit_config.ad_unit_name, app_ad_unit_config.admob_account from app_ad_unit_config, app_data " +
+                    "app_ad_unit_config.ad_unit_id, app_ad_unit_config.flag, app_ad_unit_config.ad_unit_name, app_ad_unit_config.admob_account " +
+                    "from app_ad_unit_config, app_data " +
                     "where app_ad_unit_config.app_id=app_data.app_id and (app_name like " + "'%" + word + "%' or app_ad_unit_config.app_id like " + "'%" + word + "%'" +") "+
                     " order by id ASC,app_id ASC,flag ASC";
             return DB.findListBySql(sql);
@@ -169,6 +176,11 @@ public class AdUnitManagement extends HttpServlet {
         return ret;
     }
 
+    /**
+     * 创建新的广告单元
+     * @param adUnitConfig
+     * @return
+     */
     private OperationResult createNewAdUnit(AppAdUnitConfig adUnitConfig) {
         OperationResult ret = new OperationResult();
 
@@ -178,6 +190,9 @@ public class AdUnitManagement extends HttpServlet {
                 ret.result = false;
                 ret.message = "已经存在这个这个广告单元了";
             } else {
+                //ad_network:AdMob/Facebook
+                //ad_unit_type:banner/interstitial/native
+                //flag:0/1
                 DB.insert("app_ad_unit_config")
                         .put("app_id", adUnitConfig.appId)
                         .put("ad_network", adUnitConfig.adNetwork)

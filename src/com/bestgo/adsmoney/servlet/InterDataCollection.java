@@ -16,7 +16,8 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 /**
- * 对外提供的接口，用于收集、上报数据
+ * 对外提供的接口，用于收集 上报的数据targetEcpm
+ * 每个应用+国家+广告单元维度
  */
 @WebServlet(name = "InterDataCollection", urlPatterns = {"/dataCollection/*"})
 public class InterDataCollection extends HttpServlet {
@@ -43,7 +44,7 @@ public class InterDataCollection extends HttpServlet {
     }
 
     /**
-     * 接收上报target ecpm
+     * 接收上报targetEcpm
      * @param request
      * @param response
      * @throws ServletException
