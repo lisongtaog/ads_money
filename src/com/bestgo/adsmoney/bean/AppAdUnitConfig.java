@@ -9,6 +9,7 @@ public class AppAdUnitConfig {
     public String adNetwork;
     public String adUnitType;
     public String adUnitId;
+    public String showType; //广告展示类型
     public String flag;
     public String adUnitName;
     public String admobAccount;

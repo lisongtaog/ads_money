@@ -27,7 +27,7 @@ import java.util.Map;
  */
 @WebServlet(name = "AdUnitManagement", urlPatterns = {"/ad_unit_management/*"})
 public class AdUnitManagement extends HttpServlet {
-    private static final String[] FIELDS = {"id", "app_id", "ad_network", "ad_unit_type", "ad_unit_id", "flag", "ad_unit_name", "admob_account"};
+    private static final String[] FIELDS = {"id", "app_id", "ad_network", "ad_unit_type", "ad_unit_id", "show_type","flag", "ad_unit_name", "admob_account"};
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!Utils.isAdmin(request, response)) return;
@@ -42,6 +42,7 @@ public class AdUnitManagement extends HttpServlet {
                 adUnitConfig.adNetwork = request.getParameter("ad_network");
                 adUnitConfig.adUnitType = request.getParameter("ad_unit_type");
                 adUnitConfig.adUnitId = request.getParameter("ad_unit_id");
+                adUnitConfig.showType = request.getParameter("show_type");
                 adUnitConfig.flag = request.getParameter("flag");
                 adUnitConfig.adUnitName = request.getParameter("ad_unit_name");
                 adUnitConfig.admobAccount = request.getParameter("admob_account");
@@ -61,6 +62,7 @@ public class AdUnitManagement extends HttpServlet {
                 adUnitConfig.adNetwork = request.getParameter("ad_network");
                 adUnitConfig.adUnitType = request.getParameter("ad_unit_type");
                 adUnitConfig.adUnitId = request.getParameter("ad_unit_id");
+                adUnitConfig.showType = request.getParameter("show_type");
                 adUnitConfig.flag = request.getParameter("flag");
                 adUnitConfig.adUnitName = request.getParameter("ad_unit_name");
                 adUnitConfig.admobAccount = request.getParameter("admob_account");
@@ -198,6 +200,7 @@ public class AdUnitManagement extends HttpServlet {
                         .put("ad_network", adUnitConfig.adNetwork)
                         .put("ad_unit_type", adUnitConfig.adUnitType)
                         .put("ad_unit_id", adUnitConfig.adUnitId)
+                        .put("show_type", adUnitConfig.showType)
                         .put("flag", adUnitConfig.flag)
                         .put("ad_unit_name", adUnitConfig.adUnitName)
                         .put("admob_account", adUnitConfig.admobAccount)
@@ -213,6 +216,7 @@ public class AdUnitManagement extends HttpServlet {
                     ret.data.addProperty("ad_network", adUnitConfig.adNetwork);
                     ret.data.addProperty("ad_unit_type", adUnitConfig.adUnitType);
                     ret.data.addProperty("ad_unit_id", adUnitConfig.adUnitId);
+                    ret.data.addProperty("show_type", adUnitConfig.showType);
                     ret.data.addProperty("flag", adUnitConfig.flag);
                     ret.data.addProperty("ad_unit_name", adUnitConfig.adUnitName);
                     ret.data.addProperty("admob_account", adUnitConfig.admobAccount);
@@ -237,6 +241,7 @@ public class AdUnitManagement extends HttpServlet {
                     .put("ad_network", adUnitConfig.adNetwork)
                     .put("ad_unit_type", adUnitConfig.adUnitType)
                     .put("ad_unit_id", adUnitConfig.adUnitId)
+                    .put("show_type", adUnitConfig.showType)
                     .put("flag", adUnitConfig.flag)
                     .put("ad_unit_name", adUnitConfig.adUnitName)
                     .put("admob_account", adUnitConfig.admobAccount)
@@ -253,6 +258,7 @@ public class AdUnitManagement extends HttpServlet {
                 ret.data.addProperty("ad_network", adUnitConfig.adNetwork);
                 ret.data.addProperty("ad_unit_type", adUnitConfig.adUnitType);
                 ret.data.addProperty("ad_unit_id", adUnitConfig.adUnitId);
+                ret.data.addProperty("show_type", adUnitConfig.showType);
                 ret.data.addProperty("flag", adUnitConfig.flag);
                 ret.data.addProperty("ad_unit_name", adUnitConfig.adUnitName);
                 ret.data.addProperty("admob_account", adUnitConfig.admobAccount);

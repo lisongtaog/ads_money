@@ -67,6 +67,7 @@
                         <th>Network</th>
                         <th>Ad Unit Type</th>
                         <th>Ad Unit Id</th>
+                        <th title="广告展示类型">Show Type</th>
                         <th>Flag</th>
                         <th>Ad Unit Name</th>
                         <th>AdMob Account</th>
@@ -192,11 +193,21 @@
             "label": "Ad Unit Id:",
             "name": "ad_unit_id"
         }, {
+            "label": "Show Type:",
+            "name": "show_type",
+            "type": "select",
+            "options": [
+                {label:"Admob全屏高",value:"1"},{label:"Facebook全屏高",value:"2"},
+                {label:"Admob全屏低",value:"3"},{label:"Facebook全屏低",value:"4"},
+                {label:"AdmobNative高",value:"5"},{label:"FacebookNative高",value:"6"},
+                {label:"AdmobNative低",value:"7"},{label:"FacebookNative低",value:"8"}
+            ]
+        }, {
             "label": "Flag:",
             "name": "flag",
             "type": "select",
             "options": [{label:"常规",value:"0"},{label:"新安装",value:"1"},]
-        }, {
+        },{
             "label": "Ad Unit Name:",
             "name": "ad_unit_name",
         }, {
@@ -251,15 +262,40 @@
             { data: 'ad_network' },
             { data: 'ad_unit_type' },
             { data: 'ad_unit_id' },
+            { data: 'show_type' },
             { data: 'flag' },
             { data: 'ad_unit_name' },
             { data: 'admob_account' },
             // etc
         ],"columnDefs":[
-            {//倒数第一列
-                "targets":4,
+            {//第5列
+                "targets":5,
                 render: function(data, type, row) {
                     var html = "1" == row.flag ? "新安装": "常规";
+                    return html;
+                }
+            },
+            {//第4列
+                "targets":4,
+                render: function(data, type, row) {
+                    var html = "";
+                    if ("1" == row.show_type) {
+                        html = "Admob全屏高";
+                    } else if ("2" == row.show_type) {
+                        html = "Facebook全屏高";
+                    } else if ("3" == row.show_type) {
+                        html = "Admob全屏低";
+                    } else if ("4" == row.show_type) {
+                        html = "Facebook全屏低";
+                    } else if ("5" == row.show_type) {
+                        html = "AdmobNative高";
+                    } else if ("6" == row.show_type) {
+                        html = "FacebookNative高";
+                    } else if ("7" == row.show_type) {
+                        html = "AdmobNative低";
+                    } else if ("8" == row.show_type) {
+                        html = "FacebookNative低";
+                    }
                     return html;
                 }
             }
