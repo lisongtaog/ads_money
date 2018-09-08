@@ -124,7 +124,7 @@ public class AdUnitManagement extends HttpServlet {
     public static List<JSObject> fetchData(String word) {
         List<JSObject> list = new ArrayList<>();
         try {
-            String sql = "select app_ad_unit_config.id, app_ad_unit_config.app_id, app_ad_unit_config.ad_network, app_ad_unit_config.ad_unit_type, " +
+            String sql = "select app_ad_unit_config.id, app_ad_unit_config.app_id, app_ad_unit_config.ad_network, app_ad_unit_config.ad_unit_type,show_type," +
                     "app_ad_unit_config.ad_unit_id, app_ad_unit_config.flag, app_ad_unit_config.ad_unit_name, app_ad_unit_config.admob_account " +
                     "from app_ad_unit_config, app_data " +
                     "where app_ad_unit_config.app_id=app_data.app_id and (app_name like " + "'%" + word + "%' or app_ad_unit_config.app_id like " + "'%" + word + "%'" +") "+

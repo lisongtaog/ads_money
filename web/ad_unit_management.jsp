@@ -65,11 +65,11 @@
                     <tr>
                         <th>AppId</th>
                         <th>Network</th>
-                        <th>Ad Unit Type</th>
-                        <th>Ad Unit Id</th>
+                        <th title="广告单元类型">Ad Unit Type</th>
+                        <th title="广告单元ID">Ad Unit Id</th>
                         <th title="广告展示类型">Show Type</th>
-                        <th>Flag</th>
-                        <th>Ad Unit Name</th>
+                        <th title="新老用户标记">Flag</th>
+                        <th title="广告单元名称">Ad Unit Name</th>
                         <th>AdMob Account</th>
                     </tr>
                     </thead>
