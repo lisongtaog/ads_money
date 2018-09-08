@@ -201,35 +201,39 @@ public class AppReport extends HttpServlet {
                             }
                             one.addProperty(f, v);
                         }
-                        if (showNumMap != null) {
+                        if (showNumMap == null) {
+                            one.addProperty("full_total_chance", 0);
+                            one.addProperty("full_ready_chance",0);
+                            one.addProperty("full_ready_chance_div_full_total_chance",0);
+                            one.addProperty("native_total_chance", 0);
+                            one.addProperty("native_ready_chance",0);
+                            one.addProperty("native_ready_chance_div_native_total_chance",0);
+                        } else {
                             countryCode = js.get("country_code");
                             if (countryCode == null) countryCode = "";
                             appId = js.get("app_id");
                             if (appId == null) appId = "";
                             eventDate = js.get("date").toString();
-                            showNum = showNumMap.get(eventDate + appId + countryCode);
+                            showNum = showNumMap.get(eventDate + appId + countryCode + 1);
                             if (showNum == null) {
-                                one.addProperty("total_num", 0);
-                                one.addProperty("total_num_ready",0);
-                                one.addProperty("total_num_ready_div_total_num",0);
-                                one.addProperty("new_total_num", 0);
-                                one.addProperty("new_total_num_ready",0);
-                                one.addProperty("new_total_num_ready_div_new_total_num",0);
+                                one.addProperty("full_total_chance", 0);
+                                one.addProperty("full_ready_chance",0);
+                                one.addProperty("full_ready_chance_div_full_total_chance",0);
                             }else {
-                                one.addProperty("total_num", showNum.totalNum);
-                                one.addProperty("total_num_ready",showNum.totalNumReady);
-                                one.addProperty("total_num_ready_div_total_num",showNum.totalNumReadyDivTotalNum);
-                                one.addProperty("new_total_num", showNum.newTotalNum);
-                                one.addProperty("new_total_num_ready",showNum.newTotalNumReady);
-                                one.addProperty("new_total_num_ready_div_new_total_num",showNum.newTotalNumReadyDivNewTotalNum);
+                                one.addProperty("full_total_chance", showNum.totalNum);
+                                one.addProperty("full_ready_chance",showNum.totalNumReady);
+                                one.addProperty("full_ready_chance_div_full_total_chance",showNum.totalNumReadyDivTotalNum);
                             }
-                        } else {
-                            one.addProperty("total_num", 0);
-                            one.addProperty("total_num_ready",0);
-                            one.addProperty("total_num_ready_div_total_num",0);
-                            one.addProperty("new_total_num", 0);
-                            one.addProperty("new_total_num_ready",0);
-                            one.addProperty("new_total_num_ready_div_new_total_num",0);
+                            showNum = showNumMap.get(eventDate + appId + countryCode + 2);
+                            if (showNum == null) {
+                                one.addProperty("native_total_chance", 0);
+                                one.addProperty("native_ready_chance",0);
+                                one.addProperty("native_ready_chance_div_native_total_chance",0);
+                            }else {
+                                one.addProperty("native_total_chance", showNum.totalNum);
+                                one.addProperty("native_ready_chance",showNum.totalNumReady);
+                                one.addProperty("native_ready_chance_div_native_total_chance",showNum.totalNumReadyDivTotalNum);
+                            }
                         }
 
 
@@ -420,7 +424,7 @@ public class AppReport extends HttpServlet {
 
     /**
      * 获取广告展示机会数的Map
-     * key = date + (appId) + (countryCode)
+     * key = date + (appId) + (countryCode)+adPositionType
      * appId和countryCode根据情况可能为空
      * @param startDate
      * @param endDate
@@ -434,6 +438,7 @@ public class AppReport extends HttpServlet {
         String eventDate = "";
         String appId = "";
         String countryCode = "";
+        int adPositionType = 0;
         String selectFiled = " aas.event_date";
         boolean existAppIds = false;
         boolean existCountryCodes = false;
@@ -448,7 +453,7 @@ public class AppReport extends HttpServlet {
                 selectFiled += ",aas.country_code";
             }
         }
-        String sql = "SELECT " + selectFiled + ",\n" +
+        String sql = "SELECT " + selectFiled + ",ad_position_type,\n" +
                 "SUM(aas.num) AS total_num,SUM(aas.num_ready) AS total_num_ready,\n" +
                 "SUM(CASE WHEN aas.installed_date = aas.event_date THEN num ELSE 0 END) AS new_num,\n"+
                 "SUM(CASE WHEN aas.installed_date = aas.event_date THEN num_ready ELSE 0 END) AS new_ready\n" +
@@ -456,7 +461,7 @@ public class AppReport extends HttpServlet {
                 "WHERE aas.event_date between '" + startDate + "' AND '"+endDate + "'\n" +
                 (existAppIds ? "AND aas.app_id IN (" + appIds + ")\n" : "") +
                 (existCountryCodes ? "AND aas.country_code IN (" + countryCodes + ")\n" : "")
-                + " GROUP BY " + selectFiled;
+                + " GROUP BY " + selectFiled+",ad_position_type";
         List<JSObject> list = null;
         ShowNum showNum = null;
         try {
@@ -469,6 +474,7 @@ public class AppReport extends HttpServlet {
                     if (appId == null) appId = "";
                     countryCode = one.get("country_code");
                     if (countryCode == null) countryCode = "";
+                    adPositionType = one.get("ad_position_type");
                     showNum = new ShowNum();
                     showNum.totalNum = NumberUtil.convertDouble(one.get("total_num"),0);
                     showNum.totalNumReady = NumberUtil.convertDouble(one.get("total_num_ready"),0);
@@ -477,7 +483,7 @@ public class AppReport extends HttpServlet {
                     showNum.newTotalNumReady = NumberUtil.convertDouble(one.get("new_ready"),0);
                     showNum.newTotalNumReadyDivNewTotalNum = showNum.newTotalNum > 0 ? NumberUtil.trimDouble(showNum.newTotalNumReady / showNum.newTotalNum,4) : 0;
                     //不管应用和国家哪个是空串，都只看selectField
-                    map.put(eventDate + appId + countryCode,showNum);
+                    map.put(eventDate + appId + countryCode + adPositionType,showNum);
                 }
             }
         } catch (Exception e) {

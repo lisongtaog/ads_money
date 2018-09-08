@@ -394,12 +394,12 @@
         }
 
         if(isShowNum){ //是否显示展示机会，调用显示（只有不勾选adUnit的时候才显示）
-            columns.push({ data: 'total_num',"orderable":false });
-            columns.push({ data: 'total_num_ready',"orderable":false });
-            columns.push({ data: 'total_num_ready_div_total_num',"orderable":false });
-            columns.push({ data: 'new_total_num',"orderable":false });
-            columns.push({ data: 'new_total_num_ready',"orderable":false });
-            columns.push({ data: 'new_total_num_ready_div_new_total_num',"orderable":false });
+            columns.push({ data: 'full_total_chance',"orderable":false });
+            columns.push({ data: 'full_ready_chance',"orderable":false });
+            columns.push({ data: 'full_ready_chance_div_full_total_chance',"orderable":false });
+            columns.push({ data: 'native_total_chance',"orderable":false });
+            columns.push({ data: 'native_ready_chance',"orderable":false });
+            columns.push({ data: 'native_ready_chance_div_native_total_chance',"orderable":false });
         }
 
         if ($.fn.DataTable.isDataTable("#metricTable")) {
@@ -454,23 +454,23 @@
                 case "ctr":
                     value = "CTR";
                     break;
-                case "total_num":
-                    value = "TotalAdChance";
+                case "full_total_chance":
+                    value = "FullTotalAdChance";
                     break;
-                case "total_num_ready":
-                    value = "ReadyAdChance";
+                case "full_ready_chance":
+                    value = "FullReadyAdChance";
                     break;
-                case "total_num_ready_div_total_num":
-                    value = "TotalReadyRate";
+                case "full_ready_chance_div_full_total_chance":
+                    value = "FullTotalReadyRate";
                     break;
-                case "new_total_num":
-                    value = "NewTotalAdChance";
+                case "native_total_chance":
+                    value = "NativeTotalAdChance";
                     break;
-                case "new_total_num_ready":
-                    value = "NewReadyAdChance";
+                case "native_ready_chance":
+                    value = "NativeReadyAdChance";
                     break;
-                case "new_total_num_ready_div_new_total_num":
-                    value = "NewReadyRate";
+                case "native_ready_chance_div_native_total_chance":
+                    value = "NativeTotalReadyRate";
                     break;
             }
             $('#metricTable thead tr').append($('<th>' + value + '</th>'));
