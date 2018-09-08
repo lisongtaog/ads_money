@@ -454,9 +454,7 @@ public class AppReport extends HttpServlet {
             }
         }
         String sql = "SELECT " + selectFiled + ",ad_position_type,\n" +
-                "SUM(aas.num) AS total_num,SUM(aas.num_ready) AS total_num_ready,\n" +
-                "SUM(CASE WHEN aas.installed_date = aas.event_date THEN num ELSE 0 END) AS new_num,\n"+
-                "SUM(CASE WHEN aas.installed_date = aas.event_date THEN num_ready ELSE 0 END) AS new_ready\n" +
+                "SUM(aas.num) AS total_num,SUM(aas.num_ready) AS total_num_ready\n" +
                 "FROM app_ads_adchance_statistics aas\n" +
                 "WHERE aas.event_date between '" + startDate + "' AND '"+endDate + "'\n" +
                 (existAppIds ? "AND aas.app_id IN (" + appIds + ")\n" : "") +
@@ -479,9 +477,6 @@ public class AppReport extends HttpServlet {
                     showNum.totalNum = NumberUtil.convertDouble(one.get("total_num"),0);
                     showNum.totalNumReady = NumberUtil.convertDouble(one.get("total_num_ready"),0);
                     showNum.totalNumReadyDivTotalNum = showNum.totalNum > 0 ? NumberUtil.trimDouble(showNum.totalNumReady / showNum.totalNum,4) : 0;
-                    showNum.newTotalNum = NumberUtil.convertDouble(one.get("new_num"),0);
-                    showNum.newTotalNumReady = NumberUtil.convertDouble(one.get("new_ready"),0);
-                    showNum.newTotalNumReadyDivNewTotalNum = showNum.newTotalNum > 0 ? NumberUtil.trimDouble(showNum.newTotalNumReady / showNum.newTotalNum,4) : 0;
                     //不管应用和国家哪个是空串，都只看selectField
                     map.put(eventDate + appId + countryCode + adPositionType,showNum);
                 }
@@ -499,8 +494,5 @@ public class AppReport extends HttpServlet {
         public double totalNum;
         public double totalNumReady;
         public double totalNumReadyDivTotalNum;
-        public double newTotalNum;
-        public double newTotalNumReady;
-        public double newTotalNumReadyDivNewTotalNum;
     }
 }
