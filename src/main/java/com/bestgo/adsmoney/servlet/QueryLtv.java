@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "QueryLtv", urlPatterns = "/query_Ltv")
+@WebServlet(name = "QueryLtv", urlPatterns = "/query_ltv")
 public class QueryLtv extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
@@ -92,6 +92,7 @@ public class QueryLtv extends HttpServlet {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            System.out.println(array.toString());
             response.getWriter().write(array.toString());
         }
     }
