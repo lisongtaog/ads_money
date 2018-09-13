@@ -1,8 +1,8 @@
 package com.bestgo.adsmoney.servlet;
 
+import com.bestgo.adsmoney.bean.AppData;
 import com.bestgo.adsmoney.utils.NumberUtil;
 import com.bestgo.adsmoney.utils.Utils;
-import com.bestgo.adsmoney.bean.AppData;
 import com.bestgo.common.database.services.DB;
 import com.bestgo.common.database.utils.JSObject;
 import com.google.gson.JsonArray;
@@ -26,7 +26,7 @@ public class AppReport extends HttpServlet {
 
         if (path != null) {
             if (path.startsWith("/query")) {
-                String tableName = "app_daily_metrics_history";
+                String tableName = " app_daily_metrics_history u ";
 
                 List<AppData> appData = AppManagement.fetchAllAppData();
                 Map<String,String> adUnitMap = AdUnitManagement.fetchAllUnitName();
@@ -53,15 +53,15 @@ public class AppReport extends HttpServlet {
                             fields.add("date");
                             break;
                         case "2":
-                            fields.add("app_id");
+                            fields.add("u.app_id");
                             break;
                         case "3":
-                            tableName = "app_ad_unit_metrics_history";
-                            fields.add("ad_unit_id");
+                            tableName = " app_ad_unit_metrics_history u ";
+                            fields.add("u.ad_unit_id");
                             fields.add("ad_unit_name");
                             break;
                         case "4":
-                            fields.add("country_code");
+                            fields.add("u.country_code");
                             break;
                         case "5":
                             fields.add("ad_network");
@@ -90,8 +90,8 @@ public class AppReport extends HttpServlet {
                 String tagEcpmSql = "";
                 boolean isShowTagEcpm = false;//是否展示 target ecpm
                 //date app_id ad_unit_id 选择Dimension && 选择了app应用filter && ( 选择了Dimension OR 选择了国家filter)
-                if(fields.contains("date") && fields.contains("app_id") && fields.contains("ad_unit_id") && appIds.size() > 0
-                        && (fields.contains("country_code") || countryCodes.size() > 0)){
+                if(fields.contains("date") && fields.contains("u.app_id") && fields.contains("u.ad_unit_id") && appIds.size() > 0
+                        && (fields.contains("u.country_code") || countryCodes.size() > 0)){
                     isShowTagEcpm = true; //否展示 target ecpm 列
                     tableName = "app_ad_unit_metrics_history u \n";
                     //targetEcpm要有逗号拼接,顺序是从最近时间开始
@@ -127,7 +127,7 @@ public class AppReport extends HttpServlet {
                                 appIdsStr += "'" + appIds.get(i) + "'";
                             }
                         }
-                        sql += " and app_id in (" + appIdsStr + ")";
+                        sql += " and u.app_id in (" + appIdsStr + ")";
                     }
                     String countryCodesStr = "";
                     if (countryCodes.size() > 0) {
@@ -138,7 +138,7 @@ public class AppReport extends HttpServlet {
                                 countryCodesStr += "'" + countryCodes.get(i) + "'";
                             }
                         }
-                        sql += " and country_code in (" + countryCodesStr + ")";
+                        sql += " and u.country_code in (" + countryCodesStr + ")";
                     }
                     if (!ff.isEmpty()) {
                         sql += " group by " + ff;
@@ -148,7 +148,7 @@ public class AppReport extends HttpServlet {
 
                     sql = "select " +  (""!=ff ? ff + "," : "") + "ad_request,ad_filled,ad_impression,ad_click, ad_revenue " +
                             (isShowTagEcpm ? " ,IFNULL(tag_ecpm_current,tag_ecpm_pre) AS tag_ecpm " : "") +//没有当天的配置，则取在此之前配置的最新值
-                            "\nfrom (\n" + sql + " \n) d  ";
+                            "\nfrom (\n" + sql + " \n) u  ";
 
                     ArrayList<String> allFields = new ArrayList<>();//用于排序使用
                     allFields.addAll(fields); fields.remove("ad_unit_name");
@@ -161,14 +161,14 @@ public class AppReport extends HttpServlet {
                         if (order >= 1000) order = order - 1000;
                         String field = allFields.get(order);
                         if("ad_unit_name".equals(field)){
-                            field = "ad_unit_id";
+                            field = "u.ad_unit_id";
                         }
                         sql += " order by " + field +  (desc ? " desc" : " asc");
                     }
                     sql += " limit " + index * size + "," + size;
                     List<JSObject> list = DB.findListBySql(sql);
                     Map<String,ShowNum> showNumMap = null;
-                    if (!fields.contains("ad_unit_id") && fields.contains("date")) { //只有在没有AdUnit并且有date字段的时候才展示
+                    if (!fields.contains("u.ad_unit_id") && fields.contains("date")) { //只有在没有AdUnit并且有date字段的时候才展示
                         showNumMap = fetchShowNumMap(startDate,endDate,appIdsStr,countryCodesStr,fields);
                     }
                     Object tagEcpm = null;
@@ -176,30 +176,36 @@ public class AppReport extends HttpServlet {
                     String countryCode = null;
                     String appId = null;
                     String eventDate = null;
-                    ShowNum showNum = null;
+                    ShowNum fullShowNum = null;
+                    ShowNum nativeShowNum = null;
                     HashMap<String, String> countryMap = Utils.getCountryMap();
                     for (int i = 0; i < list.size(); i++) {
                         JSObject js = list.get(i);
                         JsonObject one = new JsonObject();
                         for (int ii = 0; ii < fields.size(); ii++) {
                             String f = fields.get(ii);
-                            String v = js.get(f).toString();
-                            if (f.equals("country_code")) {
+                            if (f.equals("u.country_code")) {
+                                String v = js.get("country_code").toString();
                                 String countryName = countryMap.get(v);
                                 one.addProperty("country_name", countryName == null ? v : countryName);
-                            } else if (f.equals("app_id")) {
+                                one.addProperty("country_code", v);
+                            } else if (f.equals("u.app_id")) {
+                                String v = js.get("app_id").toString();
                                 for (int jj = 0; jj < appData.size(); jj++) {
                                     if (appData.get(jj).appId.equals(v)) {
                                         one.addProperty("app_name", appData.get(jj).appName);
                                         break;
                                     }
                                 }
-                            }else if(f.equals("ad_unit_id")){
-                                //ad_unit_id ad_unit_name
+                                one.addProperty("app_id", v);
+                            }else if(f.equals("u.ad_unit_id")){
+                                String v = js.get("ad_unit_id").toString();
                                 one.addProperty("ad_unit_id", v);
                                 one.addProperty("ad_unit_name", adUnitMap.get(v));
+                            }else if(f.equals("date")){
+                                String v = js.get("date").toString();
+                                one.addProperty("date", v);
                             }
-                            one.addProperty(f, v);
                         }
                         if (showNumMap == null) {
                             one.addProperty("full_total_chance", 0);
@@ -208,31 +214,59 @@ public class AppReport extends HttpServlet {
                             one.addProperty("native_total_chance", 0);
                             one.addProperty("native_ready_chance",0);
                             one.addProperty("native_ready_chance_div_native_total_chance",0);
+                            one.addProperty("total_chance", 0);
+                            one.addProperty("ready_chance",0);
+                            one.addProperty("ready_chance_div_total_chance",0);
                         } else {
                             countryCode = js.get("country_code");
                             if (countryCode == null) countryCode = "";
                             appId = js.get("app_id");
                             if (appId == null) appId = "";
                             eventDate = js.get("date").toString();
-                            showNum = showNumMap.get(eventDate + appId + countryCode + 1);
-                            if (showNum == null) {
-                                one.addProperty("full_total_chance", 0);
-                                one.addProperty("full_ready_chance",0);
-                                one.addProperty("full_ready_chance_div_full_total_chance",0);
-                            }else {
-                                one.addProperty("full_total_chance", showNum.totalNum);
-                                one.addProperty("full_ready_chance",showNum.totalNumReady);
-                                one.addProperty("full_ready_chance_div_full_total_chance",showNum.totalNumReadyDivTotalNum);
-                            }
-                            showNum = showNumMap.get(eventDate + appId + countryCode + 2);
-                            if (showNum == null) {
+                            fullShowNum = showNumMap.get(eventDate + appId + countryCode + 1);
+                            nativeShowNum = showNumMap.get(eventDate + appId + countryCode + 2);
+                            if (nativeShowNum == null && fullShowNum == null) {
                                 one.addProperty("native_total_chance", 0);
                                 one.addProperty("native_ready_chance",0);
                                 one.addProperty("native_ready_chance_div_native_total_chance",0);
+                                one.addProperty("full_total_chance", 0);
+                                one.addProperty("full_ready_chance",0);
+                                one.addProperty("full_ready_chance_div_full_total_chance",0);
+                                one.addProperty("total_chance", 0);
+                                one.addProperty("ready_chance",0);
+                                one.addProperty("ready_chance_div_total_chance",0);
+                            }else if (nativeShowNum != null){
+                                one.addProperty("full_total_chance", 0);
+                                one.addProperty("full_ready_chance",0);
+                                one.addProperty("full_ready_chance_div_full_total_chance",0);
+                                one.addProperty("native_total_chance", nativeShowNum.totalNum);
+                                one.addProperty("native_ready_chance",nativeShowNum.totalNumReady);
+                                one.addProperty("native_ready_chance_div_native_total_chance",nativeShowNum.totalNumReadyDivTotalNum);
+                                one.addProperty("total_chance", nativeShowNum.totalNum);
+                                one.addProperty("ready_chance",nativeShowNum.totalNumReady);
+                                one.addProperty("ready_chance_div_total_chance",nativeShowNum.totalNumReadyDivTotalNum);
+                            }else if (fullShowNum != null){
+                                one.addProperty("full_total_chance", fullShowNum.totalNum);
+                                one.addProperty("full_ready_chance",fullShowNum.totalNumReady);
+                                one.addProperty("full_ready_chance_div_full_total_chance",fullShowNum.totalNumReadyDivTotalNum);
+                                one.addProperty("native_total_chance", 0);
+                                one.addProperty("native_ready_chance",0);
+                                one.addProperty("native_ready_chance_div_native_total_chance",0);
+                                one.addProperty("total_chance", fullShowNum.totalNum);
+                                one.addProperty("ready_chance",fullShowNum.totalNumReady);
+                                one.addProperty("ready_chance_div_total_chance",fullShowNum.totalNumReadyDivTotalNum);
                             }else {
-                                one.addProperty("native_total_chance", showNum.totalNum);
-                                one.addProperty("native_ready_chance",showNum.totalNumReady);
-                                one.addProperty("native_ready_chance_div_native_total_chance",showNum.totalNumReadyDivTotalNum);
+                                one.addProperty("full_total_chance", fullShowNum.totalNum);
+                                one.addProperty("full_ready_chance",fullShowNum.totalNumReady);
+                                one.addProperty("full_ready_chance_div_full_total_chance",fullShowNum.totalNumReadyDivTotalNum);
+                                one.addProperty("native_total_chance", nativeShowNum.totalNum);
+                                one.addProperty("native_ready_chance",nativeShowNum.totalNumReady);
+                                one.addProperty("native_ready_chance_div_native_total_chance",nativeShowNum.totalNumReadyDivTotalNum);
+                                nativeShowNum.totalNum += fullShowNum.totalNum;
+                                nativeShowNum.totalNumReady += fullShowNum.totalNumReady;
+                                one.addProperty("total_chance", nativeShowNum.totalNum);
+                                one.addProperty("ready_chance",nativeShowNum.totalNumReady);
+                                one.addProperty("ready_chance_div_total_chance",NumberUtil.trimDouble(nativeShowNum.totalNum > 0 ? nativeShowNum.totalNumReady / nativeShowNum.totalNum : 0,3));
                             }
                         }
 
@@ -446,10 +480,10 @@ public class AppReport extends HttpServlet {
         if (countryCodes != null && !countryCodes.isEmpty()) existCountryCodes = true;
         if (fields != null) {
             if (!fields.contains("date")) return map;
-            if (fields.contains("app_id")) {
+            if (fields.contains("u.app_id")) {
                 selectFiled += ",aas.app_id";
             }
-            if (fields.contains("country_code")) {
+            if (fields.contains("u.country_code")) {
                 selectFiled += ",aas.country_code";
             }
         }

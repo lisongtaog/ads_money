@@ -138,7 +138,7 @@
                                 <select  id="filterCountry" class="form-control select2 select2-hidden-accessible" multiple="" data-placeholder="Select country" style="width: 100%;" tabindex="-1" aria-hidden="true">
                                     <%
                                         for (String countryCode : countryMap.keySet()) {
-                                             String name = countryMap.get(countryCode);
+                                            String name = countryMap.get(countryCode);
                                     %>
                                     <option value="<%=countryCode%>"><%=name%></option>
                                     <%
@@ -313,21 +313,21 @@
 
     //Date range as a button
     $('#reportrange').daterangepicker(
-            {
-                ranges   : {
-                    'Today'       : [moment(), moment()],
-                    'Yesterday'   : [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
-                    'Last 7 Days' : [moment().subtract(6, 'days'), moment()],
-                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
-                    'This Month'  : [moment().startOf('month'), moment().endOf('month')],
-                    'Last Month'  : [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
-                },
-                startDate: moment().subtract(6, 'days'),
-                endDate  : moment()
+        {
+            ranges   : {
+                'Today'       : [moment(), moment()],
+                'Yesterday'   : [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days' : [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month'  : [moment().startOf('month'), moment().endOf('month')],
+                'Last Month'  : [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
             },
-            function (start, end) {
-                $('#reportrange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'))
-            }
+            startDate: moment().subtract(6, 'days'),
+            endDate  : moment()
+        },
+        function (start, end) {
+            $('#reportrange span').html(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'))
+        }
     );
 
     var start = moment().subtract(6, 'days');
@@ -366,6 +366,7 @@
             { data: 'ctr',"orderable":false },
         ];
         var isShowNum = true; //是否显示展示机会，调用显示（只有不勾选adUnit的时候才显示）
+        var existAdUnitId = false; //是否存在广告单元ID被选中
         for (var i = dimension.length - 1; i >= 0; i--) {
             switch (dimension[i]) {
                 case "1":
@@ -375,9 +376,10 @@
                     columns.unshift({data: 'app_name'});
                     break;
                 case "3":
+//                    columns.unshift({data: 'show_type'});
                     columns.unshift({data: 'ad_unit_name'});
-                    columns.unshift({data: 'ad_unit_id'});
                     isShowNum = false; //是否显示展示机会，调用显示（只有不勾选adUnit的时候才显示）
+                    existAdUnitId = true;
                     break;
                 case "4":
                     columns.unshift({data: 'country_name'});
@@ -392,8 +394,13 @@
         if("1,2,3" == dimStr && filter.length > 0 && (dimension[3]=="4" || filterCountry.length > 0)){
             columns.splice(-1, 0, { data: 'tag_ecpm',"orderable":false });
         }
-
+//        if (existAdUnitId) {
+//            columns.push({ data: 'show_type',"orderable":false });
+//        }
         if(isShowNum){ //是否显示展示机会，调用显示（只有不勾选adUnit的时候才显示）
+            columns.push({ data: 'total_chance',"orderable":false });
+            columns.push({ data: 'ready_chance',"orderable":false });
+            columns.push({ data: 'ready_chance_div_total_chance',"orderable":false });
             columns.push({ data: 'full_total_chance',"orderable":false });
             columns.push({ data: 'full_ready_chance',"orderable":false });
             columns.push({ data: 'full_ready_chance_div_full_total_chance',"orderable":false });
@@ -411,6 +418,9 @@
         for (var i = 0; i < columns.length; i++) {
             var value = "";
             switch (columns[i].data) {
+//                case "show_type":
+//                    value = "ShowType";
+//                    break;
                 case "ad_request":
                     value = "Request";
                     break;
@@ -439,9 +449,9 @@
                 case "app_name":
                     value = "App";
                     break;
-                case "ad_unit_id":
-                    value = "AppUnitId";
-                    break;
+//                case "ad_unit_id":
+//                    value = "AppUnitId";
+//                    break;
                 case "ad_unit_name":
                     value = "AppUnitName";
                     break;
@@ -454,6 +464,15 @@
                 case "ctr":
                     value = "CTR";
                     break;
+                case "total_chance":
+                    value = "TotalAdChance";
+                    break;
+                case "ready_chance":
+                    value = "ReadyAdChance";
+                    break;
+                case "ready_chance_div_total_chance":
+                    value = "ReadyRate";
+                    break;
                 case "full_total_chance":
                     value = "FullTotalAdChance";
                     break;
@@ -461,7 +480,7 @@
                     value = "FullReadyAdChance";
                     break;
                 case "full_ready_chance_div_full_total_chance":
-                    value = "FullTotalReadyRate";
+                    value = "FullReadyRate";
                     break;
                 case "native_total_chance":
                     value = "NativeTotalAdChance";
@@ -470,7 +489,7 @@
                     value = "NativeReadyAdChance";
                     break;
                 case "native_ready_chance_div_native_total_chance":
-                    value = "NativeTotalReadyRate";
+                    value = "NativeReadyRate";
                     break;
             }
             $('#metricTable thead tr').append($('<th>' + value + '</th>'));
@@ -502,11 +521,11 @@
                             );
                         }
                         callback(
-                                {
-                                    "recordsTotal": data.total,
-                                    "recordsFiltered": data.total,
-                                    "data": list
-                                }
+                            {
+                                "recordsTotal": data.total,
+                                "recordsFiltered": data.total,
+                                "data": list
+                            }
                         );
                     } else {
                         alert(data.msg);
@@ -520,7 +539,7 @@
                 extend: 'collection',
                 text: 'Export',
                 buttons: ['copy', 'excel', 'csv', 'pdf', 'print']
-                }],
+            }],
         });
 
         $.post("app_report/get", {
