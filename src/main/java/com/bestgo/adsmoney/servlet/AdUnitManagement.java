@@ -289,6 +289,38 @@ public class AdUnitManagement extends HttpServlet {
         }
         return rtnMap;
     }
+    public static Map<String,String> fetchAdUnitIdAdUnitTypeMap() {
+        Map<String,String> rtnMap = new HashMap<String,String>();
+        try {
+            String sql = "select DISTINCT ad_unit_id,ad_unit_type FROM app_ad_unit_config";
+            List<JSObject> result = DB.findListBySql(sql);
+            String adUnitId = null;
+            String adUnitType = null;
+            for (int i = 0; i < result.size(); i++) {
+                adUnitId = result.get(i).get("ad_unit_id");
+                adUnitType = result.get(i).get("ad_unit_type");
+                rtnMap.put(adUnitId,adUnitType);
+            }
+        } catch (Exception ex) {
+        }
+        return rtnMap;
+    }
+    public static Map<String,Integer> fetchAdUnitIdShowTypeMap() {
+        Map<String,String> rtnMap = new HashMap<String,String>();
+        try {
+            String sql = "select DISTINCT ad_unit_id,show_type FROM app_ad_unit_config";
+            List<JSObject> result = DB.findListBySql(sql);
+            String adUnitId = null;
+            Integer show_type = null;
+            for (int i = 0; i < result.size(); i++) {
+                adUnitId = result.get(i).get("ad_unit_id");
+                show_type = result.get(i).get("show_type");
+                rtnMap.put(adUnitId,show_type);
+            }
+        } catch (Exception ex) {
+        }
+        return rtnMap;
+    }
 
     public static Map<String,String> fetchAppIdByUnit() {
         Map<String,String> rtnMap = new HashMap<String,String>();
