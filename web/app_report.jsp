@@ -435,7 +435,7 @@
                     break;
                 case "ad_revenue":
                     value = "Revenue";
-//                    defaultOrder = i;
+                    defaultOrder = i;
                     break;
                 case "ecpm":
                     value = "ECPM";
