@@ -13,6 +13,7 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -22,6 +23,10 @@ import java.util.*;
 public class AppTrend extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         if (!Utils.isAdmin(request, response)) return;
+
+        //特殊用户标记
+        HttpSession session = request.getSession();
+        boolean isvisitor = session.getAttribute("isvisitor") == null ? false : true;
 
         String path = request.getPathInfo();
         JsonObject json = new JsonObject();
@@ -64,6 +69,12 @@ public class AppTrend extends HttpServlet {
                 if (filterCountry == null || filterCountry.isEmpty()) {
                     filterCountry = "";
                 }
+
+                //为特殊用户指定 特定应用
+                if ("".equals(filter) && isvisitor){
+                    filter = "beautycamera.photoeditorfilter.photogrid";
+                }
+
                 ArrayList<String> appIds = new ArrayList<>();
                 ArrayList<String> countryCodes = new ArrayList<>();
                 String[] filters = filter.split(",");

@@ -62,6 +62,7 @@
     <%
         Object isAdmin = session.getAttribute("isAdmin");
         Object isvisitor = session.getAttribute("isvisitor");
+        int selectMenuBar = 7;
         List<AppData> appDatas = new ArrayList<>();
         if (isAdmin != null) {
             appDatas = AppManagement.fetchAllAppData();
@@ -70,6 +71,7 @@
     <%
     } else if (isvisitor != null) {
         appDatas = AppManagement.fetchAllAppData(1);
+        selectMenuBar = 0;
     %>
     <%@include file="common/visitor_sidebar.jsp" %>
     <%
@@ -306,7 +308,7 @@
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.4.2/js/buttons.print.min.js"></script>
 
 <script>
-    $("li[role='menu_li']:eq(0)").addClass("active");
+    $("li[role='menu_li']:eq(<%=selectMenuBar%>)").addClass("active");
     $('.select2').select2();
     $('#txtEndDate').datepicker({
         format: 'yyyy-mm-dd',
@@ -374,8 +376,7 @@
                     if (data && data.ret == 1) {
                         var list = [];
                         for (var i = 0; i < data.data.length; i++) {
-                            list.push(data.data[i]
-                            );
+                            list.push(data.data[i]);
                         }
                         callback(
                             {
