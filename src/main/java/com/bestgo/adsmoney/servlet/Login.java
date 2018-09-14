@@ -19,12 +19,24 @@ public class Login extends HttpServlet {
         if ("admin".equals(user) && "admin123".equals(pass)) {
             HttpSession session = request.getSession();
             session.setAttribute("isAdmin", true);
-            Cookie cookie = new Cookie("JSESSIONID",session.getId());
+            Cookie cookie = new Cookie("JSESSIONID", session.getId());
             cookie.setPath("/");
             cookie.setMaxAge(-1);
             response.addCookie(cookie);
             JsonObject json = new JsonObject();
             json.addProperty("ret", 1);
+            json.addProperty("jsp", "index.jsp");
+            response.getWriter().write(json.toString());
+        } else if ("visitor".equals(user) && "visitor123".equals(pass)) {
+            HttpSession session = request.getSession();
+            session.setAttribute("isvisitor", true);
+            Cookie cookie = new Cookie("JSESSIONID", session.getId());
+            cookie.setPath("/");
+            cookie.setMaxAge(-1);
+            response.addCookie(cookie);
+            JsonObject json = new JsonObject();
+            json.addProperty("ret", 1);
+            json.addProperty("jsp", "app_trend.jsp");
             response.getWriter().write(json.toString());
         } else {
             JsonObject json = new JsonObject();

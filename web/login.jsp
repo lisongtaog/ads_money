@@ -103,7 +103,7 @@
             pass: userPass
         }, function (data) {
             if (data && data.ret == 1) {
-                location.href = "index.jsp";
+                location.href = data.jsp;
             } else {
                 $('#dlgLoginFailed').modal('show');
             }
