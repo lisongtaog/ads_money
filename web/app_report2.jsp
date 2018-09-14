@@ -416,13 +416,11 @@
         }
 
         $('#metricTable th').remove();
-        var defaultOrder = 0;
         for (var i = 0; i < columns.length; i++) {
             var value = "";
             switch (columns[i].data) {
                 case "show_type":
                     value = "ShowType";
-                    defaultOrder = i;
                     break;
                 case "ad_request":
                     value = "Request";
@@ -503,7 +501,8 @@
 
         $('#metricTable').DataTable({
             "ordering": true,
-//            "order": [[ defaultOrder, "desc" ]],
+            //这里是控制默认排序的
+            "order": [[ 0, "desc" ]],
             "processing": true,
             "serverSide": true,
             "searching": false,
