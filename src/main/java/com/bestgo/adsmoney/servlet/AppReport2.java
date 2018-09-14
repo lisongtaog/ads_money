@@ -105,6 +105,7 @@ public class AppReport2 extends HttpServlet {
                                 "(SELECT MAX(id) FROM app_ad_unit_target where app_id = u.app_id and ad_unit_id = u.ad_unit_id and country_code = u.country_code AND DATE(uploadtime) < u.date )\n" +
                                 ") AS tag_ecpm_pre \n";
                     }
+
                 }
                 try {
                     String sql = "select ";
@@ -173,6 +174,12 @@ public class AppReport2 extends HttpServlet {
                             field = "u.ad_unit_id";
                         }
                         sql += " order by " + field +  (desc ? " desc" : " asc");
+                        if (fields.contains("u.app_id") && !"u.app_id".equals(field)) {
+                            sql += ",u.app_id";
+                        }
+                        if (fields.contains("u.country_code") && !"u.country_code".equals(field)) {
+                            sql += ",u.country_code";
+                        }
                     }
                     if (existAdUnitId) {
                         sql += ",aauc.show_type asc";
