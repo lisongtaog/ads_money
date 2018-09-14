@@ -306,7 +306,7 @@ public class AdUnitManagement extends HttpServlet {
         return rtnMap;
     }
     public static Map<String,Integer> fetchAdUnitIdShowTypeMap() {
-        Map<String,String> rtnMap = new HashMap<String,String>();
+        Map<String,Integer> rtnMap = new HashMap<>();
         try {
             String sql = "select DISTINCT ad_unit_id,show_type FROM app_ad_unit_config";
             List<JSObject> result = DB.findListBySql(sql);
