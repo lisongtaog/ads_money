@@ -197,6 +197,7 @@
             "name": "show_type",
             "type": "select",
             "options": [
+                {label:"未分类",value:"9"},
                 {label:"Admob全屏高",value:"1"},{label:"Facebook全屏高",value:"2"},
                 {label:"Admob全屏低",value:"3"},{label:"Facebook全屏低",value:"4"},
                 {label:"AdmobNative高",value:"5"},{label:"FacebookNative高",value:"6"},
@@ -295,6 +296,8 @@
                         html = "AdmobNative低";
                     } else if ("8" == row.show_type) {
                         html = "FacebookNative低";
+                    } else if ("9" == row.show_type) {
+                        html = "未分类";
                     }
                     return html;
                 }
