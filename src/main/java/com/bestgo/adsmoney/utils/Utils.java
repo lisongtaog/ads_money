@@ -25,7 +25,8 @@ public class Utils {
         response.setContentType("application/json");
         HttpSession session = request.getSession();
         Object isAdmin = session.getAttribute("isAdmin");
-        if (isAdmin == null) {
+        Object isvisitor = session.getAttribute("isvisitor");
+        if (isAdmin == null && isvisitor == null) {
             JsonObject json = new JsonObject();
             json.addProperty("ret", 0);
             json.addProperty("message", "请先登录");
