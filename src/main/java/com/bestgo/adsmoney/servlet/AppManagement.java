@@ -183,7 +183,7 @@ public class AppManagement extends HttpServlet {
                     ret.result = true;
                     ret.message = "修改成功";
                     ret.data = new JsonObject();
-                    ret.data.addProperty("id", (long)one.get("id"));
+                    ret.data.addProperty("id", (long) one.get("id"));
                     ret.data.addProperty("app_id", appData.appId);
                     ret.data.addProperty("app_name", appData.appName);
                     ret.data.addProperty("fb_access_token", appData.fbAccessToken);
@@ -221,7 +221,7 @@ public class AppManagement extends HttpServlet {
                 ret.result = true;
                 ret.message = "修改成功";
                 ret.data = new JsonObject();
-                ret.data.addProperty("id", (long)one.get("id"));
+                ret.data.addProperty("id", (long) one.get("id"));
                 ret.data.addProperty("app_id", appData.appId);
                 ret.data.addProperty("app_name", appData.appName);
                 ret.data.addProperty("fb_access_token", appData.fbAccessToken);
@@ -239,21 +239,39 @@ public class AppManagement extends HttpServlet {
         return ret;
     }
 
-    public static List<AppData> fetchAllAppData() {
+    public static List<AppData> fetchAllAppData(int... isvisitor) {
+
         List<AppData> list = new ArrayList<>();
         try {
             List<JSObject> accounts = DB.scan("app_data").select(FIELDS).execute();
-            for (int i = 0; i < accounts.size(); i++) {
-                AppData one = new AppData();
-                one.id = accounts.get(i).get("id");
-                one.appId = accounts.get(i).get("app_id");
-                one.appName = accounts.get(i).get("app_name");
-                one.fbAccessToken = accounts.get(i).get("fb_access_token");
-                one.fbAppId = accounts.get(i).get("fb_app_id");
-                one.admobAccount = accounts.get(i).get("admob_account");
-                one.firebaseProjectId = accounts.get(i).get("firebase_project_id");
-                list.add(one);
+            if (isvisitor.length == 0) {
+                for (int i = 0; i < accounts.size(); i++) {
+                    AppData one = new AppData();
+                    one.id = accounts.get(i).get("id");
+                    one.appId = accounts.get(i).get("app_id");
+                    one.appName = accounts.get(i).get("app_name");
+                    one.fbAccessToken = accounts.get(i).get("fb_access_token");
+                    one.fbAppId = accounts.get(i).get("fb_app_id");
+                    one.admobAccount = accounts.get(i).get("admob_account");
+                    one.firebaseProjectId = accounts.get(i).get("firebase_project_id");
+                    list.add(one);
+                }
+            } else if (isvisitor.length == 1) {
+                for (int i = 0; i < accounts.size(); i++) {
+                    AppData one = new AppData();
+                    one.id = accounts.get(i).get("id");
+                    one.appId = accounts.get(i).get("app_id");
+                    one.appName = accounts.get(i).get("app_name");
+                    one.fbAccessToken = accounts.get(i).get("fb_access_token");
+                    one.fbAppId = accounts.get(i).get("fb_app_id");
+                    one.admobAccount = accounts.get(i).get("admob_account");
+                    one.firebaseProjectId = accounts.get(i).get("firebase_project_id");
+                    if ("CP-BeautyPhotoEditor".equalsIgnoreCase(one.appName)) {
+                        list.add(one);
+                    }
+                }
             }
+
         } catch (Exception ex) {
         }
         return list;

@@ -3,6 +3,7 @@
 <%@ page import="com.bestgo.adsmoney.servlet.AppManagement" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="com.bestgo.adsmoney.utils.Utils" %>
+<%@ page import="java.util.ArrayList" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <html>
@@ -15,7 +16,8 @@
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
     <!-- Bootstrap 3.3.7 -->
-    <link rel="stylesheet" href="http://money.uugame.info/admin_lte/bower_components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet"
+          href="http://money.uugame.info/admin_lte/bower_components/bootstrap/dist/css/bootstrap.min.css">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <!-- Ionicons -->
@@ -23,14 +25,18 @@
     <!-- jvectormap -->
     <link rel="stylesheet" href="http://money.uugame.info/admin_lte/bower_components/jvectormap/jquery-jvectormap.css">
     <!-- daterange picker -->
-    <link rel="stylesheet" href="http://money.uugame.info/admin_lte/bower_components/bootstrap-daterangepicker/daterangepicker.css">
+    <link rel="stylesheet"
+          href="http://money.uugame.info/admin_lte/bower_components/bootstrap-daterangepicker/daterangepicker.css">
     <!-- bootstrap datepicker -->
-    <link rel="stylesheet" href="http://money.uugame.info/admin_lte/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
+    <link rel="stylesheet"
+          href="http://money.uugame.info/admin_lte/bower_components/bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
     <!-- Select2 -->
     <link rel="stylesheet" href="http://money.uugame.info/admin_lte/bower_components/select2/dist/css/select2.min.css">
     <!-- DataTables -->
-    <link rel="stylesheet" href="http://money.uugame.info/admin_lte/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/buttons/1.4.1/css/buttons.dataTables.min.css">
+    <link rel="stylesheet"
+          href="http://money.uugame.info/admin_lte/bower_components/datatables.net-bs/css/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" type="text/css"
+          href="https://cdn.datatables.net/buttons/1.4.1/css/buttons.dataTables.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/select/1.2.2/css/select.dataTables.min.css">
 
     <!-- Theme style -->
@@ -54,16 +60,28 @@
 <div class="wrapper">
 
     <%
-        Object object = session.getAttribute("isAdmin");
-        if (object == null) {
+        Object isAdmin = session.getAttribute("isAdmin");
+        Object isvisitor = session.getAttribute("isvisitor");
+        List<AppData> appDatas = new ArrayList<>();
+        if (isAdmin != null) {
+            appDatas = AppManagement.fetchAllAppData();
+    %>
+    <%@include file="common/main_sidebar.jsp" %>
+    <%
+    } else if (isvisitor != null) {
+        appDatas = AppManagement.fetchAllAppData(1);
+    %>
+    <%@include file="common/visitor_sidebar.jsp" %>
+    <%
+        } else {
             response.sendRedirect("login.jsp");
         }
 
-        List<AppData> appDatas = AppManagement.fetchAllAppData();
+
         HashMap<String, String> countryMap = Utils.getCountryMap();
     %>
 
-    <%@include file="common/main_sidebar.jsp"%>
+    <%--<%@include file="common/main_sidebar.jsp"%>--%>
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
@@ -121,23 +139,29 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label>Filter</label>
-                                <select  id="filter" class="form-control select2 select2-hidden-accessible" multiple="" data-placeholder="Select app" style="width: 100%;" tabindex="-1" aria-hidden="true">
+                                <select id="filter" class="form-control select2 select2-hidden-accessible" multiple=""
+                                        data-placeholder="Select app" style="width: 100%;" tabindex="-1"
+                                        aria-hidden="true">
                                     <%
                                         for (int i = 0; i < appDatas.size(); i++) {
                                             AppData one = appDatas.get(i);
                                     %>
-                                    <option value="<%=one.appId%>"><%=one.appName%></option>
+                                    <option value="<%=one.appId%>"><%=one.appName%>
+                                    </option>
                                     <%
                                         }
                                     %>
                                 </select>
 
-                                <select  id="filterCountry" class="form-control select2 select2-hidden-accessible" multiple="" data-placeholder="Select country" style="width: 100%;" tabindex="-1" aria-hidden="true">
+                                <select id="filterCountry" class="form-control select2 select2-hidden-accessible"
+                                        multiple="" data-placeholder="Select country" style="width: 100%;" tabindex="-1"
+                                        aria-hidden="true">
                                     <%
                                         for (String countryCode : countryMap.keySet()) {
-                                             String name = countryMap.get(countryCode);
+                                            String name = countryMap.get(countryCode);
                                     %>
-                                    <option value="<%=countryCode%>"><%=name%></option>
+                                    <option value="<%=countryCode%>"><%=name%>
+                                    </option>
                                     <%
                                         }
                                     %>
@@ -238,7 +262,7 @@
     </div>
     <!-- /.content-wrapper -->
 
-    <%@include file="common/main_footer.jsp"%>
+    <%@include file="common/main_footer.jsp" %>
 
 </div>
 <!-- ./wrapper -->
@@ -272,9 +296,12 @@
 <!-- DataTables -->
 <script src="http://money.uugame.info/admin_lte/bower_components/datatables.net/js/jquery.dataTables.min.js"></script>
 <script src="http://money.uugame.info/admin_lte/bower_components/datatables.net-bs/js/dataTables.bootstrap.min.js"></script>
-<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/buttons/1.4.1/js/dataTables.buttons.min.js"></script>
-<script type="text/javascript" language="javascript" src="https://cdn.datatables.net/select/1.2.2/js/dataTables.select.min.js"></script>
-<script type="text/javascript" src="http://money.uugame.info/admin_lte/plugins/Editor-1.6.5/js/dataTables.editor.js"></script>
+<script type="text/javascript" language="javascript"
+        src="https://cdn.datatables.net/buttons/1.4.1/js/dataTables.buttons.min.js"></script>
+<script type="text/javascript" language="javascript"
+        src="https://cdn.datatables.net/select/1.2.2/js/dataTables.select.min.js"></script>
+<script type="text/javascript"
+        src="http://money.uugame.info/admin_lte/plugins/Editor-1.6.5/js/dataTables.editor.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.4.2/js/buttons.html5.min.js"></script>
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.4.2/js/buttons.print.min.js"></script>
 
@@ -287,11 +314,11 @@
     });
     $('#txtEndDate').datepicker('setDate', moment().subtract(0, 'days').format('YYYY-MM-DD'));
 
-    $('#btnQuery').click(function() {
+    $('#btnQuery').click(function () {
         queryData();
     });
 
-//    queryData();
+    //    queryData();
 
     var revenueChart;
 
@@ -302,26 +329,26 @@
         var period = $('#selPeriod').val();
 
         var columns = [
-            { data: 'date' },
-            { data: 'cost' },
-            { data: 'purchased_user' },
-            { data: 'total_installed' },
-            { data: 'total_uninstalled' },
-            { data: 'uninstalled_rate' },
-            { data: 'total_user' },
-            { data: 'total_user_trend' },
-            { data: 'active_user' },
-            { data: 'active_user_trend' },
-            { data: 'revenue' },
-            { data: 'revenue_trend' },
-            { data: 'arpu' },
-            { data: 'arpu_trend' },
-            { data: 'cpa' },
-            { data: 'ecpm' },
-            { data: 'cpa_div_ecpm' },
-            { data: 'avg_sum_impression' },
-            { data: 'incoming' },
-            { data: 'estimated_revenue' },
+            {data: 'date'},
+            {data: 'cost'},
+            {data: 'purchased_user'},
+            {data: 'total_installed'},
+            {data: 'total_uninstalled'},
+            {data: 'uninstalled_rate'},
+            {data: 'total_user'},
+            {data: 'total_user_trend'},
+            {data: 'active_user'},
+            {data: 'active_user_trend'},
+            {data: 'revenue'},
+            {data: 'revenue_trend'},
+            {data: 'arpu'},
+            {data: 'arpu_trend'},
+            {data: 'cpa'},
+            {data: 'ecpm'},
+            {data: 'cpa_div_ecpm'},
+            {data: 'avg_sum_impression'},
+            {data: 'incoming'},
+            {data: 'estimated_revenue'},
         ];
 
         if ($.fn.DataTable.isDataTable("#metricTable")) {
@@ -351,11 +378,11 @@
                             );
                         }
                         callback(
-                                {
-                                    "recordsTotal": data.total,
-                                    "recordsFiltered": data.total,
-                                    "data": list
-                                }
+                            {
+                                "recordsTotal": data.total,
+                                "recordsFiltered": data.total,
+                                "data": list
+                            }
                         );
                     } else {
                         alert(data.msg);
@@ -383,7 +410,7 @@
                 if (list.length > 0) {
                     var first = list[0];
                     var last = list[list.length - 1];
-                    $('#revenueChartTitle').text(new Date(last.date).toLocaleDateString()  + " - " + new Date(first.date).toLocaleDateString());
+                    $('#revenueChartTitle').text(new Date(last.date).toLocaleDateString() + " - " + new Date(first.date).toLocaleDateString());
 
                     var labels = [];
                     var incoming = [];
@@ -411,57 +438,57 @@
                     }
                     var chartConfig = {
                         'type': 'line',
-                        'data' : {
+                        'data': {
                             'labels': labels,
                             'datasets': [
                                 {
-                                    label               : 'TotalUser',
-                                    borderColor         : '#00c0ef',
+                                    label: 'TotalUser',
+                                    borderColor: '#00c0ef',
                                     fill: false,
-                                    data                : totalUser
+                                    data: totalUser
                                 },
                                 {
-                                    label               : 'Installed',
-                                    borderColor         : '#dd4b39',
+                                    label: 'Installed',
+                                    borderColor: '#dd4b39',
                                     fill: false,
-                                    data                : totalInstalled
+                                    data: totalInstalled
                                 },
                                 {
-                                    label               : 'Revenue',
-                                    borderColor         : '#00a65a',
+                                    label: 'Revenue',
+                                    borderColor: '#00a65a',
                                     fill: false,
-                                    data                : revenue
+                                    data: revenue
                                 },
                                 {
-                                    label               : 'ECPM',
-                                    borderColor         : '#f39c12',
+                                    label: 'ECPM',
+                                    borderColor: '#f39c12',
                                     fill: false,
-                                    data                : ecpm
+                                    data: ecpm
                                 },
                                 {
-                                    label               : 'ARPU',
-                                    borderColor         : '#0073b7',
+                                    label: 'ARPU',
+                                    borderColor: '#0073b7',
                                     fill: false,
-                                    data                : arpu
+                                    data: arpu
                                 },
                                 {
-                                    label               : 'CPA',
-                                    borderColor         : '#e842f4',
+                                    label: 'CPA',
+                                    borderColor: '#e842f4',
                                     fill: false,
-                                    data                : cpa
+                                    data: cpa
                                 },
                                 {
-                                    label               : 'Incoming',
-                                    borderColor         : '#0aff0a',
+                                    label: 'Incoming',
+                                    borderColor: '#0aff0a',
                                     fill: false,
-                                    data                : incoming
+                                    data: incoming
                                 },
                             ],
                         },
                         options: {
-                            scaleShowGridLines      : true,
-                            scaleGridLineWidth      : 1,
-                            legend : {
+                            scaleShowGridLines: true,
+                            scaleGridLineWidth: 1,
+                            legend: {
                                 position: 'bottom'
                             }
                         }
