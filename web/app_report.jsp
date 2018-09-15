@@ -361,9 +361,9 @@
             { data: 'ad_filled' },
             { data: 'ad_impression' },
             { data: 'ad_click' },
+            { data: 'ctr',"orderable":false },
             { data: 'ad_revenue' },
             { data: 'ecpm',"orderable":false },
-            { data: 'ctr',"orderable":false },
         ];
         var isShowNum = true; //是否显示展示机会，调用显示（只有不勾选adUnit的时候才显示）
         var existAdUnitId = false; //是否存在广告单元ID被选中
@@ -376,8 +376,8 @@
                     columns.unshift({data: 'app_name'});
                     break;
                 case "3":
-//                    columns.unshift({data: 'show_type'});
                     columns.unshift({data: 'ad_unit_name'});
+                    columns.unshift({data: 'ad_unit_id'});
                     isShowNum = false; //是否显示展示机会，调用显示（只有不勾选adUnit的时候才显示）
                     existAdUnitId = true;
                     break;
@@ -394,13 +394,15 @@
         if("1,2,3" == dimStr && filter.length > 0 && (dimension[3]=="4" || filterCountry.length > 0)){
             columns.splice(-1, 0, { data: 'tag_ecpm',"orderable":false });
         }
-//        if (existAdUnitId) {
-//            columns.push({ data: 'show_type',"orderable":false });
-//        }
-        if(isShowNum){ //是否显示展示机会，调用显示（只有不勾选adUnit的时候才显示）
-            columns.push({ data: 'total_chance',"orderable":false });
-            columns.push({ data: 'ready_chance',"orderable":false });
-            columns.push({ data: 'ready_chance_div_total_chance',"orderable":false });
+        if (existAdUnitId) {
+            columns.push({ data: 'show_type',"orderable":false });
+            columns.push({ data: 'show_type_impression',"orderable":false });
+        }
+
+        columns.push({ data: 'total_chance',"orderable":false });
+        columns.push({ data: 'ready_chance',"orderable":false });
+        columns.push({ data: 'ready_chance_div_total_chance',"orderable":false });
+        if (!existAdUnitId) {
             columns.push({ data: 'full_total_chance',"orderable":false });
             columns.push({ data: 'full_ready_chance',"orderable":false });
             columns.push({ data: 'full_ready_chance_div_full_total_chance',"orderable":false });
@@ -414,13 +416,12 @@
         }
 
         $('#metricTable th').remove();
-        var defaultOrder = 0;
         for (var i = 0; i < columns.length; i++) {
             var value = "";
             switch (columns[i].data) {
-//                case "show_type":
-//                    value = "ShowType";
-//                    break;
+                case "show_type":
+                    value = "ShowType";
+                    break;
                 case "ad_request":
                     value = "Request";
                     break;
@@ -435,13 +436,13 @@
                     break;
                 case "ad_revenue":
                     value = "Revenue";
-                    defaultOrder = i;
+
                     break;
                 case "ecpm":
                     value = "ECPM";
                     break;
                 case "tag_ecpm":
-                    value = "TAG_ECPM";
+                    value = "TargetECPM";
                     break;
                 case "date":
                     value = "Date";
@@ -449,11 +450,14 @@
                 case "app_name":
                     value = "App";
                     break;
-//                case "ad_unit_id":
-//                    value = "AppUnitId";
-//                    break;
+                case "ad_unit_id":
+                    value = "AppUnitId";
+                    break;
                 case "ad_unit_name":
                     value = "AppUnitName";
+                    break;
+                case "show_type_impression":
+                    value = "TypedImpression";
                     break;
                 case "country_name":
                     value = "Country";
@@ -497,7 +501,8 @@
 
         $('#metricTable').DataTable({
             "ordering": true,
-            "order": [[ defaultOrder, "desc" ]],
+            //这里是控制默认排序的
+            "order": [[ 0, "desc" ]],
             "processing": true,
             "serverSide": true,
             "searching": false,
