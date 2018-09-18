@@ -245,35 +245,54 @@ public class AppReport extends HttpServlet {
                             } else {
                                 showType = adUnitIdShowTypeMap.get(adUnitId);
                                 if (showType == null) {
-                                    showType = 9;
+                                    showType = 20;
                                 }
-                                if (showType >= 9) {
+
+                                if (showType >= 13) {
                                     one.addProperty("show_type", "未分类");
                                     one.addProperty("show_type_impression", "--");
 //                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + network + "9");
-                                }else if (showType >= 7) {
-                                    if (showType == 8) {
+                                }else if (showType >= 11) {
+                                    if (showType == 12) {
                                         one.addProperty("show_type", "FacebookNative低");
                                     }else {
                                         one.addProperty("show_type", "AdmobNative低");
                                     }
-                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + network + "D");
+                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + network + "F");
                                     if (totalImpression == null) totalImpression = 0D;
                                     one.addProperty("show_type_impression", totalImpression);
-                                } else if (showType >= 5) {
-                                    if (showType == 6) {
+                                } else if (showType >= 9) {
+                                    if (showType == 10) {
+                                        one.addProperty("show_type", "FacebookNative中");
+                                    }else {
+                                        one.addProperty("show_type", "AdmobNative中");
+                                    }
+                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + network + "E");
+                                    if (totalImpression == null) totalImpression = 0D;
+                                    one.addProperty("show_type_impression", totalImpression);
+                                }else if (showType >= 7) {
+                                    if (showType == 8) {
                                         one.addProperty("show_type", "FacebookNative高");
                                     }else {
                                         one.addProperty("show_type", "AdmobNative高");
+                                    }
+                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + network + "D");
+                                    if (totalImpression == null) totalImpression = 0D;
+                                    one.addProperty("show_type_impression", totalImpression);
+                                }  else if (showType >= 5) {
+                                    if (showType == 6) {
+                                        one.addProperty("show_type", "Facebook全屏低");
+                                    }else {
+                                        one.addProperty("show_type", "Admob全屏低");
                                     }
                                     totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + network + "C");
                                     if (totalImpression == null) totalImpression = 0D;
                                     one.addProperty("show_type_impression", totalImpression);
                                 }else if (showType >= 3) {
                                     if (showType == 4) {
-                                        one.addProperty("show_type", "Facebook全屏低");
+                                        one.addProperty("show_type", "Facebook全屏中");
                                     }else {
-                                        one.addProperty("show_type", "Admob全屏低");
+                                        one.addProperty("show_type", "Admob全屏中");
                                     }
                                     totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + network + "B");
                                     if (totalImpression == null) totalImpression = 0D;
@@ -593,7 +612,7 @@ public class AppReport extends HttpServlet {
         String date = null;
         String countryCode = null;
         String appId = null;
-        Integer showType = 9;
+        Integer showType = 20;
         double impression = 0;
         Double totalImpression = null;
         String network = null;
@@ -610,17 +629,31 @@ public class AppReport extends HttpServlet {
                 }catch (Exception e) {
                   e.printStackTrace();
                 }
-                if (showType == null) showType = 9;
+                if (showType == null) showType = 20;
                 network = js.get("ad_network");
                 key = date + appId + countryCode + network;
                 impression = NumberUtil.convertDouble(js.get("ad_impression"),0);
-                if (showType >= 9) {
-//                    totalImpression = map.get(key + "9");
+                if (showType >= 13) {
+//                    totalImpression = map.get(key + "20");
 //                    if (totalImpression == null) {
-//                        map.put(key + "9",impression);
+//                        map.put(key + "20",impression);
 //                    } else {
-//                        map.put(key + "9",impression + totalImpression);
+//                        map.put(key + "20",impression + totalImpression);
 //                    }
+                } else if (showType >= 11) {
+                    totalImpression = map.get(key + "F");
+                    if (totalImpression == null) {
+                        map.put(key + "F",impression);
+                    } else {
+                        map.put(key + "F",impression + totalImpression);
+                    }
+                } else if (showType >= 9) {
+                    totalImpression = map.get(key + "E");
+                    if (totalImpression == null) {
+                        map.put(key + "E",impression);
+                    } else {
+                        map.put(key + "E",impression + totalImpression);
+                    }
                 } else if (showType >= 7) {
                     totalImpression = map.get(key + "D");
                     if (totalImpression == null) {

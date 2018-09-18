@@ -197,11 +197,13 @@
             "name": "show_type",
             "type": "select",
             "options": [
-                {label:"未分类",value:"9"},
+                {label:"未分类",value:"20"},
                 {label:"Admob全屏高",value:"1"},{label:"Facebook全屏高",value:"2"},
-                {label:"Admob全屏低",value:"3"},{label:"Facebook全屏低",value:"4"},
-                {label:"AdmobNative高",value:"5"},{label:"FacebookNative高",value:"6"},
-                {label:"AdmobNative低",value:"7"},{label:"FacebookNative低",value:"8"}
+                {label:"Admob全屏中",value:"3"},{label:"Facebook全屏中",value:"4"},
+                {label:"Admob全屏低",value:"5"},{label:"Facebook全屏低",value:"6"},
+                {label:"AdmobNative高",value:"7"},{label:"FacebookNative高",value:"8"},
+                {label:"AdmobNative中",value:"9"},{label:"FacebookNative中",value:"10"},
+                {label:"AdmobNative低",value:"11"},{label:"FacebookNative低",value:"12"}
             ]
         }, {
             "label": "Flag:",
@@ -280,24 +282,45 @@
                 "targets":4,
                 render: function(data, type, row) {
                     var html = "";
-                    if ("1" == row.show_type) {
-                        html = "Admob全屏高";
-                    } else if ("2" == row.show_type) {
-                        html = "Facebook全屏高";
-                    } else if ("3" == row.show_type) {
-                        html = "Admob全屏低";
-                    } else if ("4" == row.show_type) {
-                        html = "Facebook全屏低";
-                    } else if ("5" == row.show_type) {
-                        html = "AdmobNative高";
-                    } else if ("6" == row.show_type) {
-                        html = "FacebookNative高";
-                    } else if ("7" == row.show_type) {
-                        html = "AdmobNative低";
-                    } else if ("8" == row.show_type) {
-                        html = "FacebookNative低";
-                    } else if ("9" == row.show_type) {
-                        html = "未分类";
+                    switch (row.show_type) {
+                        case "1":
+                            html = "Admob全屏高";
+                            break;
+                        case "2":
+                            html = "Facebook全屏高";
+                            break;
+                        case "3":
+                            html = "Admob全屏中";
+                            break;
+                        case "4":
+                            html = "Facebook全屏中";
+                            break;
+                        case "5":
+                            html = "Admob全屏低";
+                            break;
+                        case "6":
+                            html = "Facebook全屏低";
+                            break;
+                        case "7":
+                            html = "AdmobNative高";
+                            break;
+                        case "8":
+                            html = "FacebookNative高";
+                            break;
+                        case "9":
+                            html = "AdmobNative中";
+                            break;
+                        case "10":
+                            html = "FacebookNative中";
+                            break;
+                        case "11":
+                            html = "AdmobNative低";
+                            break;
+                        case "12":
+                            html = "FacebookNative低";
+                            break;
+                        default:
+                            html = "未分类"
                     }
                     return html;
                 }
