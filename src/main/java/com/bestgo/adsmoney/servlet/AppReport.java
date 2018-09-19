@@ -195,7 +195,7 @@ public class AppReport extends HttpServlet {
                     if (fields.contains("date")) { //只有在有date字段的时候才展示
                         showNumMap = fetchShowNumMap(startDate,endDate,appIdsStr,countryCodesStr,fields);
                         if (existAdUnitId) {
-                            adUnitImpressionMap = fetchAdUnitImpressionMap(list);
+                            adUnitImpressionMap = fetchAdUnitImpressionMap(list,dimension);
                         }
                     }
                     Object tagEcpm = null;
@@ -208,6 +208,7 @@ public class AppReport extends HttpServlet {
                     Integer showType = null;
                     Double totalImpression = null;
                     String network = null;
+                    String keyNetwerk = null;
                     HashMap<String, String> countryMap = Utils.getCountryMap();
                     for (int i = 0; i < list.size(); i++) {
                         JSObject js = list.get(i);
@@ -221,6 +222,11 @@ public class AppReport extends HttpServlet {
                         network = js.get("ad_network");
                         if (network == null) network = "";
                         one.addProperty("ad_network", network);
+                        if (dimension.contains("ad_network")) {
+                            keyNetwerk = network;
+                        } else {
+                            keyNetwerk = "";
+                        }
                         if (fields.contains("u.app_id")) {
                             for (int jj = 0; jj < appData.size(); jj++) {
                                 if (appData.get(jj).appId.equals(appId)) {
@@ -251,14 +257,14 @@ public class AppReport extends HttpServlet {
                                 if (showType >= 13) {
                                     one.addProperty("show_type", "未分类");
                                     one.addProperty("show_type_impression", "--");
-//                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + network + "9");
+//                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + keyNetwerk + "9");
                                 }else if (showType >= 11) {
                                     if (showType == 12) {
                                         one.addProperty("show_type", "FacebookNative低");
                                     }else {
                                         one.addProperty("show_type", "AdmobNative低");
                                     }
-                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + network + "F");
+                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + keyNetwerk + "F");
                                     if (totalImpression == null) totalImpression = 0D;
                                     one.addProperty("show_type_impression", totalImpression);
                                 } else if (showType >= 9) {
@@ -267,7 +273,7 @@ public class AppReport extends HttpServlet {
                                     }else {
                                         one.addProperty("show_type", "AdmobNative中");
                                     }
-                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + network + "E");
+                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + keyNetwerk + "E");
                                     if (totalImpression == null) totalImpression = 0D;
                                     one.addProperty("show_type_impression", totalImpression);
                                 }else if (showType >= 7) {
@@ -276,7 +282,7 @@ public class AppReport extends HttpServlet {
                                     }else {
                                         one.addProperty("show_type", "AdmobNative高");
                                     }
-                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + network + "D");
+                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + keyNetwerk + "D");
                                     if (totalImpression == null) totalImpression = 0D;
                                     one.addProperty("show_type_impression", totalImpression);
                                 }  else if (showType >= 5) {
@@ -285,7 +291,7 @@ public class AppReport extends HttpServlet {
                                     }else {
                                         one.addProperty("show_type", "Admob全屏低");
                                     }
-                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + network + "C");
+                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + keyNetwerk + "C");
                                     if (totalImpression == null) totalImpression = 0D;
                                     one.addProperty("show_type_impression", totalImpression);
                                 }else if (showType >= 3) {
@@ -294,7 +300,7 @@ public class AppReport extends HttpServlet {
                                     }else {
                                         one.addProperty("show_type", "Admob全屏中");
                                     }
-                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + network + "B");
+                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + keyNetwerk + "B");
                                     if (totalImpression == null) totalImpression = 0D;
                                     one.addProperty("show_type_impression", totalImpression);
                                 }else if (showType >= 1) {
@@ -303,7 +309,7 @@ public class AppReport extends HttpServlet {
                                     }else {
                                         one.addProperty("show_type", "Admob全屏高");
                                     }
-                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + network + "A");
+                                    totalImpression = adUnitImpressionMap.get(eventDate + appId + countryCode + keyNetwerk + "A");
                                     if (totalImpression == null) totalImpression = 0D;
                                     one.addProperty("show_type_impression", totalImpression);
                                 }
@@ -605,7 +611,7 @@ public class AppReport extends HttpServlet {
      * @param list  Group by 是date + (appId) + (countryCode) + (adNetwork) + showType
      * @return
      */
-    private Map<String,Double> fetchAdUnitImpressionMap(List<JSObject> list){
+    private Map<String,Double> fetchAdUnitImpressionMap(List<JSObject> list,String dimension){
         Map<String,Double> map = new HashMap<>();
         JSObject js = null;
         String key = null;
@@ -630,7 +636,13 @@ public class AppReport extends HttpServlet {
                   e.printStackTrace();
                 }
                 if (showType == null) showType = 20;
-                network = js.get("ad_network");
+
+                if (dimension.contains("ad_network")) {
+                    network = js.get("ad_network");
+                    if (network == null) network = "";
+                }else {
+                    network = "";
+                }
                 key = date + appId + countryCode + network;
                 impression = NumberUtil.convertDouble(js.get("ad_impression"),0);
                 if (showType >= 13) {
