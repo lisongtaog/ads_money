@@ -162,7 +162,7 @@ public class AppReport extends HttpServlet {
 
                     ArrayList<String> allFields = new ArrayList<>();//用于排序使用
                     allFields.addAll(fields); fields.remove("ad_unit_name");
-                    allFields.addAll(Arrays.asList("ad_request","ad_filled","ad_impression","ad_click","ad_revenue","ecpm","ctr"));
+                    allFields.addAll(Arrays.asList("ad_request","ad_filled","ad_impression","ad_click","ctr","ad_revenue","ecpm"));
                     if(isShowTagEcpm){
                         allFields.add(allFields.size()-1,"tag_ecpm");
                     }
