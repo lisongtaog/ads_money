@@ -90,6 +90,7 @@ public class QueryCampaignUnInstallRateStatistics extends HttpServlet {
                         jsonObject.addProperty("countryCode",split[2]);
                         jsonObject.addProperty("campaignName",split[3]);
                         jsonObject.addProperty("uninstallRate",campaignUninstall.uninstallRate);
+                        jsonObject.addProperty("installNum",campaignUninstall.installNum);
                         array.add(jsonObject);
                     }
                 }
