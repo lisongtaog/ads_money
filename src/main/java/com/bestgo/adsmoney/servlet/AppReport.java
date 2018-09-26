@@ -217,16 +217,20 @@ public class AppReport extends HttpServlet {
                         if (countryCode == null) countryCode = "";
                         appId = js.get("app_id");
                         if (appId == null) appId = "";
-                        eventDate = js.get("date").toString();
-                        one.addProperty("date", eventDate);
+                        if (fields.contains("date")) {
+                            eventDate = js.get("date").toString();
+                            one.addProperty("date", eventDate);
+                        }
+                        if (eventDate == null) eventDate = "";
                         network = js.get("ad_network");
                         if (network == null) network = "";
                         one.addProperty("ad_network", network);
-                        if (dimension.contains("ad_network")) {
+                        if (dimension.contains("5")) {
                             keyNetwerk = network;
                         } else {
                             keyNetwerk = "";
                         }
+
                         if (fields.contains("u.app_id")) {
                             for (int jj = 0; jj < appData.size(); jj++) {
                                 if (appData.get(jj).appId.equals(appId)) {
@@ -637,7 +641,7 @@ public class AppReport extends HttpServlet {
                 }
                 if (showType == null) showType = 20;
 
-                if (dimension.contains("ad_network")) {
+                if (dimension.contains("5")) {
                     network = js.get("ad_network");
                     if (network == null) network = "";
                 }else {
