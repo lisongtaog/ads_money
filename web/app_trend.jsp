@@ -245,8 +245,8 @@
                             <th>ActiveUserTrend</th>
                             <th>Revenue</th>
                             <th>RevenueTrend</th>
-                            <th>ARPU*10000</th>
-                            <th>ARPUTrend</th>
+                            <%--<th>ARPU*10000</th>--%>
+                            <%--<th>ARPUTrend</th>--%>
                             <th>CPA</th>
                             <th>ECPM</th>
                             <th>CPA/ECPM</th>
@@ -343,8 +343,8 @@
             {data: 'active_user_trend'},
             {data: 'revenue'},
             {data: 'revenue_trend'},
-            {data: 'arpu'},
-            {data: 'arpu_trend'},
+//            {data: 'arpu'},
+//            {data: 'arpu_trend'},
             {data: 'cpa'},
             {data: 'ecpm'},
             {data: 'cpa_div_ecpm'},
@@ -421,7 +421,7 @@
                     var totalInstalled = [];
                     var revenue = [];
                     var ecpm = [];
-                    var arpu = [];
+//                    var arpu = [];
                     var cpa = [];
                     for (var i = list.length - 1; i >= 0; i--) {
                         var one = list[i];
@@ -433,7 +433,7 @@
                         totalInstalled.push(one.total_installed);
                         revenue.push(one.revenue);
                         ecpm.push(one.ecpm);
-                        arpu.push(one.arpu);
+//                        arpu.push(one.arpu);
                         cpa.push(one.cpa);
                         incoming.push(one.incoming);
                     }
@@ -466,12 +466,12 @@
                                     fill: false,
                                     data: ecpm
                                 },
-                                {
-                                    label: 'ARPU',
-                                    borderColor: '#0073b7',
-                                    fill: false,
-                                    data: arpu
-                                },
+//                                {
+//                                    label: 'ARPU',
+//                                    borderColor: '#0073b7',
+//                                    fill: false,
+//                                    data: arpu
+//                                },
                                 {
                                     label: 'CPA',
                                     borderColor: '#e842f4',

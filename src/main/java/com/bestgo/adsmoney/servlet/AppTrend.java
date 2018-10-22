@@ -175,7 +175,7 @@ public class AppTrend extends HttpServlet {
                         one.todayUninstalled = todayUninstalled;
                         one.totalUser = totalUser;
                         one.activeUser = activeUser;
-                        one.arpu = one.activeUser > 0 ? (float)(one.revenue / one.activeUser) : 0;
+//                        one.arpu = one.activeUser > 0 ? (float)(one.revenue / one.activeUser) : 0;
                         one.uninstallRate = one.totalInstalled > 0 ? (one.todayUninstalled * 1.0f / one.totalInstalled) : 0;
                     }
 
@@ -363,7 +363,7 @@ public class AppTrend extends HttpServlet {
                         one.impression += tmpDataList.get(i).impression;
                         one.avgSumImpression += tmpDataList.get(i).avgSumImpression;
                         one.cpa = one.purchasedUser > 0 ? one.cost / one.purchasedUser : 0;
-                        one.arpu = one.activeUser > 0 ? (float)(one.revenue / one.activeUser) : 0;
+//                        one.arpu = one.activeUser > 0 ? (float)(one.revenue / one.activeUser) : 0;
                         one.uninstallRate = one.totalInstalled > 0 ? (one.todayUninstalled * 1.0f / one.totalInstalled) : 0;
                         one.ecpm = one.impression > 0 ? one.revenue / one.impression : 0;
                         one.cpaDivEcpm = one.ecpm > 0 ? one.cpa / one.ecpm : 0;
@@ -390,9 +390,9 @@ public class AppTrend extends HttpServlet {
                             if (two.revenue > 0) {
                                 one.revenueTrend = Utils.trimFloat((float)((one.revenue - two.revenue) / two.revenue));
                             }
-                            if (two.arpu > 0) {
-                                one.arpuTrend = Utils.trimFloat((one.arpu - two.arpu) / two.arpu);
-                            }
+//                            if (two.arpu > 0) {
+//                                one.arpuTrend = Utils.trimFloat((one.arpu - two.arpu) / two.arpu);
+//                            }
                         }
                     }
                     JsonArray array = new JsonArray();
@@ -421,8 +421,8 @@ public class AppTrend extends HttpServlet {
                         jsonObject.addProperty("active_user_trend", appMonitorMetrics.activeUserTrend);
                         jsonObject.addProperty("revenue", NumberUtil.trimDouble(appMonitorMetrics.revenue,3));
                         jsonObject.addProperty("revenue_trend", appMonitorMetrics.revenueTrend);
-                        jsonObject.addProperty("arpu", NumberUtil.trimDouble(appMonitorMetrics.arpu * 10000,3));
-                        jsonObject.addProperty("arpu_trend", appMonitorMetrics.arpuTrend);
+//                        jsonObject.addProperty("arpu", NumberUtil.trimDouble(appMonitorMetrics.arpu * 10000,3));
+//                        jsonObject.addProperty("arpu_trend", appMonitorMetrics.arpuTrend);
 
                         jsonObject.addProperty("total_uninstalled", appMonitorMetrics.totalUninstalled);
                         jsonObject.addProperty("uninstalled_rate", NumberUtil.trimDouble(appMonitorMetrics.uninstallRate,3));
