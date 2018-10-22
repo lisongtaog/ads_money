@@ -31,4 +31,6 @@ public class AppMonitorMetrics {
     public long recommendInstalled;
     public double avgSumImpression;
     public double cpaDivEcpm;
+    public double sumRevenue;
+    public double sumCost;
 }
