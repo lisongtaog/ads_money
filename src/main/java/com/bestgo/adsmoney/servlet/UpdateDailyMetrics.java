@@ -28,9 +28,10 @@ public class UpdateDailyMetrics extends HttpServlet {//供money_tools调用使�
                         " from app_ad_unit_metrics_history d " +
                         " where date = '" + date + "' group by date, app_id, ad_network, country_code";
                 DB.updateBySql(sql);
-                String yesterday = DateUtil.addDay(date,-1,"yyyy-MM-dd");
                 sql = "UPDATE app_daily_metrics_history a,\n" +
-                        "(SELECT app_id,country_code,ad_network,sum_ad_revenue FROM app_daily_metrics_history WHERE date = '"+yesterday+"' GROUP BY app_id,country_code,ad_network) b\n" +
+                        "(SELECT h.app_id,h.country_code,h.ad_network,h.sum_ad_revenue FROM app_daily_metrics_history h,\n" +
+                        "(SELECT app_id,country_code,ad_network,MAX(date) AS before_date FROM app_daily_metrics_history WHERE date < '"+date+"') m \n" +
+                        "WHERE h.date = m.before_date GROUP BY h.app_id,h.country_code,h.ad_network) b\n" +
                         "SET a.sum_ad_revenue = a.ad_revenue + b.sum_ad_revenue WHERE a.date = '"+date+"' AND a.app_id = b.app_id AND a.country_code = b.country_code AND a.ad_network = b.ad_network";
                 DB.updateBySql(sql);
                 response.getWriter().write("ok");

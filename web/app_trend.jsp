@@ -235,7 +235,6 @@
                         <tr>
                             <th>Date</th>
                             <th>Cost</th>
-                            <th>SumCost</th>
                             <th>PurchasedUser</th>
                             <th>Installed</th>
                             <th>UnInstalled</th>
@@ -245,7 +244,6 @@
                             <th>ActiveUser</th>
                             <th>ActiveUserTrend</th>
                             <th>Revenue</th>
-                            <th>SumRevenue</th>
                             <th>RevenueTrend</th>
                             <%--<th>ARPU*10000</th>--%>
                             <%--<th>ARPUTrend</th>--%>
@@ -254,6 +252,8 @@
                             <th>CPA/ECPM</th>
                             <th>AvgSumImpression</th>
                             <th>Incoming</th>
+                            <th>SumCost</th>
+                            <th>SumRevenue</th>
                             <th>LTV</th>
                         </tr>
                         </thead>
@@ -335,7 +335,6 @@
         var columns = [
             {data: 'date'},
             {data: 'cost'},
-            {data: 'sumCost'},
             {data: 'purchased_user'},
             {data: 'total_installed'},
             {data: 'total_uninstalled'},
@@ -345,7 +344,6 @@
             {data: 'active_user'},
             {data: 'active_user_trend'},
             {data: 'revenue'},
-            {data: 'sumRevenue'},
             {data: 'revenue_trend'},
 //            {data: 'arpu'},
 //            {data: 'arpu_trend'},
@@ -354,6 +352,8 @@
             {data: 'cpa_div_ecpm'},
             {data: 'avg_sum_impression'},
             {data: 'incoming'},
+            {data: 'sumCost'},
+            {data: 'sumRevenue'},
             {data: 'estimated_revenue'},
         ];
 
