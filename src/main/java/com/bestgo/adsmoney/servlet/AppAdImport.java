@@ -34,6 +34,7 @@ public class AppAdImport extends HttpServlet {//投放系统admanager_tools 请�
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String token = req.getParameter("token");
+        String date = req.getParameter("date");
         if ("iLoveMoney".equals(token)) {
             resp.getWriter().write("ok");
 
@@ -41,13 +42,13 @@ public class AppAdImport extends HttpServlet {//投放系统admanager_tools 请�
             executors.submit(new Runnable() {
                 @Override
                 public void run() {
-                    updateToDB(body);
+                    updateToDB(body,date);
                 }
             });
         }
     }
 
-    private void updateToDB(String body) {
+    private void updateToDB(String body,String date) {
         Type listType = new TypeToken<List<AppAdsDailyMetrics>>() {}.getType();
         List<AppAdsDailyMetrics> list = new Gson().fromJson(body, listType);
         for (int i = 0; i < list.size(); i++) {
@@ -85,6 +86,16 @@ public class AppAdImport extends HttpServlet {//投放系统admanager_tools 请�
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
+        }
+        try {
+            DB.updateBySql("UPDATE app_ads_daily_metrics_history a,\n" +
+                    "(SELECT h.app_id,h.country_code,h.ad_network,h.sum_spend FROM app_ads_daily_metrics_history h,\n" +
+                    "(SELECT app_id,country_code,ad_network,MAX(date) AS before_date FROM app_ads_daily_metrics_history WHERE date < '"+date+"') m \n" +
+                    "WHERE h.date = m.before_date GROUP BY h.app_id,h.country_code,h.ad_network) b\n" +
+                    "SET a.sum_spend = a.spend + b.sum_spend WHERE a.date = '"+date+"' AND a.app_id = b.app_id AND a.country_code = b.country_code AND a.ad_network = b.ad_network");
+            DB.updateBySql("UPDATE app_ads_daily_metrics_history SET sum_spend = spend WHERE date = '"+date+"' and sum_spend = 0");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         System.out.println("updateToDB finished");
     }
