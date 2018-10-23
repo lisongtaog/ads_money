@@ -34,6 +34,7 @@ public class UpdateDailyMetrics extends HttpServlet {//供money_tools调用使�
                         "WHERE h.date = m.before_date GROUP BY h.app_id,h.country_code,h.ad_network) b\n" +
                         "SET a.sum_ad_revenue = a.ad_revenue + b.sum_ad_revenue WHERE a.date = '"+date+"' AND a.app_id = b.app_id AND a.country_code = b.country_code AND a.ad_network = b.ad_network";
                 DB.updateBySql(sql);
+                DB.updateBySql("UPDATE app_daily_metrics_history SET sum_ad_revenue = ad_revenue WHERE date = '"+date+"' AND sum_ad_revenue = 0");
                 response.getWriter().write("ok");
             } catch (Exception e) {
                 e.printStackTrace();
