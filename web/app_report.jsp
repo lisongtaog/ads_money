@@ -3,6 +3,7 @@
 <%@ page import="com.bestgo.adsmoney.servlet.AppManagement" %>
 <%@ page import="java.util.HashMap" %>
 <%@ page import="com.bestgo.adsmoney.utils.Utils" %>
+<%@ page import="java.util.ArrayList" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
 <html>
@@ -54,16 +55,28 @@
 <div class="wrapper">
 
     <%
-        Object object = session.getAttribute("isAdmin");
-        if (object == null) {
+        Object isAdmin = session.getAttribute("isAdmin");
+        Object isvisitor = session.getAttribute("isvisitor");
+        int selectMenuBar = 8;
+        List<AppData> appDatas = new ArrayList<>();
+        if (isAdmin != null) {
+            appDatas = AppManagement.fetchAllAppData();
+    %>
+    <%@include file="common/main_sidebar.jsp" %>
+    <%
+    } else if (isvisitor != null) {
+        appDatas = AppManagement.fetchAllAppData(1);
+        selectMenuBar = 1;
+    %>
+    <%@include file="common/visitor_sidebar.jsp" %>
+    <%
+        } else {
             response.sendRedirect("login.jsp");
         }
 
-        List<AppData> appDatas = AppManagement.fetchAllAppData();
+
         HashMap<String, String> countryMap = Utils.getCountryMap();
     %>
-
-    <%@include file="common/main_sidebar.jsp"%>
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
@@ -308,7 +321,7 @@
 <script type="text/javascript" src="https://cdn.datatables.net/buttons/1.4.2/js/buttons.print.min.js"></script>
 
 <script>
-    $("li[role='menu_li']:eq(8)").addClass("active");
+    $("li[role='menu_li']:eq(<%=selectMenuBar%>)").addClass("active");
     $('.select2').select2();
 
     //Date range as a button

@@ -38,7 +38,12 @@
                     <span>App Trend</span>
                 </a>
             </li>
-
+            <li role="menu_li">
+                <a href="app_report.jsp">
+                    <i class="fa fa-folder"></i>
+                    <span>App Report</span>
+                </a>
+            </li>
         </ul>
     </section>
     <!-- /.sidebar -->
