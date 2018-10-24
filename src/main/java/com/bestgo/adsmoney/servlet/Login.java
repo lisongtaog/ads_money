@@ -27,7 +27,7 @@ public class Login extends HttpServlet {
             json.addProperty("ret", 1);
             json.addProperty("jsp", "index.jsp");
             response.getWriter().write(json.toString());
-        } else if ("visitor".equals(user) && "visitor123".equals(pass)) {
+        } else if ("game".equals(user) && "supergame".equals(pass)) {
             HttpSession session = request.getSession();
             session.setAttribute("isvisitor", true);
             Cookie cookie = new Cookie("JSESSIONID", session.getId());

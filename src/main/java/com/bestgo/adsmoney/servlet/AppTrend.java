@@ -72,7 +72,11 @@ public class AppTrend extends HttpServlet {
 
                 //为特殊用户指定 特定应用
                 if ("".equals(filter) && isvisitor){
-                    filter = "beautycamera.photoeditorfilter.photogrid";
+                    filter = "com.solitaire.free.lj1," +
+                            "com.collection.card.free," +
+                            "com.ancient_card.free," +
+                            "com.pyramid_card.free," +
+                            "com.solitaire_star.card.free";
                 }
 
                 ArrayList<String> appIds = new ArrayList<>();
