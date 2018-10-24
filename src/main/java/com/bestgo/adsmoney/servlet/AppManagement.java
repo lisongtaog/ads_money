@@ -257,6 +257,11 @@ public class AppManagement extends HttpServlet {
                     list.add(one);
                 }
             } else if (isvisitor.length == 1) {
+                String filter = "com.solitaire.free.lj1," +
+                        "com.collection.card.free," +
+                        "com.ancient_card.free," +
+                        "com.pyramid_card.free," +
+                        "com.solitaire_star.card.free";
                 for (int i = 0; i < accounts.size(); i++) {
                     AppData one = new AppData();
                     one.id = accounts.get(i).get("id");
@@ -266,7 +271,7 @@ public class AppManagement extends HttpServlet {
                     one.fbAppId = accounts.get(i).get("fb_app_id");
                     one.admobAccount = accounts.get(i).get("admob_account");
                     one.firebaseProjectId = accounts.get(i).get("firebase_project_id");
-                    if ("CP-BeautyPhotoEditor".equalsIgnoreCase(one.appName)) {
+                    if (filter.contains(one.appId)) {
                         list.add(one);
                     }
                 }
