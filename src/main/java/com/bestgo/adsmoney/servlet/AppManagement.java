@@ -261,7 +261,10 @@ public class AppManagement extends HttpServlet {
                         "com.collection.card.free," +
                         "com.ancient_card.free," +
                         "com.pyramid_card.free," +
-                        "com.solitaire_star.card.free";
+                        "com.solitaire_star.card.free," +
+                        "com.sudoku.four.mobidev," +
+                        "com.chess.one.mobidev," +
+                        "com.solitaire.yang1.freecards";
                 for (int i = 0; i < accounts.size(); i++) {
                     AppData one = new AppData();
                     one.id = accounts.get(i).get("id");
