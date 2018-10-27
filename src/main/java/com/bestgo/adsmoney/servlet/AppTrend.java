@@ -76,7 +76,10 @@ public class AppTrend extends HttpServlet {
                             "com.collection.card.free," +
                             "com.ancient_card.free," +
                             "com.pyramid_card.free," +
-                            "com.solitaire_star.card.free";
+                            "com.solitaire_star.card.free," +
+                            "com.sudoku.four.mobidev," +
+                            "com.chess.one.mobidev," +
+                            "com.solitaire.yang1.freecards";
                 }
 
                 ArrayList<String> appIds = new ArrayList<>();
