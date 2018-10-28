@@ -16,7 +16,7 @@ public class Login extends HttpServlet {
         String user = request.getParameter("user");
         String pass = request.getParameter("pass");
 
-        if ("admin".equals(user) && "admin123".equals(pass)) {
+        if ("money999".equals(user) && "money999".equals(pass)) {
             HttpSession session = request.getSession();
             session.setAttribute("isAdmin", true);
             Cookie cookie = new Cookie("JSESSIONID", session.getId());

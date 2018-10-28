@@ -1,13 +1,10 @@
 package com.bestgo.adsmoney.servlet;
 
-import com.bestgo.adsmoney.bean.AppData;
 import com.bestgo.adsmoney.utils.Utils;
 import com.bestgo.common.database.services.DB;
 import com.bestgo.common.database.utils.JSObject;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.sun.deploy.config.DefaultConfig;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -18,9 +15,9 @@ import java.io.IOException;
 import java.util.*;
 
 /**
- * Desc: 活跃用户、展示收益数据同步接口
- * Auth: maliang
- * Date: 2018/7/12 17:40
+ * @author mengjun
+ * @date 2018/8/6 11:05
+ * @desc 活跃用户、展示收益数据同步接口
  */
 @WebServlet(name = "InterActiveUserAndImpressionSta", urlPatterns = {"/interStaSync/*"})
 public class InterActiveUserAndImpressionSta extends HttpServlet {
@@ -46,12 +43,13 @@ public class InterActiveUserAndImpressionSta extends HttpServlet {
             return;
         }
         String token = request.getParameter("token");
-        String startDate = request.getParameter("startDate");
-        String endDate = request.getParameter("endDate");
         //常规业务逻辑
         if ("iLoveMoney".equals(token)) {
+            String startDate = request.getParameter("startDate");
+            String endDate = request.getParameter("endDate");
+            String appId = request.getParameter("appId");
             if (path.startsWith("/activeUser")) {//活跃用户
-                jsonArray = queryActiveUser(startDate,endDate);
+                jsonArray = queryActiveUser(startDate,endDate,appId);
             }else if(path.startsWith("/revenue")){//展示次数及收益
                 jsonArray = queryRevenue(startDate,endDate);
             }
@@ -64,19 +62,20 @@ public class InterActiveUserAndImpressionSta extends HttpServlet {
      * 查询已经拉取的系列活跃用户
      * @param startDate 统计日期开始时间
      * @param endDate 统计日期结束时间
+     * @param appId
      * @return
      */
-    private JsonArray queryActiveUser(String startDate,String endDate) {
+    private JsonArray queryActiveUser(String startDate,String endDate,String appId) {
         JsonArray jArray = new JsonArray();
         try {
-            List<JSObject> jsList = fetchCampaignActiveUserByEventDate(startDate, endDate);
+            List<JSObject> jsList = fetchCampaignActiveUserByEventDate(startDate, endDate,appId);
             for (int i = 0,len = jsList.size();i < len;i++) {
                 JSObject js = jsList.get(i);
                 if (js.hasObjectData()) {
                     JsonObject json = new JsonObject();
                     json.addProperty("installed_date",js.get("installed_date").toString());
                     json.addProperty("event_date",js.get("event_date").toString());
-                    json.addProperty("app_id",js.get("app_id").toString());
+                    json.addProperty("app_id",appId);
                     json.addProperty("campaign_name",js.get("campaign_name").toString());
                     json.addProperty("country_code",js.get("country_code").toString());
                     json.addProperty("active_num", Utils.convertDouble(js.get("active_num"), 0));
@@ -126,17 +125,19 @@ public class InterActiveUserAndImpressionSta extends HttpServlet {
         return jArray;
     }
 
+
     /**
      * 根据事件日期日期区间获取系列活跃用户数
      * @param startDate
      * @param endDate
+     * @param appId
      * @return
      * @throws Exception
      */
-    private List<JSObject> fetchCampaignActiveUserByEventDate(String startDate,String endDate) throws Exception {
+    private List<JSObject> fetchCampaignActiveUserByEventDate(String startDate,String endDate,String appId) throws Exception {
         String sql = "SELECT installed_date,event_date,app_id,campaign_name,country_code,active_num \n" +
                 "FROM app_campaign_active_user_statistics\n" +
-                "WHERE event_date BETWEEN '" + startDate + "' AND '" + endDate + "'";
+                "WHERE event_date BETWEEN '" + startDate + "' AND '" + endDate + "' AND app_id = '"+appId+"'";
         List<JSObject> list = DB.findListBySql(sql);
         return list;
     }
