@@ -32,11 +32,12 @@ public class InterQueryBuyUserDailyRevenue extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String token = request.getParameter("token");
         String installDate = request.getParameter("date");
+        String appId = request.getParameter("appId");
 
         JsonArray jsonArray = new JsonArray();
         if ("iLoveMoney".equals(token)) {
             try {
-                //key=installDate:appId:countryCode,value=RevenueItem
+                //key=installDate:countryCode,value=RevenueItem
                 HashMap<String, RevenueItem> map = new HashMap<>();
                 RevenueItem revenueItem = null;
                 String key = null;
@@ -45,21 +46,20 @@ public class InterQueryBuyUserDailyRevenue extends HttpServlet {
                     String secondDay = DateUtil.addDay(currInstallDate,1,"yyyy-MM-dd");
                     String thirdDay = DateUtil.addDay(currInstallDate,2,"yyyy-MM-dd");
                     String fourthDay = DateUtil.addDay(currInstallDate,3,"yyyy-MM-dd");
-                    System.out.println(currInstallDate + "," + secondDay + "," + thirdDay + "," + fourthDay);
+//                    System.out.println(currInstallDate + "," + secondDay + "," + thirdDay + "," + fourthDay);
                     //计算在某个安装日期内（的某个应用在某个国家中）的每展示日期总收入
-                    String sql = "SELECT event_date,app_id,country_code,sum(revenue) AS total_revenue FROM app_ads_buy_impressions_statistics " +
+                    String sql = "SELECT event_date,country_code,sum(revenue) AS total_revenue FROM app_ads_buy_impressions_statistics " +
                             "WHERE installed_date = '" + currInstallDate + "' " +
-                            "and event_date >= '" + currInstallDate + "' and event_date <= '" + installDate + "' " +
-                            "GROUP BY event_date,app_id,country_code order by event_date";
+                            "and event_date >= '" + currInstallDate + "' and event_date <= '" + installDate + "' and app_id = '" + appId + "' " +
+                            "GROUP BY event_date,country_code order by event_date";
                     List<JSObject> revenueList = DB.findListBySql(sql);
 
                     for (int j =0;j<revenueList.size();j++){
                         JSObject js = revenueList.get(j);
                         String eventDate = js.get("event_date").toString();
-                        String appId = js.get("app_id");
                         String countryCode = js.get("country_code");
                         double totalRevenue = js.get("total_revenue");
-                        key = currInstallDate + ":" + appId + ":" + countryCode;
+                        key = currInstallDate + ":" + countryCode;
                         revenueItem = map.get(key);
                         if (revenueItem == null) {
                             revenueItem = new RevenueItem();
@@ -83,8 +83,8 @@ public class InterQueryBuyUserDailyRevenue extends HttpServlet {
                         String[] split = currKey.split(":");
                         RevenueItem item = entry.getValue();
                         js.addProperty("install_date",split[0]);
-                        js.addProperty("app_id",split[1]);
-                        js.addProperty("country_code",split[2]);
+                        js.addProperty("app_id",appId);
+                        js.addProperty("country_code",split[1]);
                         js.addProperty("first_day_revenue",item.first_day_revenue);
                         js.addProperty("second_day_revenue",item.second_day_revenue);
                         js.addProperty("third_day_revenue",item.third_day_revenue);
