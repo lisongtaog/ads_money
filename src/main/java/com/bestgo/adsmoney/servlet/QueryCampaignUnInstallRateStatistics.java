@@ -33,6 +33,7 @@ public class QueryCampaignUnInstallRateStatistics extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String token = request.getParameter("token");
         String installedDate = request.getParameter("installedDate");
+        String appId = request.getParameter("appId");
         String threeDaysAgoInstalledDate = DateUtil.addDay(installedDate,-3,"yyyy-MM-dd");
 
         HashMap<String, CampaignUninstall> campaignUninstallMap = new HashMap<>();
@@ -46,7 +47,7 @@ public class QueryCampaignUnInstallRateStatistics extends HttpServlet {
                         "FROM app_campaign_uninstall_statistics\n" +
                         "WHERE installed_date BETWEEN '" + threeDaysAgoInstalledDate + "' AND '" + installedDate + "'\n" +
                         "AND event_date BETWEEN installed_date AND DATE_ADD(installed_date,INTERVAL 1 DAY)\n" +
-                        "AND event_name = 'app_remove'\n" +
+                        "AND event_name = 'app_remove' AND app_id = '"+appId+"'\n" +
                         "GROUP BY installed_date,app_id,country_code,campaign_name";
                 list = DB.findListBySql(sql);
                 JSObject one = null;
@@ -54,7 +55,7 @@ public class QueryCampaignUnInstallRateStatistics extends HttpServlet {
                     one = list.get(i);
                     if (one.hasObjectData()) {
                         campaignUninstall = new CampaignUninstall();
-                        key = one.get("installed_date").toString() + ":" + one.get("app_id") + ":" + one.get("country_code") + ":" + one.get("campaign_name");
+                        key = one.get("installed_date").toString() + ":" + one.get("country_code") + ":" + one.get("campaign_name");
                         campaignUninstall.uninstallNum = NumberUtil.convertDouble(one.get("two_days_uninstall_sum"),0);
                         campaignUninstallMap.put(key,campaignUninstall);
                     }
@@ -62,13 +63,13 @@ public class QueryCampaignUnInstallRateStatistics extends HttpServlet {
                 sql = "SELECT installed_date,app_id,country_code,campaign_name,SUM(user_num) AS install_sum \n" +
                         "FROM app_campaign_uninstall_statistics\n" +
                         "WHERE installed_date BETWEEN '" + threeDaysAgoInstalledDate + "' AND '" + installedDate + "'\n" +
-                        "AND event_name = 'first_open'\n" +
+                        "AND event_name = 'first_open' and app_id = '"+appId+"'\n" +
                         "GROUP BY installed_date,app_id,country_code,campaign_name";
                 list = DB.findListBySql(sql);
                 for (int i = 0,len = list.size();i < len; i++) {
                     one = list.get(i);
                     if (one.hasObjectData()) {
-                        key = one.get("installed_date").toString() + ":" + one.get("app_id") + ":" + one.get("country_code") + ":" + one.get("campaign_name");
+                        key = one.get("installed_date").toString() + ":" + one.get("country_code") + ":" + one.get("campaign_name");
                         campaignUninstall = campaignUninstallMap.get(key);
                         if (campaignUninstall == null) {
                             campaignUninstall = new CampaignUninstall();
@@ -86,9 +87,9 @@ public class QueryCampaignUnInstallRateStatistics extends HttpServlet {
                         campaignUninstall = entry.getValue();
                         String[] split = key.split(":");
                         jsonObject.addProperty("installedDate",split[0]);
-                        jsonObject.addProperty("appId",split[1]);
-                        jsonObject.addProperty("countryCode",split[2]);
-                        jsonObject.addProperty("campaignName",split[3]);
+                        jsonObject.addProperty("appId",appId);
+                        jsonObject.addProperty("countryCode",split[1]);
+                        jsonObject.addProperty("campaignName",split[2]);
                         jsonObject.addProperty("uninstallRate",campaignUninstall.uninstallRate);
                         jsonObject.addProperty("installNum",campaignUninstall.installNum);
                         array.add(jsonObject);
