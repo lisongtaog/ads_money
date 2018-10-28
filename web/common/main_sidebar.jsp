@@ -84,6 +84,7 @@
                     <span>App Trend</span>
                 </a>
             </li>
+
             <%-- id为4-7  end--%>
 
             <%-- id为8-12  start--%>
@@ -153,6 +154,22 @@
             </li>
             <%-- id为13-17  end--%>
 
+            <%-- id为18-19  start--%>
+            <li role="menu_li">
+                <a href="game_trend_old.jsp">
+                    <i class="fa fa-superpowers"></i>
+                    <span>Game Trend(old)</span>
+                </a>
+            </li>
+            <%-- id为18-19  end--%>
+
+
+            <li role="menu_li">
+                <a href="game_trend.jsp">
+                    <i class="fa fa-superpowers"></i>
+                    <span>Game Trend(new)</span>
+                </a>
+            </li>
         </ul>
     </section>
     <!-- /.sidebar -->
