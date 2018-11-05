@@ -147,7 +147,7 @@ public class AppTrend extends HttpServlet {
                         }
                         appMonitorMetrics.date = date;
                         appMonitorMetrics.revenue = revenue;
-                        appMonitorMetrics.sumRevenue = sumRevenue;
+//                        appMonitorMetrics.sumRevenue = sumRevenue;
                         appMonitorMetrics.impression = impression;
                         appMonitorMetrics.ecpm = impression > 0 ? revenue / impression : 0;
                     }
@@ -265,12 +265,38 @@ public class AppTrend extends HttpServlet {
                         }
                         appMonitorMetrics.date = date;
                         appMonitorMetrics.cost = cost;
-                        appMonitorMetrics.sumCost = sumCost;
+//                        appMonitorMetrics.sumCost = sumCost;
                         appMonitorMetrics.purchasedUser = purchasedUser;
                         appMonitorMetrics.cpa = appMonitorMetrics.purchasedUser > 0 ? appMonitorMetrics.cost / appMonitorMetrics.purchasedUser : 0;
                         appMonitorMetrics.incoming = appMonitorMetrics.revenue - appMonitorMetrics.cost;
                         appMonitorMetrics.cpaDivEcpm = appMonitorMetrics.ecpm > 0 ? appMonitorMetrics.cpa / appMonitorMetrics.ecpm : 0;
                     }
+
+                    sql = "select date, sum(sum_cost) as sum_cost, sum(sum_revenue) as sum_ad_revenue\n" +
+                            "from web_app_country_sum_cost_revenue\n" +
+                            "where date between '" + startDate + "' and '" + endDate + "' \n" +
+                            (appIds.size() > 0 ?  appIdPart : "") +
+                            (countryCodes.size() > 0 ?  countryCodePart : "") +
+                            "GROUP BY date";
+                    list = DB.findListBySql(sql);
+
+                    for (int i = 0; i < list.size(); i++) {
+                        jsObject = list.get(i);
+                        Date date = list.get(i).get("date");
+                        double sumCost = Utils.convertDouble(jsObject.get("sum_cost"), 0); //累计花费
+                        double sumRevenue = Utils.trimDouble(Utils.convertDouble(jsObject.get("sum_ad_revenue"), 0)); //累计收入
+                        appMonitorMetrics = metricsMap.get(date);
+                        if (appMonitorMetrics == null) {
+                            appMonitorMetrics = new AppMonitorMetrics();
+                            metricsMap.put(date, appMonitorMetrics);
+                            tmpDataList.add(appMonitorMetrics);
+                        }
+                        appMonitorMetrics.date = date;
+                        appMonitorMetrics.sumCost = sumCost;
+                        appMonitorMetrics.sumRevenue = sumRevenue;
+                    }
+
+
 
                     /*sql = "select date, action, sum(value) as value " +
                             "from app_recommend_daily_history " +
