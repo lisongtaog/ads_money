@@ -35,7 +35,12 @@
 		username 数据库用户名 password 数据库密码 -->
 
 	<Resource name="jdbc/mysql" auth="Container" type="javax.sql.DataSource"
-			  driverClassName="com.mysql.jdbc.Driver" url="jdbc:mysql://localhost/ads_money?characterEncoding=UTF-8&amp;noAccessToProcedureBodies=true"
-			  username="money" password="money1234" maxIdle="10" minIdle="1" maxWait="10000" maxActive="30"
+			  driverClassName="com.mysql.jdbc.Driver" url="jdbc:mysql://localhost/ads_money?characterEncoding=UTF-8&amp;noAccessToProcedureBodies=true&amp;useSSL=false"
+			  username="root" password="131409040112" maxIdle="10" minIdle="1" maxWait="10000" maxActive="30"
 			  validationQuery="select 1" initialSize="1" testOnBorrow="true"/>
+
+
+			  <!--driverClassName="com.mysql.jdbc.Driver" url="jdbc:mysql://localhost/ads_moeny?characterEncoding=UTF-8&amp;noAccessToProcedureBodies=true"-->
+			  <!--username="root" password="root" maxIdle="10" minIdle="1" maxWait="10000" maxActive="30"-->
+			  <!--validationQuery="select 1" initialSize="1" testOnBorrow="true"/>-->
 </Context>
